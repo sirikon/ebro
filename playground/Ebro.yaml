@@ -1,0 +1,21 @@
+tasks:
+  default:
+    script: |
+      echo cache/A.txt
+      echo cache/B.txt
+
+  produce_a:
+    requires: [cache_dir]
+    required_by: [default]
+    script: echo 'this is A'>cache/A.txt
+    skip_if: test -f cache/A.txt
+
+  produce_b:
+    requires: [cache_dir]
+    required_by: [default]
+    script: echo 'this is A'>cache/A.txt
+    skip_if: test -f cache/A.txt
+
+  cache_dir:
+    script: mkdir -p cache
+    skip_if: test -d cache
