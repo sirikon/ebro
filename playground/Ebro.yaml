@@ -1,3 +1,9 @@
+imports:
+  something:
+    from: ./somewhere
+    generated:
+      script: hoho
+
 tasks:
   default:
     script: |

@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	module, err := config.ParseFile("Ebro.yaml")
+	module, err := config.DiscoverModule()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
