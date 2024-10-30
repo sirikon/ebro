@@ -15,13 +15,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	resolveDag(module, func(s string) error {
-		fmt.Println("=== " + s)
-		return nil
-	})
+	dagOutput := resolveDag(module)
+	for _, task := range dagOutput.Tasks {
+		fmt.Println("=== " + task)
+	}
 }
 
-func resolveDag(module *config.Module, cb func(string) error) {
+func resolveDag(module *config.Module) dag.Output {
 	input := dag.Input{Tasks: make(map[string]dag.Task)}
 	for name, task := range module.Tasks {
 		input.Tasks[name] = dag.Task{
@@ -29,5 +29,5 @@ func resolveDag(module *config.Module, cb func(string) error) {
 			RequiredBy: task.RequiredBy,
 		}
 	}
-	dag.Resolve(input, cb)
+	return dag.Resolve(input)
 }
