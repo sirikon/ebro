@@ -8,7 +8,7 @@ import (
 
 	"github.com/sirikon/ebro/cmd/ebro/cli"
 	"github.com/sirikon/ebro/internal/config"
-	"github.com/sirikon/ebro/internal/dag"
+	"github.com/sirikon/ebro/internal/planner"
 )
 
 func main() {
@@ -40,13 +40,13 @@ func main() {
 	}
 }
 
-func makePlan(module *config.Module) dag.Plan {
-	input := dag.Input{Steps: make(map[string]dag.Step)}
+func makePlan(module *config.Module) planner.Plan {
+	input := planner.Input{Steps: make(map[string]planner.Step)}
 	for name, step := range module.Tasks {
-		input.Steps[name] = dag.Step{
+		input.Steps[name] = planner.Step{
 			Requires:   step.Requires,
 			RequiredBy: step.RequiredBy,
 		}
 	}
-	return dag.Resolve(input)
+	return planner.MakePlan(input)
 }

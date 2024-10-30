@@ -1,4 +1,4 @@
-package dag
+package planner
 
 import "slices"
 
@@ -15,7 +15,7 @@ type Step struct {
 	RequiredBy []string
 }
 
-func Resolve(input Input) Plan {
+func MakePlan(input Input) Plan {
 	result := Plan{}
 
 	index := make(map[string][]string)
