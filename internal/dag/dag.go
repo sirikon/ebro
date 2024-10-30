@@ -3,26 +3,26 @@ package dag
 import "slices"
 
 type Input struct {
-	Tasks map[string]Task
+	Steps map[string]Step
 }
 
-type Output struct {
-	Tasks []string
+type Plan struct {
+	Steps []string
 }
 
-type Task struct {
+type Step struct {
 	Requires   []string
 	RequiredBy []string
 }
 
-func Resolve(input Input) Output {
-	result := Output{}
+func Resolve(input Input) Plan {
+	result := Plan{}
 
 	index := make(map[string][]string)
 
-	for name, task := range input.Tasks {
-		index[name] = append(index[name], task.Requires...)
-		for _, parent := range task.RequiredBy {
+	for name, step := range input.Steps {
+		index[name] = append(index[name], step.Requires...)
+		for _, parent := range step.RequiredBy {
 			index[parent] = append(index[parent], name)
 		}
 	}
@@ -32,7 +32,7 @@ func Resolve(input Input) Output {
 		shouldContinue = false
 		for name, requires := range index {
 			if len(requires) == 0 {
-				result.Tasks = append(result.Tasks, name)
+				result.Steps = append(result.Steps, name)
 				delete(index, name)
 				for parent := range index {
 					i := slices.Index(index[parent], name)

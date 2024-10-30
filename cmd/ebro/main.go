@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"gopkg.in/yaml.v3"
+
+	"github.com/sirikon/ebro/cmd/ebro/cli"
 	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/dag"
 )
@@ -15,18 +18,34 @@ func main() {
 		os.Exit(1)
 	}
 
-	dagOutput := resolveDag(module)
-	for _, task := range dagOutput.Tasks {
-		fmt.Println("=== " + task)
+	arguments := cli.Parse()
+
+	if arguments.Flags.Config {
+		bytes, err := yaml.Marshal(module)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		fmt.Println(string(bytes))
+		return
+	}
+
+	plan := makePlan(module)
+
+	if arguments.Flags.Plan {
+		for _, step := range plan.Steps {
+			fmt.Println(step)
+		}
+		return
 	}
 }
 
-func resolveDag(module *config.Module) dag.Output {
-	input := dag.Input{Tasks: make(map[string]dag.Task)}
-	for name, task := range module.Tasks {
-		input.Tasks[name] = dag.Task{
-			Requires:   task.Requires,
-			RequiredBy: task.RequiredBy,
+func makePlan(module *config.Module) dag.Plan {
+	input := dag.Input{Steps: make(map[string]dag.Step)}
+	for name, step := range module.Tasks {
+		input.Steps[name] = dag.Step{
+			Requires:   step.Requires,
+			RequiredBy: step.RequiredBy,
 		}
 	}
 	return dag.Resolve(input)
