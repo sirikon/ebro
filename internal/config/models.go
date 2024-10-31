@@ -4,8 +4,12 @@ import (
 	"fmt"
 )
 
+type ModuleFile struct {
+	Module  `yaml:",inline"`
+	Imports map[string]Import `yaml:"imports"`
+}
+
 type Module struct {
-	Imports     map[string]Import
 	Environment map[string]string `yaml:"environment"`
 	Tasks       map[string]Task   `yaml:"tasks"`
 	Modules     map[string]Module `yaml:"modules"`
@@ -26,8 +30,8 @@ type Import struct {
 	Generated   *Task             `yaml:"generated"`
 }
 
-func (m Module) Validate() error {
-	for name, task := range m.Tasks {
+func (mf ModuleFile) Validate() error {
+	for name, task := range mf.Tasks {
 		if err := task.Validate(); err != nil {
 			return fmt.Errorf("validating task %v: %w", name, err)
 		}

@@ -9,22 +9,27 @@ import (
 )
 
 func parseModuleFromFile(filePath string) (*Module, error) {
+	moduleFile := ModuleFile{}
 	module := Module{}
 
 	body, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("parsing %v: %w", filePath, err)
 	}
-	err = yaml.Unmarshal(body, &module)
+	err = yaml.Unmarshal(body, &moduleFile)
 	if err != nil {
 		return nil, fmt.Errorf("parsing %v: %w", filePath, err)
 	}
-	err = module.Validate()
+	err = moduleFile.Validate()
 	if err != nil {
 		return nil, fmt.Errorf("parsing %v: %w", filePath, err)
 	}
 
-	for name, config := range module.Imports {
+	module.Environment = moduleFile.Environment
+	module.Tasks = moduleFile.Tasks
+	module.Modules = moduleFile.Modules
+
+	for name, config := range moduleFile.Imports {
 		_, ok := module.Modules[name]
 		if ok {
 			return nil, fmt.Errorf("parsing %v: trying to import module %v, but it already exists", filePath, name)
