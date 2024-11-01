@@ -31,3 +31,9 @@ tasks:
   cache_dir:
     script: mkdir -p cache
     skip_if: test -d cache
+
+  other_branch:
+    requires: [other_subtask]
+
+  other_subtask:
+    script: echo hello
