@@ -25,6 +25,8 @@ func parseModuleFromFile(filePath string) (*Module, error) {
 		return nil, fmt.Errorf("parsing %v: %w", filePath, err)
 	}
 
+	working_directory := path.Dir(filePath)
+	module.WorkingDirectory = &working_directory
 	module.Environment = moduleFile.Environment
 	module.Tasks = moduleFile.Tasks
 	module.Modules = moduleFile.Modules

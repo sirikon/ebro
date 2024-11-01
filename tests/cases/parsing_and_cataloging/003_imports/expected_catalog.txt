@@ -1,8 +1,11 @@
 :default:
+    working_directory: .
     requires:
         - :docker:default
 :docker:compose:default:
+    working_directory: docker-compose
     script: echo 'docker compose'
 :docker:default:
+    working_directory: docker
     requires:
         - :docker:compose:default

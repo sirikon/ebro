@@ -10,18 +10,20 @@ type ModuleFile struct {
 }
 
 type Module struct {
-	Environment map[string]string `yaml:"environment,omitempty"`
-	Tasks       map[string]Task   `yaml:"tasks,omitempty"`
-	Modules     map[string]Module `yaml:"modules,omitempty"`
+	WorkingDirectory *string           `yaml:"working_directory,omitempty"`
+	Environment      map[string]string `yaml:"environment,omitempty"`
+	Tasks            map[string]Task   `yaml:"tasks,omitempty"`
+	Modules          map[string]Module `yaml:"modules,omitempty"`
 }
 
 type Task struct {
-	Environment map[string]string `yaml:"environment,omitempty"`
-	Requires    []string          `yaml:"requires,omitempty"`
-	RequiredBy  []string          `yaml:"required_by,omitempty"`
-	Script      string            `yaml:"script,omitempty"`
-	SkipIf      string            `yaml:"skip_if,omitempty"`
-	Sources     []string          `yaml:"sources,omitempty"`
+	WorkingDirectory *string           `yaml:"working_directory,omitempty"`
+	Environment      map[string]string `yaml:"environment,omitempty"`
+	Requires         []string          `yaml:"requires,omitempty"`
+	RequiredBy       []string          `yaml:"required_by,omitempty"`
+	Script           string            `yaml:"script,omitempty"`
+	SkipIf           string            `yaml:"skip_if,omitempty"`
+	Sources          []string          `yaml:"sources,omitempty"`
 }
 
 type Import struct {

@@ -9,7 +9,7 @@ import (
 type Catalog map[string]config.Task
 
 func MakeCatalog(module *config.Module) Catalog {
-	catalog := catalogModule(module, []string{})
+	catalog := catalogModule(module, []string{}, nil)
 	for _, task := range catalog {
 		NormalizeTaskReferences(catalog, task.Requires)
 		NormalizeTaskReferences(catalog, task.RequiredBy)
@@ -28,9 +28,12 @@ func NormalizeTaskReferences(catalog Catalog, task_names []string) {
 	}
 }
 
-func catalogModule(module *config.Module, trail []string) Catalog {
+func catalogModule(module *config.Module, name_trail []string, working_directory *string) Catalog {
 	result := make(Catalog)
-	prefix := ":" + strings.Join(append(trail, ""), ":")
+	prefix := ":" + strings.Join(append(name_trail, ""), ":")
+	if module.WorkingDirectory == nil {
+		module.WorkingDirectory = working_directory
+	}
 
 	for task_name, task := range module.Tasks {
 		for i := range task.Requires {
@@ -39,11 +42,14 @@ func catalogModule(module *config.Module, trail []string) Catalog {
 		for i := range task.RequiredBy {
 			task.RequiredBy[i] = prefix + task.RequiredBy[i]
 		}
+		if task.WorkingDirectory == nil {
+			task.WorkingDirectory = module.WorkingDirectory
+		}
 		result[prefix+task_name] = task
 	}
 
-	for module_name, module := range module.Modules {
-		module_tasks := catalogModule(&module, append(trail, module_name))
+	for submodule_name, submodule := range module.Modules {
+		module_tasks := catalogModule(&submodule, append(name_trail, submodule_name), module.WorkingDirectory)
 		for task_name, task := range module_tasks {
 			result[task_name] = task
 		}

@@ -1,10 +1,13 @@
 :a:
+    working_directory: .
     requires:
         - :b
     script: echo a
 :b:
+    working_directory: .
     requires:
         - :c
     script: echo b
 :c:
+    working_directory: .
     script: echo c

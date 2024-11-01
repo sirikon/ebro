@@ -1,15 +1,18 @@
+working_directory: .
 tasks:
     default:
         requires:
             - docker
 modules:
     docker:
+        working_directory: docker
         tasks:
             default:
                 requires:
                     - compose
         modules:
             compose:
+                working_directory: docker-compose
                 tasks:
                     default:
                         script: echo 'docker compose'
