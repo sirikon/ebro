@@ -8,14 +8,14 @@ type Arguments struct {
 }
 
 type Flags struct {
-	Config bool
-	Index  bool
-	Plan   bool
+	Config  bool
+	Catalog bool
+	Plan    bool
 }
 
 func Parse() Arguments {
-	config := flag.Bool("config", false, "display complete configuration")
-	index := flag.Bool("index", false, "display index after flattening configuration")
+	config := flag.Bool("config", false, "display all imported configuration files merged into one")
+	catalog := flag.Bool("catalog", false, "display complete catalog of tasks with their definitive configuration")
 	plan := flag.Bool("plan", false, "display the execution plan")
 	flag.Parse()
 
@@ -30,9 +30,9 @@ func Parse() Arguments {
 
 	return Arguments{
 		Flags: Flags{
-			Config: *config,
-			Index:  *index,
-			Plan:   *plan,
+			Config:  *config,
+			Catalog: *catalog,
+			Plan:    *plan,
 		},
 		Targets: targets,
 	}

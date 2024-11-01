@@ -1,4 +1,4 @@
-package indexer
+package cataloger
 
 import (
 	"strings"
@@ -6,30 +6,30 @@ import (
 	"github.com/sirikon/ebro/internal/config"
 )
 
-type Index map[string]config.Task
+type Catalog map[string]config.Task
 
-func MakeIndex(module *config.Module) Index {
-	index := indexModule(module, []string{})
-	for _, task := range index {
-		NormalizeTaskReferences(index, task.Requires)
-		NormalizeTaskReferences(index, task.RequiredBy)
+func MakeCatalog(module *config.Module) Catalog {
+	catalog := catalogModule(module, []string{})
+	for _, task := range catalog {
+		NormalizeTaskReferences(catalog, task.Requires)
+		NormalizeTaskReferences(catalog, task.RequiredBy)
 	}
-	return index
+	return catalog
 }
 
-func NormalizeTaskReferences(index Index, task_names []string) {
+func NormalizeTaskReferences(catalog Catalog, task_names []string) {
 	for i, task_name := range task_names {
 		defaulted_task_name := task_name + ":default"
-		_, taskExists := index[task_name]
-		_, defaultedTaskExists := index[defaulted_task_name]
+		_, taskExists := catalog[task_name]
+		_, defaultedTaskExists := catalog[defaulted_task_name]
 		if !taskExists && defaultedTaskExists {
 			task_names[i] = defaulted_task_name
 		}
 	}
 }
 
-func indexModule(module *config.Module, trail []string) Index {
-	result := make(Index)
+func catalogModule(module *config.Module, trail []string) Catalog {
+	result := make(Catalog)
 	prefix := ":" + strings.Join(append(trail, ""), ":")
 
 	for task_name, task := range module.Tasks {
@@ -43,7 +43,7 @@ func indexModule(module *config.Module, trail []string) Index {
 	}
 
 	for module_name, module := range module.Modules {
-		module_tasks := indexModule(&module, append(trail, module_name))
+		module_tasks := catalogModule(&module, append(trail, module_name))
 		for task_name, task := range module_tasks {
 			result[task_name] = task
 		}

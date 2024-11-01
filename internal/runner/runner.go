@@ -5,15 +5,15 @@ import (
 	"os"
 	"strings"
 
-	"github.com/sirikon/ebro/internal/indexer"
+	"github.com/sirikon/ebro/internal/cataloger"
 	"github.com/sirikon/ebro/internal/planner"
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
 )
 
-func Run(index indexer.Index, plan planner.Plan) {
+func Run(catalog cataloger.Catalog, plan planner.Plan) {
 	for _, task_name := range plan {
-		task := index[task_name]
+		task := catalog[task_name]
 		if task.Script != "" {
 			runScript(task.Script)
 		}

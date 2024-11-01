@@ -6,8 +6,8 @@ import unittest
 
 class TestEbro(unittest.TestCase):
 
-    def test_parsing_and_indexing(self):
-        cases_dir = join(getcwd(), "cases", "parsing_and_indexing")
+    def test_parsing_and_cataloging(self):
+        cases_dir = join(getcwd(), "cases", "parsing_and_cataloging")
         for case in listdir(cases_dir):
             case_path = join(cases_dir, case)
             with self.subTest(case + " (config)"):
@@ -17,10 +17,10 @@ class TestEbro(unittest.TestCase):
                     expected_stdout = f.read()
                 self.assertEqual(actual_stdout, expected_stdout)
 
-            with self.subTest(case + " (index)"):
-                result = ebro(["-index"], join(case_path, "workdir"))
+            with self.subTest(case + " (catalog)"):
+                result = ebro(["-catalog"], join(case_path, "workdir"))
                 actual_stdout = result.stdout.decode("utf-8")
-                with open(join(case_path, "expected_index.txt"), "r") as f:
+                with open(join(case_path, "expected_catalog.txt"), "r") as f:
                     expected_stdout = f.read()
                 self.assertEqual(actual_stdout, expected_stdout)
 

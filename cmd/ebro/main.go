@@ -7,8 +7,8 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/sirikon/ebro/cmd/ebro/cli"
+	"github.com/sirikon/ebro/internal/cataloger"
 	"github.com/sirikon/ebro/internal/config"
-	"github.com/sirikon/ebro/internal/indexer"
 	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/runner"
 )
@@ -32,10 +32,10 @@ func main() {
 		return
 	}
 
-	index := indexer.MakeIndex(config)
+	catalog := cataloger.MakeCatalog(config)
 
-	if arguments.Flags.Index {
-		bytes, err := yaml.Marshal(index)
+	if arguments.Flags.Catalog {
+		bytes, err := yaml.Marshal(catalog)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -44,8 +44,8 @@ func main() {
 		return
 	}
 
-	indexer.NormalizeTaskReferences(index, arguments.Targets)
-	plan := planner.MakePlan(index, arguments.Targets)
+	cataloger.NormalizeTaskReferences(catalog, arguments.Targets)
+	plan := planner.MakePlan(catalog, arguments.Targets)
 
 	if arguments.Flags.Plan {
 		for _, step := range plan {
@@ -54,5 +54,5 @@ func main() {
 		return
 	}
 
-	runner.Run(index, plan)
+	runner.Run(catalog, plan)
 }
