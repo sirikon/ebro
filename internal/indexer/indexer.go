@@ -6,7 +6,9 @@ import (
 	"github.com/sirikon/ebro/internal/config"
 )
 
-func Index(module *config.Module) map[string]config.Task {
+type Index map[string]config.Task
+
+func MakeIndex(module *config.Module) Index {
 	index := indexModule(module, []string{})
 
 	for _, task := range index {
@@ -29,8 +31,8 @@ func Index(module *config.Module) map[string]config.Task {
 	return index
 }
 
-func indexModule(module *config.Module, trail []string) map[string]config.Task {
-	result := make(map[string]config.Task)
+func indexModule(module *config.Module, trail []string) Index {
+	result := make(Index)
 	prefix := ":" + strings.Join(append(trail, ""), ":")
 
 	for task_name, task := range module.Tasks {

@@ -1,10 +1,10 @@
 package planner
 
-import "slices"
+import (
+	"slices"
 
-type Input struct {
-	Steps map[string]Step
-}
+	"github.com/sirikon/ebro/internal/indexer"
+)
 
 type Plan struct {
 	Steps []string
@@ -15,29 +15,29 @@ type Step struct {
 	RequiredBy []string
 }
 
-func MakePlan(input Input) Plan {
+func MakePlan(index indexer.Index) Plan {
 	result := Plan{}
 
-	index := make(map[string][]string)
+	reqIndex := make(map[string][]string)
 
-	for name, step := range input.Steps {
-		index[name] = append(index[name], step.Requires...)
-		for _, parent := range step.RequiredBy {
-			index[parent] = append(index[parent], name)
+	for task_name, task := range index {
+		reqIndex[task_name] = append(reqIndex[task_name], task.Requires...)
+		for _, parent := range task.RequiredBy {
+			reqIndex[parent] = append(reqIndex[parent], task_name)
 		}
 	}
 
 	shouldContinue := true
 	for shouldContinue {
 		shouldContinue = false
-		for name, requires := range index {
+		for name, requires := range reqIndex {
 			if len(requires) == 0 {
 				result.Steps = append(result.Steps, name)
-				delete(index, name)
-				for parent := range index {
-					i := slices.Index(index[parent], name)
+				delete(reqIndex, name)
+				for parent := range reqIndex {
+					i := slices.Index(reqIndex[parent], name)
 					if i >= 0 {
-						index[parent] = append(index[parent][:i], index[parent][i+1:]...)
+						reqIndex[parent] = append(reqIndex[parent][:i], reqIndex[parent][i+1:]...)
 					}
 				}
 				shouldContinue = true

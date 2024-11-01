@@ -31,7 +31,7 @@ func main() {
 		return
 	}
 
-	index := indexer.Index(config)
+	index := indexer.MakeIndex(config)
 
 	if arguments.Flags.Index {
 		bytes, err := yaml.Marshal(index)
@@ -43,7 +43,7 @@ func main() {
 		return
 	}
 
-	plan := makePlan(index)
+	plan := planner.MakePlan(index)
 
 	if arguments.Flags.Plan {
 		for _, step := range plan.Steps {
@@ -51,15 +51,4 @@ func main() {
 		}
 		return
 	}
-}
-
-func makePlan(index map[string]config.Task) planner.Plan {
-	input := planner.Input{Steps: make(map[string]planner.Step)}
-	for name, step := range index {
-		input.Steps[name] = planner.Step{
-			Requires:   step.Requires,
-			RequiredBy: step.RequiredBy,
-		}
-	}
-	return planner.MakePlan(input)
 }
