@@ -6,5 +6,6 @@ imports:
 
 tasks:
   default:
+    requires: [docker-compose]
     script: |
       echo 'hello docker'
