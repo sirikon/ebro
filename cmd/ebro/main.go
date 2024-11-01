@@ -8,6 +8,7 @@ import (
 
 	"github.com/sirikon/ebro/cmd/ebro/cli"
 	"github.com/sirikon/ebro/internal/config"
+	"github.com/sirikon/ebro/internal/indexer"
 	"github.com/sirikon/ebro/internal/planner"
 )
 
@@ -26,11 +27,11 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println(string(bytes))
+		fmt.Print(string(bytes))
 		return
 	}
 
-	index := makeIndex(config)
+	index := indexer.Index(config)
 
 	if arguments.Flags.Index {
 		bytes, err := yaml.Marshal(index)
@@ -38,7 +39,7 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println(string(bytes))
+		fmt.Print(string(bytes))
 		return
 	}
 
@@ -50,23 +51,6 @@ func main() {
 		}
 		return
 	}
-}
-
-func makeIndex(module *config.Module) map[string]config.Task {
-	result := make(map[string]config.Task)
-
-	for task_name, task := range module.Tasks {
-		result[task_name] = task
-	}
-
-	for module_name, module := range module.Modules {
-		module_tasks := makeIndex(&module)
-		for task_name, task := range module_tasks {
-			result[module_name+":"+task_name] = task
-		}
-	}
-
-	return result
 }
 
 func makePlan(index map[string]config.Task) planner.Plan {

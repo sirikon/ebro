@@ -1,0 +1,7 @@
+imports:
+  compose:
+    from: ../docker-compose
+
+tasks:
+  default:
+    requires: [compose]

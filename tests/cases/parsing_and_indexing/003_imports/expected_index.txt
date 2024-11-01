@@ -1,0 +1,8 @@
+:default:
+    requires:
+        - :docker:default
+:docker:compose:default:
+    script: echo 'docker compose'
+:docker:default:
+    requires:
+        - :docker:compose:default

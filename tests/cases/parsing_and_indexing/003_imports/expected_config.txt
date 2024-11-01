@@ -1,0 +1,15 @@
+tasks:
+    default:
+        requires:
+            - docker
+modules:
+    docker:
+        tasks:
+            default:
+                requires:
+                    - compose
+        modules:
+            compose:
+                tasks:
+                    default:
+                        script: echo 'docker compose'

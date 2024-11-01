@@ -1,0 +1,11 @@
+tasks:
+    a:
+        requires:
+            - b
+        script: echo a
+    b:
+        requires:
+            - c
+        script: echo b
+    c:
+        script: echo c

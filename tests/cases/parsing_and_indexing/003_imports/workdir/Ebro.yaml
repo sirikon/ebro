@@ -1,0 +1,7 @@
+imports:
+  docker:
+    from: ./docker
+
+tasks:
+  default:
+    requires: [docker]
