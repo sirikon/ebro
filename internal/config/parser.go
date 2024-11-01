@@ -34,7 +34,7 @@ func parseModuleFromFile(filePath string) (*Module, error) {
 		if ok {
 			return nil, fmt.Errorf("parsing %v: trying to import module %v, but it already exists", filePath, name)
 		}
-		submodule, err := parseModuleFromFile(path.Join(config.From, "Ebro.yaml"))
+		submodule, err := parseModuleFromFile(path.Join(path.Dir(filePath), config.From, "Ebro.yaml"))
 		if err != nil {
 			return nil, fmt.Errorf("parsing %v: %w", filePath, err)
 		}

@@ -1,3 +1,9 @@
+imports:
+  docker-compose:
+    from: ../docker-compose
+    generated:
+      script: hoho
+
 tasks:
   default:
     script: |

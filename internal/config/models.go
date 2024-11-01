@@ -6,28 +6,28 @@ import (
 
 type ModuleFile struct {
 	Module  `yaml:",inline"`
-	Imports map[string]Import `yaml:"imports"`
+	Imports map[string]Import `yaml:"imports,omitempty"`
 }
 
 type Module struct {
-	Environment map[string]string `yaml:"environment"`
-	Tasks       map[string]Task   `yaml:"tasks"`
-	Modules     map[string]Module `yaml:"modules"`
+	Environment map[string]string `yaml:"environment,omitempty"`
+	Tasks       map[string]Task   `yaml:"tasks,omitempty"`
+	Modules     map[string]Module `yaml:"modules,omitempty"`
 }
 
 type Task struct {
-	Environment map[string]string `yaml:"environment"`
-	Requires    []string          `yaml:"requires"`
-	RequiredBy  []string          `yaml:"required_by"`
-	Script      string            `yaml:"script"`
-	SkipIf      string            `yaml:"skip_if"`
-	Sources     []string          `yaml:"sources"`
+	Environment map[string]string `yaml:"environment,omitempty"`
+	Requires    []string          `yaml:"requires,omitempty"`
+	RequiredBy  []string          `yaml:"required_by,omitempty"`
+	Script      string            `yaml:"script,omitempty"`
+	SkipIf      string            `yaml:"skip_if,omitempty"`
+	Sources     []string          `yaml:"sources,omitempty"`
 }
 
 type Import struct {
-	From        string            `yaml:"from"`
-	Environment map[string]string `yaml:"environment"`
-	Generated   *Task             `yaml:"generated"`
+	From        string            `yaml:"from,omitempty"`
+	Environment map[string]string `yaml:"environment,omitempty"`
+	Generated   *Task             `yaml:"generated,omitempty"`
 }
 
 func (mf ModuleFile) Validate() error {
