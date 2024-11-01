@@ -1,5 +1,5 @@
 package config
 
-func DiscoverModule() (*Module, error) {
+func DiscoverConfig() (*Module, error) {
 	return parseModuleFromFile("Ebro.yaml")
 }
