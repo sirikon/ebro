@@ -10,8 +10,8 @@ tasks:
 
   echoer:
     script: |
-      echo cache/A.txt
-      echo cache/B.txt
+      cat cache/A.txt
+      cat cache/B.txt
 
   producer:
     requires: [produce_a, produce_b]
@@ -25,8 +25,8 @@ tasks:
   produce_b:
     requires: [cache_dir]
     required_by: [echoer]
-    script: echo 'this is A'>cache/A.txt
-    skip_if: test -f cache/A.txt
+    script: echo 'this is B'>cache/B.txt
+    skip_if: test -f cache/B.txt
 
   cache_dir:
     script: mkdir -p cache
