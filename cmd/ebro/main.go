@@ -10,6 +10,7 @@ import (
 	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/indexer"
 	"github.com/sirikon/ebro/internal/planner"
+	"github.com/sirikon/ebro/internal/runner"
 )
 
 func main() {
@@ -43,12 +44,15 @@ func main() {
 		return
 	}
 
-	plan := planner.MakePlan(index)
+	indexer.NormalizeTaskReferences(index, arguments.Targets)
+	plan := planner.MakePlan(index, arguments.Targets)
 
 	if arguments.Flags.Plan {
-		for _, step := range plan.Steps {
+		for _, step := range plan {
 			fmt.Println(step)
 		}
 		return
 	}
+
+	runner.Run(index, plan)
 }

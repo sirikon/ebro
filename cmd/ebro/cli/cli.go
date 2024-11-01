@@ -18,12 +18,22 @@ func Parse() Arguments {
 	index := flag.Bool("index", false, "display index after flattening configuration")
 	plan := flag.Bool("plan", false, "display the execution plan")
 	flag.Parse()
+
+	targets := []string{":default"}
+	args := flag.Args()
+	if len(args) > 0 {
+		targets = []string{}
+		for _, arg := range args {
+			targets = append(targets, ":"+arg)
+		}
+	}
+
 	return Arguments{
 		Flags: Flags{
 			Config: *config,
 			Index:  *index,
 			Plan:   *plan,
 		},
-		Targets: flag.Args(),
+		Targets: targets,
 	}
 }

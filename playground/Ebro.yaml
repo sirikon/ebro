@@ -6,19 +6,25 @@ imports:
 
 tasks:
   default:
+    requires: [echoer, producer, docker]
+
+  echoer:
     script: |
       echo cache/A.txt
       echo cache/B.txt
 
+  producer:
+    requires: [produce_a, produce_b]
+
   produce_a:
     requires: [cache_dir]
-    required_by: [default]
+    required_by: [echoer]
     script: echo 'this is A'>cache/A.txt
     skip_if: test -f cache/A.txt
 
   produce_b:
     requires: [cache_dir]
-    required_by: [default]
+    required_by: [echoer]
     script: echo 'this is A'>cache/A.txt
     skip_if: test -f cache/A.txt
 

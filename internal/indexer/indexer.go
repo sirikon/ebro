@@ -10,25 +10,22 @@ type Index map[string]config.Task
 
 func MakeIndex(module *config.Module) Index {
 	index := indexModule(module, []string{})
-
 	for _, task := range index {
-		for i := range task.Requires {
-			_, taskExists := index[task.Requires[i]]
-			_, defaultTaskExists := index[task.Requires[i]+":default"]
-			if !taskExists && defaultTaskExists {
-				task.Requires[i] = task.Requires[i] + ":default"
-			}
-		}
-		for i := range task.RequiredBy {
-			_, taskExists := index[task.RequiredBy[i]]
-			_, defaultTaskExists := index[task.RequiredBy[i]+":default"]
-			if !taskExists && defaultTaskExists {
-				task.RequiredBy[i] = task.RequiredBy[i] + ":default"
-			}
+		NormalizeTaskReferences(index, task.Requires)
+		NormalizeTaskReferences(index, task.RequiredBy)
+	}
+	return index
+}
+
+func NormalizeTaskReferences(index Index, task_names []string) {
+	for i, task_name := range task_names {
+		defaulted_task_name := task_name + ":default"
+		_, taskExists := index[task_name]
+		_, defaultedTaskExists := index[defaulted_task_name]
+		if !taskExists && defaultedTaskExists {
+			task_names[i] = defaulted_task_name
 		}
 	}
-
-	return index
 }
 
 func indexModule(module *config.Module, trail []string) Index {

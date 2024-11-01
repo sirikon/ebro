@@ -6,21 +6,17 @@ import (
 	"github.com/sirikon/ebro/internal/indexer"
 )
 
-type Plan struct {
-	Steps []string
-}
+type Plan []string
 
-type Step struct {
-	Requires   []string
-	RequiredBy []string
-}
-
-func MakePlan(index indexer.Index) Plan {
+func MakePlan(index indexer.Index, targets []string) Plan {
 	result := Plan{}
-
+	tasksToRun := targets
 	reqIndex := make(map[string][]string)
 
-	for task_name, task := range index {
+	for i := 0; i < len(tasksToRun); i++ {
+		task_name := tasksToRun[i]
+		task := index[task_name]
+		tasksToRun = append(tasksToRun, task.Requires...)
 		reqIndex[task_name] = append(reqIndex[task_name], task.Requires...)
 		for _, parent := range task.RequiredBy {
 			reqIndex[parent] = append(reqIndex[parent], task_name)
@@ -32,7 +28,7 @@ func MakePlan(index indexer.Index) Plan {
 		shouldContinue = false
 		for name, requires := range reqIndex {
 			if len(requires) == 0 {
-				result.Steps = append(result.Steps, name)
+				result = append(result, name)
 				delete(reqIndex, name)
 				for parent := range reqIndex {
 					i := slices.Index(reqIndex[parent], name)
