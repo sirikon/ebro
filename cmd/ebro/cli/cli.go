@@ -11,6 +11,8 @@ import (
 	"github.com/fatih/color"
 )
 
+var version = "dev"
+
 type Arguments struct {
 	Flags   Flags
 	Targets []string
@@ -44,6 +46,11 @@ func Parse() Arguments {
 
 		if receivedFlag == "help" {
 			printHelp()
+			os.Exit(0)
+		}
+
+		if receivedFlag == "version" {
+			printVersion()
 			os.Exit(0)
 		}
 
@@ -97,6 +104,10 @@ Available flags:
 		}
 		fmt.Println(doc)
 	}
+}
+
+func printVersion() {
+	fmt.Println(version)
 }
 
 func ExitWithError(err error) {
