@@ -4,6 +4,12 @@ tasks:
         requires:
             - docker-config
             - docker
+    docker-compose-project:
+        requires:
+            - docker:compose
+        script: docker compose up -d
+        sources:
+            - docker-compose.yml
     docker-config:
         required_by:
             - docker

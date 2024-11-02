@@ -11,3 +11,9 @@ tasks:
   docker-config:
     required_by: [docker]
     script: configure docker
+
+  docker-compose-project:
+    requires: [docker:compose]
+    sources:
+      - docker-compose.yml
+    script: docker compose up -d
