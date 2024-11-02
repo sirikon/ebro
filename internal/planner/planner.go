@@ -26,19 +26,26 @@ func MakePlan(catalog cataloger.Catalog, targets []string) Plan {
 	shouldContinue := true
 	for shouldContinue {
 		shouldContinue = false
+		batch := []string{}
 		for name, requires := range reqIndex {
 			if len(requires) == 0 {
-				result = append(result, name)
-				delete(reqIndex, name)
-				for parent := range reqIndex {
-					i := slices.Index(reqIndex[parent], name)
-					if i >= 0 {
-						reqIndex[parent] = append(reqIndex[parent][:i], reqIndex[parent][i+1:]...)
-					}
-				}
+				batch = append(batch, name)
 				shouldContinue = true
 			}
 		}
+
+		slices.Sort(batch)
+		for _, name := range batch {
+			delete(reqIndex, name)
+			for parent := range reqIndex {
+				i := slices.Index(reqIndex[parent], name)
+				if i >= 0 {
+					reqIndex[parent] = append(reqIndex[parent][:i], reqIndex[parent][i+1:]...)
+				}
+			}
+		}
+
+		result = append(result, batch...)
 	}
 
 	return result

@@ -18,6 +18,12 @@ import (
 func Run(catalog cataloger.Catalog, plan planner.Plan) error {
 	for _, task_name := range plan {
 		task := catalog[task_name]
+
+		if task.Script == "" {
+			color.Green("### satisfied " + task_name)
+			continue
+		}
+
 		if task.SkipIf != "" {
 			status, err := runScript(task.Script, *task.WorkingDirectory, task.Environment)
 			if err != nil {
@@ -29,15 +35,13 @@ func Run(catalog cataloger.Catalog, plan planner.Plan) error {
 			}
 		}
 
-		if task.Script != "" {
-			color.Yellow("### running " + task_name)
-			status, err := runScript(task.Script, *task.WorkingDirectory, task.Environment)
-			if err != nil {
-				return fmt.Errorf("running task %v script: %w", task_name, err)
-			}
-			if status != 0 {
-				return fmt.Errorf("task %v returned status code %v", task_name, status)
-			}
+		color.Yellow("### running " + task_name)
+		status, err := runScript(task.Script, *task.WorkingDirectory, task.Environment)
+		if err != nil {
+			return fmt.Errorf("running task %v script: %w", task_name, err)
+		}
+		if status != 0 {
+			return fmt.Errorf("task %v returned status code %v", task_name, status)
 		}
 	}
 	return nil
