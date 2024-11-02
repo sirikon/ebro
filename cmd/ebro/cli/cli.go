@@ -1,6 +1,11 @@
 package cli
 
-import "flag"
+import (
+	"fmt"
+	"os"
+	"reflect"
+	"regexp"
+)
 
 type Arguments struct {
 	Flags   Flags
@@ -8,32 +13,59 @@ type Arguments struct {
 }
 
 type Flags struct {
-	Config  bool
-	Catalog bool
-	Plan    bool
+	Config  bool `flag:"config"`
+	Catalog bool `flag:"catalog"`
+	Plan    bool `flag:"plan"`
 }
 
-func Parse() Arguments {
-	config := flag.Bool("config", false, "display all imported configuration files merged into one")
-	catalog := flag.Bool("catalog", false, "display complete catalog of tasks with their definitive configuration")
-	plan := flag.Bool("plan", false, "display the execution plan")
-	flag.Parse()
+var flagRe = regexp.MustCompile("^-{1,2}([a-zA-Z0-9 ]+)$")
 
-	targets := []string{":default"}
-	args := flag.Args()
-	if len(args) > 0 {
-		targets = []string{}
-		for _, arg := range args {
-			targets = append(targets, ":"+arg)
+func Parse() Arguments {
+	result := Arguments{
+		Flags: Flags{
+			Config:  false,
+			Catalog: false,
+			Plan:    false,
+		},
+		Targets: []string{":default"},
+	}
+	args := os.Args[1:]
+	if len(args) == 0 {
+		return result
+	}
+
+	if matches := flagRe.FindStringSubmatch(args[0]); matches != nil {
+		args = args[1:]
+		receivedFlag := matches[1]
+
+		if receivedFlag == "help" {
+			printHelp()
+			os.Exit(0)
+		}
+
+		flagsType := reflect.TypeOf(result.Flags)
+		found := false
+		for i := 0; i < flagsType.NumField(); i++ {
+			field := flagsType.Field(i)
+			if receivedFlag == field.Tag.Get("flag") {
+				reflect.ValueOf(&result.Flags).Elem().FieldByName(field.Name).SetBool(true)
+				found = true
+				break
+			}
+		}
+		if !found {
+			fmt.Println("Unknown flag " + receivedFlag)
+			os.Exit(1)
 		}
 	}
 
-	return Arguments{
-		Flags: Flags{
-			Config:  *config,
-			Catalog: *catalog,
-			Plan:    *plan,
-		},
-		Targets: targets,
+	if len(args) > 0 {
+		result.Targets = args
 	}
+
+	return result
+}
+
+func printHelp() {
+	fmt.Println("bruh help")
 }
