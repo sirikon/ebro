@@ -1,4 +1,5 @@
 tasks:
   default:
     script: |
-      echo 'hello docker compose'
+      echo "Docker Compose in: $(pwd)"
+      echo "Here Ebro root is ${EBRO_ROOT}"

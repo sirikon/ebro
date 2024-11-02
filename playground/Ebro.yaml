@@ -7,6 +7,11 @@ imports:
 tasks:
   default:
     requires: [echoer, producer, docker]
+    environment:
+      SOMETHING: something
+    script: |
+      echo "Root: ${EBRO_ROOT}"
+      echo "${SOMETHING}"
 
   echoer:
     script: |
