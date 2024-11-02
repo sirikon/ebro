@@ -1,13 +1,19 @@
 :a:
-    working_directory: .
+    working_directory: __WORKDIR__
+    environment:
+        EBRO_ROOT: __WORKDIR__
     requires:
         - :b
     script: echo a
 :b:
-    working_directory: .
+    working_directory: __WORKDIR__
+    environment:
+        EBRO_ROOT: __WORKDIR__
     requires:
         - :c
     script: echo b
 :c:
-    working_directory: .
+    working_directory: __WORKDIR__
+    environment:
+        EBRO_ROOT: __WORKDIR__
     script: echo c

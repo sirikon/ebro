@@ -1,18 +1,20 @@
-working_directory: .
+working_directory: __WORKDIR__
 tasks:
     default:
         requires:
             - docker
 modules:
     docker:
-        working_directory: docker
+        working_directory: __WORKDIR__/docker
+        environment:
+            DOCKER_VERSION: 1.2.3
         tasks:
             default:
                 requires:
                     - compose
         modules:
             compose:
-                working_directory: docker-compose
+                working_directory: __WORKDIR__/docker-compose
                 tasks:
                     default:
                         script: echo 'docker compose'

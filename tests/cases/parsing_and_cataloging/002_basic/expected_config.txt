@@ -1,4 +1,4 @@
-working_directory: .
+working_directory: __WORKDIR__
 tasks:
     a:
         requires:

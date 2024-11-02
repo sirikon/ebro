@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 
+	"github.com/sirikon/ebro/internal/utils"
 	"gopkg.in/yaml.v3"
 )
 
@@ -25,25 +27,29 @@ func parseModuleFromFile(filePath string) (*Module, error) {
 		return nil, fmt.Errorf("parsing %v: %w", filePath, err)
 	}
 
-	working_directory := path.Dir(filePath)
+	working_directory, err := filepath.Abs(path.Dir(filePath))
+	if err != nil {
+		return nil, fmt.Errorf("parsing %v: obtaining absolute path to directory: %w", filePath, err)
+	}
 	module.WorkingDirectory = &working_directory
 	module.Environment = moduleFile.Environment
 	module.Tasks = moduleFile.Tasks
 	module.Modules = moduleFile.Modules
 
-	for name, config := range moduleFile.Imports {
-		_, ok := module.Modules[name]
+	for import_name, import_obj := range moduleFile.Imports {
+		_, ok := module.Modules[import_name]
 		if ok {
-			return nil, fmt.Errorf("parsing %v: trying to import module %v, but it already exists", filePath, name)
+			return nil, fmt.Errorf("parsing %v: trying to import module %v, but it already exists", filePath, import_name)
 		}
-		submodule, err := parseModuleFromFile(path.Join(path.Dir(filePath), config.From, "Ebro.yaml"))
+		submodule, err := parseModuleFromFile(path.Join(path.Dir(filePath), import_obj.From, "Ebro.yaml"))
 		if err != nil {
 			return nil, fmt.Errorf("parsing %v: %w", filePath, err)
 		}
 		if module.Modules == nil {
 			module.Modules = make(map[string]Module)
 		}
-		module.Modules[name] = *submodule
+		submodule.Environment = utils.MergeEnv(import_obj.Environment, submodule.Environment)
+		module.Modules[import_name] = *submodule
 	}
 
 	return &module, nil

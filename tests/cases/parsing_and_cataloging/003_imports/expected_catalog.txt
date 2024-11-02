@@ -1,11 +1,19 @@
 :default:
-    working_directory: .
+    working_directory: __WORKDIR__
+    environment:
+        EBRO_ROOT: __WORKDIR__
     requires:
         - :docker:default
 :docker:compose:default:
-    working_directory: docker-compose
+    working_directory: __WORKDIR__/docker-compose
+    environment:
+        DOCKER_VERSION: 1.2.3
+        EBRO_ROOT: __WORKDIR__
     script: echo 'docker compose'
 :docker:default:
-    working_directory: docker
+    working_directory: __WORKDIR__/docker
+    environment:
+        DOCKER_VERSION: 1.2.3
+        EBRO_ROOT: __WORKDIR__
     requires:
         - :docker:compose:default

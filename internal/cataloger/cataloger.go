@@ -4,12 +4,13 @@ import (
 	"strings"
 
 	"github.com/sirikon/ebro/internal/config"
+	"github.com/sirikon/ebro/internal/utils"
 )
 
 type Catalog map[string]config.Task
 
 func MakeCatalog(module *config.Module) Catalog {
-	catalog := catalogModule(module, []string{}, nil)
+	catalog := catalogModule(module, []string{}, nil, make(map[string]string))
 	for _, task := range catalog {
 		NormalizeTaskReferences(catalog, task.Requires)
 		NormalizeTaskReferences(catalog, task.RequiredBy)
@@ -28,11 +29,15 @@ func NormalizeTaskReferences(catalog Catalog, task_names []string) {
 	}
 }
 
-func catalogModule(module *config.Module, name_trail []string, working_directory *string) Catalog {
+func catalogModule(module *config.Module, name_trail []string, working_directory *string, environment map[string]string) Catalog {
 	result := make(Catalog)
 	prefix := ":" + strings.Join(append(name_trail, ""), ":")
 	if module.WorkingDirectory == nil {
 		module.WorkingDirectory = working_directory
+	}
+	module.Environment = utils.MergeEnv(environment, module.Environment)
+	if _, ok := module.Environment["EBRO_ROOT"]; !ok {
+		module.Environment["EBRO_ROOT"] = *module.WorkingDirectory
 	}
 
 	for task_name, task := range module.Tasks {
@@ -45,11 +50,12 @@ func catalogModule(module *config.Module, name_trail []string, working_directory
 		if task.WorkingDirectory == nil {
 			task.WorkingDirectory = module.WorkingDirectory
 		}
+		task.Environment = utils.MergeEnv(module.Environment, task.Environment)
 		result[prefix+task_name] = task
 	}
 
 	for submodule_name, submodule := range module.Modules {
-		module_tasks := catalogModule(&submodule, append(name_trail, submodule_name), module.WorkingDirectory)
+		module_tasks := catalogModule(&submodule, append(name_trail, submodule_name), module.WorkingDirectory, utils.MergeEnv(module.Environment, submodule.Environment))
 		for task_name, task := range module_tasks {
 			result[task_name] = task
 		}
