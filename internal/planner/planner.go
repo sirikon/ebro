@@ -10,8 +10,14 @@ type Plan []string
 
 func MakePlan(catalog cataloger.Catalog, targets []string) Plan {
 	result := Plan{}
-	tasksToRun := targets
+	tasksToRun := []string{}
 	reqIndex := make(map[string][]string)
+
+	for _, target := range targets {
+		if _, ok := catalog[target]; ok {
+			tasksToRun = append(tasksToRun, target)
+		}
+	}
 
 	for i := 0; i < len(tasksToRun); i++ {
 		task_name := tasksToRun[i]

@@ -63,7 +63,10 @@ func Parse() Arguments {
 	}
 
 	if len(args) > 0 {
-		result.Targets = args
+		result.Targets = []string{}
+		for _, arg := range args {
+			result.Targets = append(result.Targets, ":"+arg)
+		}
 	}
 
 	return result

@@ -3,7 +3,15 @@
     environment:
         EBRO_ROOT: __WORKDIR__
     requires:
+        - :docker-config
         - :docker:default
+:docker-config:
+    working_directory: /Users/fever/repos/sirikon/ebro/tests/cases/003_imports/workdir
+    environment:
+        EBRO_ROOT: /Users/fever/repos/sirikon/ebro/tests/cases/003_imports/workdir
+    required_by:
+        - :docker:default
+    script: configure docker
 :docker:compose:default:
     working_directory: __WORKDIR__/docker-compose
     environment:
