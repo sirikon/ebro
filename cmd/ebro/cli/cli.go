@@ -11,6 +11,8 @@ import (
 	"github.com/fatih/color"
 )
 
+var version = "dev"
+
 type Arguments struct {
 	Flags   Flags
 	Targets []string
@@ -47,6 +49,11 @@ func Parse() Arguments {
 			os.Exit(0)
 		}
 
+		if receivedFlag == "version" {
+			printVersion()
+			os.Exit(0)
+		}
+
 		flagsType := reflect.TypeOf(result.Flags)
 		found := false
 		for i := 0; i < flagsType.NumField(); i++ {
@@ -63,7 +70,10 @@ func Parse() Arguments {
 	}
 
 	if len(args) > 0 {
-		result.Targets = args
+		result.Targets = []string{}
+		for _, arg := range args {
+			result.Targets = append(result.Targets, ":"+arg)
+		}
 	}
 
 	return result
@@ -94,6 +104,10 @@ Available flags:
 		}
 		fmt.Println(doc)
 	}
+}
+
+func printVersion() {
+	fmt.Println(version)
 }
 
 func ExitWithError(err error) {

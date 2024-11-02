@@ -17,6 +17,9 @@ tasks:
     script: |
       cat cache/A.txt
       cat cache/B.txt
+    sources:
+      - cache/A.txt
+      - cache/B.txt
 
   producer:
     requires: [produce_a, produce_b]

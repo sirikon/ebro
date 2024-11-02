@@ -2,7 +2,18 @@ working_directory: __WORKDIR__
 tasks:
     default:
         requires:
+            - docker-config
             - docker
+    docker-compose-project:
+        requires:
+            - docker:compose
+        script: docker compose up -d
+        sources:
+            - docker-compose.yml
+    docker-config:
+        required_by:
+            - docker
+        script: configure docker
 modules:
     docker:
         working_directory: __WORKDIR__/docker

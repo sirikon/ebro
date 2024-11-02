@@ -1,0 +1,19 @@
+imports:
+  docker:
+    from: ./docker
+    environment:
+      DOCKER_VERSION: "1.2.3"
+
+tasks:
+  default:
+    requires: [docker-config, docker]
+
+  docker-config:
+    required_by: [docker]
+    script: configure docker
+
+  docker-compose-project:
+    requires: [docker:compose]
+    sources:
+      - docker-compose.yml
+    script: docker compose up -d

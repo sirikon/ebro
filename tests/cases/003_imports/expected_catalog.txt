@@ -3,7 +3,24 @@
     environment:
         EBRO_ROOT: __WORKDIR__
     requires:
+        - :docker-config
         - :docker:default
+:docker-compose-project:
+    working_directory: __WORKDIR__
+    environment:
+        EBRO_ROOT: __WORKDIR__
+    requires:
+        - :docker:compose:default
+    script: docker compose up -d
+    sources:
+        - __WORKDIR__/docker-compose.yml
+:docker-config:
+    working_directory: __WORKDIR__
+    environment:
+        EBRO_ROOT: __WORKDIR__
+    required_by:
+        - :docker:default
+    script: configure docker
 :docker:compose:default:
     working_directory: __WORKDIR__/docker-compose
     environment:

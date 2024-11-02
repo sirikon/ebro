@@ -1,0 +1,4 @@
+:docker-config
+:docker:compose:default
+:docker:default
+:default

@@ -1,6 +1,7 @@
 package cataloger
 
 import (
+	"path"
 	"strings"
 
 	"github.com/sirikon/ebro/internal/config"
@@ -51,6 +52,11 @@ func catalogModule(module *config.Module, name_trail []string, working_directory
 			task.WorkingDirectory = module.WorkingDirectory
 		}
 		task.Environment = utils.MergeEnv(module.Environment, task.Environment)
+		if task.Sources != nil {
+			for i, source := range task.Sources {
+				task.Sources[i] = path.Join(*task.WorkingDirectory, source)
+			}
+		}
 		result[prefix+task_name] = task
 	}
 

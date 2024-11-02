@@ -20,8 +20,23 @@ func Run(catalog cataloger.Catalog, plan planner.Plan) error {
 		task := catalog[task_name]
 
 		if task.Script == "" {
-			color.Green("### satisfied " + task_name)
+			color.Green(logLine(task_name, "satisfied"))
 			continue
+		}
+
+		if task.Sources != nil {
+			changed, err := checkSourcesChanged(task_name, task.Sources)
+			if err != nil {
+				return fmt.Errorf("checking source changes for task %v: %w", task_name, err)
+			}
+			if !changed {
+				color.Green(logLine(task_name, "sources unchanged"))
+				continue
+			}
+			err = hashSources(task_name, task.Sources)
+			if err != nil {
+				return fmt.Errorf("hashing sources for task %v: %w", task_name, err)
+			}
 		}
 
 		if task.SkipIf != "" {
@@ -30,12 +45,12 @@ func Run(catalog cataloger.Catalog, plan planner.Plan) error {
 				return fmt.Errorf("running task %v skip_if: %w", task_name, err)
 			}
 			if status == 0 {
-				color.Green("### skipping " + task_name)
+				color.Green(logLine(task_name, "skipping"))
 				continue
 			}
 		}
 
-		color.Yellow("### running " + task_name)
+		color.Yellow(logLine(task_name, "running"))
 		status, err := runScript(task.Script, *task.WorkingDirectory, task.Environment)
 		if err != nil {
 			return fmt.Errorf("running task %v script: %w", task_name, err)
@@ -45,6 +60,10 @@ func Run(catalog cataloger.Catalog, plan planner.Plan) error {
 		}
 	}
 	return nil
+}
+
+func logLine(task_name string, message string) string {
+	return "### [" + task_name + "] " + message
 }
 
 func runScript(script string, working_directory string, environment map[string]string) (uint8, error) {
