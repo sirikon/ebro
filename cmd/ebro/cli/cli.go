@@ -1,11 +1,14 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type Arguments struct {
@@ -55,8 +58,7 @@ func Parse() Arguments {
 			}
 		}
 		if !found {
-			fmt.Println("Unknown flag " + receivedFlag)
-			os.Exit(1)
+			ExitWithError(errors.New("unknown flag: " + receivedFlag))
 		}
 	}
 
@@ -92,4 +94,11 @@ Available flags:
 		}
 		fmt.Println(doc)
 	}
+}
+
+func ExitWithError(err error) {
+	color.New(color.BgRed).Add(color.FgWhite).Print(" ERROR ")
+	fmt.Print(" ")
+	fmt.Println(err)
+	os.Exit(1)
 }

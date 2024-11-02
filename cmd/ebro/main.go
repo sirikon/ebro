@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"gopkg.in/yaml.v3"
 
@@ -18,15 +17,13 @@ func main() {
 
 	config, err := config.DiscoverConfig()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		cli.ExitWithError(err)
 	}
 
 	if arguments.Flags.Config {
 		bytes, err := yaml.Marshal(config)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			cli.ExitWithError(err)
 		}
 		fmt.Print(string(bytes))
 		return
@@ -37,8 +34,7 @@ func main() {
 	if arguments.Flags.Catalog {
 		bytes, err := yaml.Marshal(catalog)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			cli.ExitWithError(err)
 		}
 		fmt.Print(string(bytes))
 		return
@@ -54,5 +50,8 @@ func main() {
 		return
 	}
 
-	runner.Run(catalog, plan)
+	err = runner.Run(catalog, plan)
+	if err != nil {
+		cli.ExitWithError(err)
+	}
 }
