@@ -2,4 +2,4 @@
 set -euo pipefail
 
 cd playground
-go run ../cmd/ebro/main.go "$@"
+exec go run ../cmd/ebro/main.go "$@"

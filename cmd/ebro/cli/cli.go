@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"strings"
 )
 
 type Arguments struct {
@@ -13,9 +14,9 @@ type Arguments struct {
 }
 
 type Flags struct {
-	Config  bool `flag:"config"`
-	Catalog bool `flag:"catalog"`
-	Plan    bool `flag:"plan"`
+	Config  bool `flag:"config" doc:"Display all imported configuration files merged into one"`
+	Catalog bool `flag:"catalog" doc:"Display complete catalog of tasks with their definitive configuration"`
+	Plan    bool `flag:"plan" doc:"Display the execution plan"`
 }
 
 var flagRe = regexp.MustCompile("^-{1,2}([a-zA-Z0-9 ]+)$")
@@ -67,5 +68,28 @@ func Parse() Arguments {
 }
 
 func printHelp() {
-	fmt.Println("bruh help")
+	fmt.Println(strings.Trim(`
+Usage: ebro [flag?] [targets?...]
+
+Available flags:
+`, " \n\t"))
+	flagsType := reflect.TypeOf(Flags{})
+	flagsWithDoc := make(map[string]string)
+	flagLength := 0
+	for i := 0; i < flagsType.NumField(); i++ {
+		field := flagsType.Field(i)
+		flag := field.Tag.Get("flag")
+		flagsWithDoc[flag] = field.Tag.Get("doc")
+		if len(flag) > flagLength {
+			flagLength = len(flag)
+		}
+	}
+
+	for flag, doc := range flagsWithDoc {
+		fmt.Print("  -" + flag)
+		for i := len(flag); i < (flagLength + 2); i++ {
+			fmt.Print(" ")
+		}
+		fmt.Println(doc)
+	}
 }
