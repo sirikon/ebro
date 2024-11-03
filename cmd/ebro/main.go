@@ -66,7 +66,7 @@ func main() {
 
 func lock() error {
 	lockPath := path.Join(".ebro", "lock")
-	err := os.MkdirAll(lockPath, os.ModePerm)
+	err := os.MkdirAll(path.Dir(lockPath), os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("obtaining lock for process: %w", err)
 	}
