@@ -20,6 +20,8 @@ modules:
         tasks:
             default:
                 script: echo 'Installing stuff with apt'
+                sources:
+                    - ${EBRO_ROOT}/something
     docker:
         working_directory: __WORKDIR__/docker
         environment:

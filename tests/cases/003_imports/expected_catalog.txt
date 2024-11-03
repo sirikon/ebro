@@ -3,6 +3,8 @@
     environment:
         EBRO_ROOT: __WORKDIR__
     script: echo 'Installing stuff with apt'
+    sources:
+        - __WORKDIR__/something
 :default:
     working_directory: __WORKDIR__
     environment:

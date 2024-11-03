@@ -37,7 +37,10 @@ func main() {
 		return
 	}
 
-	catalog := cataloger.MakeCatalog(config)
+	catalog, err := cataloger.MakeCatalog(config)
+	if err != nil {
+		cli.ExitWithError(err)
+	}
 
 	if arguments.Flags.Catalog {
 		bytes, err := yaml.Marshal(catalog)

@@ -1,3 +1,5 @@
 tasks:
   default:
     script: echo 'Installing stuff with apt'
+    sources:
+      - ${EBRO_ROOT}/something
