@@ -40,4 +40,4 @@ tasks:
     skip_if: test -d cache
 ```
 
-It's heavily inspired in [go-task/task](https://github.com/go-task/task), but built around a personal need for configuring servers.
+It's heavily inspired in [go-task/task](https://github.com/go-task/task), but built around a personal need for configuring servers, although it's not tied to this use case.
