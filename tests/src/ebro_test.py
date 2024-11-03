@@ -1,6 +1,6 @@
 from subprocess import run, PIPE
 from os import getcwd, listdir
-from os.path import join
+from os.path import join, isdir
 import unittest
 
 
@@ -30,7 +30,7 @@ class TestEbro(unittest.TestCase):
                 self.assertEqual(actual_stdout, expected_stdout)
 
             plans_dir = join(case_path, "plans")
-            for plan in listdir(plans_dir):
+            for plan in listdir(plans_dir) if isdir(plans_dir) else []:
                 target = plan.removesuffix(".txt")
                 with self.subTest(case + " (plan) (" + target + ")"):
                     plan_path = join(plans_dir, plan)

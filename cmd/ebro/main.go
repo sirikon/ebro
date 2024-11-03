@@ -42,6 +42,11 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
+	err = catalog.Validate()
+	if err != nil {
+		cli.ExitWithError(err)
+	}
+
 	if arguments.Flags.Catalog {
 		bytes, err := yaml.Marshal(catalog)
 		if err != nil {
@@ -52,7 +57,10 @@ func main() {
 	}
 
 	cataloger.NormalizeTaskReferences(catalog, arguments.Targets)
-	plan := planner.MakePlan(catalog, arguments.Targets)
+	plan, err := planner.MakePlan(catalog, arguments.Targets)
+	if err != nil {
+		cli.ExitWithError(err)
+	}
 
 	if arguments.Flags.Plan {
 		for _, step := range plan {
