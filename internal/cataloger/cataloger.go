@@ -43,10 +43,14 @@ func catalogModule(module *config.Module, name_trail []string, working_directory
 
 	for task_name, task := range module.Tasks {
 		for i := range task.Requires {
-			task.Requires[i] = prefix + task.Requires[i]
+			if !strings.HasPrefix(task.Requires[i], ":") {
+				task.Requires[i] = prefix + task.Requires[i]
+			}
 		}
 		for i := range task.RequiredBy {
-			task.RequiredBy[i] = prefix + task.RequiredBy[i]
+			if !strings.HasPrefix(task.RequiredBy[i], ":") {
+				task.RequiredBy[i] = prefix + task.RequiredBy[i]
+			}
 		}
 		if task.WorkingDirectory == nil {
 			task.WorkingDirectory = module.WorkingDirectory
