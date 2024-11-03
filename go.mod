@@ -4,6 +4,7 @@ go 1.23.2
 
 require (
 	github.com/fatih/color v1.18.0
+	github.com/gofrs/flock v0.12.1
 	gopkg.in/yaml.v3 v3.0.1
 	mvdan.cc/sh/v3 v3.10.0
 )
