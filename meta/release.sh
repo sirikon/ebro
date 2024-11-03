@@ -15,10 +15,10 @@ function main {
 
 function build {
     echo "Building ${GOOS} ${GOARCH}"
-    mkdir -p "dist/${EBRO_VERSION}/${GOOS}_${GOARCH}"
+    mkdir -p "dist/${GOOS}_${GOARCH}"
     go build \
         -ldflags "-X github.com/sirikon/ebro/cmd/ebro/cli.version=${EBRO_VERSION}" \
-        -o "dist/${EBRO_VERSION}/${GOOS}_${GOARCH}/ebro" \
+        -o "dist/${GOOS}_${GOARCH}/ebro" \
         cmd/ebro/main.go
 }
 
