@@ -8,7 +8,7 @@ function main {
     dest="${EBRO_BIN}"
     rm -rf "$(dirname "$dest")"
     mkdir -p "$(dirname "$dest")"
-    curl -L -o "$dest" "$url"
+    curl --fail -L -o "$dest" "$url"
     chmod +x "$dest"
 }
 
