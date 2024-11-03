@@ -5,6 +5,6 @@ COPY go.sum .
 RUN go mod download
 COPY cmd ./cmd
 COPY internal ./internal
-COPY meta ./meta
+COPY meta/release.sh ./meta/release.sh
 COPY .git ./.git
 RUN ./meta/release.sh

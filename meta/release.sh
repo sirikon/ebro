@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+EBRO_VERSION="$(git rev-parse --verify HEAD)"
+export EBRO_VERSION
+
 function main {
     rm -rf dist
-    mkdir -p dist
 
     GOOS=linux GOARCH=arm64 build
     GOOS=linux GOARCH=amd64 build
@@ -13,10 +15,10 @@ function main {
 
 function build {
     echo "Building ${GOOS} ${GOARCH}"
-    mkdir -p "dist/${GOOS}_${GOARCH}"
+    mkdir -p "dist/${EBRO_VERSION}/${GOOS}_${GOARCH}"
     go build \
-        -ldflags "-X github.com/sirikon/ebro/cmd/ebro/cli.version=$(git rev-parse --verify HEAD)" \
-        -o "dist/${GOOS}_${GOARCH}/ebro" \
+        -ldflags "-X github.com/sirikon/ebro/cmd/ebro/cli.version=${EBRO_VERSION}" \
+        -o "dist/${EBRO_VERSION}/${GOOS}_${GOARCH}/ebro" \
         cmd/ebro/main.go
 }
 
