@@ -22,6 +22,10 @@ function detect-arch {
         echo "amd64"
         return
     fi
+    if [ "$value" == "aarch64" ]; then
+        echo "arm64"
+        return
+    fi
     echo "$value"
 }
 
