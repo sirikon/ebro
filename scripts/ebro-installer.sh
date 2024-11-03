@@ -9,6 +9,7 @@ function main {
     rm -rf "$(dirname "$dest")"
     mkdir -p "$(dirname "$dest")"
     curl -L -o "$dest" "$url"
+    chmod +x "$dest"
 }
 
 function detect-os {
@@ -19,6 +20,7 @@ function detect-arch {
     value="$(arch)"
     if [ "$value" == "x86_64" ]; then
         echo "amd64"
+        return
     fi
     echo "$value"
 }
