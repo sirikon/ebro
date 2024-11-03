@@ -8,3 +8,4 @@ COPY internal ./internal
 COPY meta/release.sh ./meta/release.sh
 COPY .git ./.git
 RUN ./meta/release.sh
+RUN mv ./dist /dist
