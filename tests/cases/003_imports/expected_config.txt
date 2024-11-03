@@ -15,6 +15,13 @@ tasks:
             - docker
         script: configure docker
 modules:
+    apt:
+        working_directory: ${EBRO_ROOT}/.apt
+        tasks:
+            default:
+                script: echo 'Installing stuff with apt'
+                sources:
+                    - ${EBRO_ROOT}/something
     docker:
         working_directory: __WORKDIR__/docker
         environment:
@@ -23,6 +30,7 @@ modules:
             default:
                 requires:
                     - compose
+                    - :apt
         modules:
             compose:
                 working_directory: __WORKDIR__/docker-compose

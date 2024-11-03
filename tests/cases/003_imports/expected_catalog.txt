@@ -1,3 +1,10 @@
+:apt:default:
+    working_directory: __WORKDIR__/.apt
+    environment:
+        EBRO_ROOT: __WORKDIR__
+    script: echo 'Installing stuff with apt'
+    sources:
+        - __WORKDIR__/something
 :default:
     working_directory: __WORKDIR__
     environment:
@@ -34,3 +41,4 @@
         EBRO_ROOT: __WORKDIR__
     requires:
         - :docker:compose:default
+        - :apt:default

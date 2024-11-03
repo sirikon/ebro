@@ -1,4 +1,6 @@
 imports:
+  apt:
+    from: ./apt
   docker:
     from: ./docker
     environment:

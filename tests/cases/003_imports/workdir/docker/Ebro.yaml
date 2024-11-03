@@ -4,4 +4,4 @@ imports:
 
 tasks:
   default:
-    requires: [compose]
+    requires: [compose, ":apt"]

@@ -1,4 +1,6 @@
 imports:
+  apt:
+    from: ./apt
   docker:
     from: ./docker
     # generated:
@@ -6,7 +8,7 @@ imports:
 
 tasks:
   default:
-    requires: [echoer, producer, docker]
+    requires: [echoer, producer, docker, other_branch]
     environment:
       SOMETHING: something
     script: |
@@ -44,4 +46,6 @@ tasks:
     requires: [other_subtask]
 
   other_subtask:
+    ## uncomment for testing cyclic dependency detection
+    # requires: [other_branch]
     script: echo hello

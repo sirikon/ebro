@@ -40,7 +40,7 @@ func Run(catalog cataloger.Catalog, plan planner.Plan) error {
 		}
 
 		if task.SkipIf != "" {
-			status, err := runScript(task.Script, *task.WorkingDirectory, task.Environment)
+			status, err := runScript(task.SkipIf, *task.WorkingDirectory, task.Environment)
 			if err != nil {
 				return fmt.Errorf("running task %v skip_if: %w", task_name, err)
 			}

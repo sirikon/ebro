@@ -6,6 +6,6 @@ imports:
 
 tasks:
   default:
-    requires: [docker-compose]
+    requires: [docker-compose, ":apt"]
     script: |
       echo "Docker in: $(pwd)"
