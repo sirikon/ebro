@@ -5,7 +5,7 @@ function main {
     os="$(detect-os)"
     arch="$(detect-arch)"
     url="https://ebro.srk.bz/${os}_${arch}/ebro"
-    dest=".ebro/bin/ebro"
+    dest="${EBRO_BIN}"
     rm -rf "$(dirname "$dest")"
     mkdir -p "$(dirname "$dest")"
     curl -L -o "$dest" "$url"
