@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path"
 
+	"github.com/gofrs/flock"
 	"gopkg.in/yaml.v3"
 
 	"github.com/sirikon/ebro/cmd/ebro/cli"
@@ -13,6 +16,11 @@ import (
 )
 
 func main() {
+	err := lock()
+	if err != nil {
+		cli.ExitWithError(err)
+	}
+
 	arguments := cli.Parse()
 
 	config, err := config.DiscoverConfig()
@@ -54,4 +62,19 @@ func main() {
 	if err != nil {
 		cli.ExitWithError(err)
 	}
+}
+
+func lock() error {
+	lockPath := path.Join(".ebro", "lock")
+	err := os.MkdirAll(lockPath, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("obtaining lock for process: %w", err)
+	}
+
+	lock := flock.New(lockPath)
+	err = lock.Lock()
+	if err != nil {
+		return fmt.Errorf("obtaining lock for process: %w", err)
+	}
+	return nil
 }
