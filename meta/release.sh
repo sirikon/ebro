@@ -6,7 +6,6 @@ export EBRO_VERSION
 
 function main {
     rm -rf dist
-
     GOOS=linux GOARCH=arm64 build
     GOOS=linux GOARCH=amd64 build
     GOOS=darwin GOARCH=arm64 build
