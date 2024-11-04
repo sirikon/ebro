@@ -6,8 +6,9 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/sirikon/ebro/internal/utils"
 	"gopkg.in/yaml.v3"
+
+	"github.com/sirikon/ebro/internal/utils"
 )
 
 func parseModuleFromFile(filePath string) (*Module, error) {
@@ -27,11 +28,15 @@ func parseModuleFromFile(filePath string) (*Module, error) {
 		return nil, fmt.Errorf("parsing %v: %w", filePath, err)
 	}
 
-	working_directory, err := filepath.Abs(path.Dir(filePath))
-	if err != nil {
-		return nil, fmt.Errorf("parsing %v: obtaining absolute path to directory: %w", filePath, err)
+	if moduleFile.WorkingDirectory == nil {
+		working_directory, err := filepath.Abs(path.Dir(filePath))
+		if err != nil {
+			return nil, fmt.Errorf("parsing %v: obtaining absolute path to directory: %w", filePath, err)
+		}
+		module.WorkingDirectory = &working_directory
+	} else {
+		module.WorkingDirectory = moduleFile.WorkingDirectory
 	}
-	module.WorkingDirectory = &working_directory
 	module.Environment = moduleFile.Environment
 	module.Tasks = moduleFile.Tasks
 	module.Modules = moduleFile.Modules

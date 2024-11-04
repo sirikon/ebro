@@ -1,5 +1,5 @@
 :apt:default:
-    working_directory: __WORKDIR__/apt
+    working_directory: __WORKDIR__/.apt
     environment:
         EBRO_ROOT: __WORKDIR__
     script: echo 'Installing stuff with apt'

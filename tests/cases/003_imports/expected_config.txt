@@ -16,7 +16,7 @@ tasks:
         script: configure docker
 modules:
     apt:
-        working_directory: /Users/fever/repos/sirikon/ebro/tests/cases/003_imports/workdir/apt
+        working_directory: ${EBRO_ROOT}/.apt
         tasks:
             default:
                 script: echo 'Installing stuff with apt'

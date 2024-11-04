@@ -1,3 +1,4 @@
+working_directory: "${EBRO_ROOT}/.apt"
 tasks:
   default:
     script: echo 'Installing stuff with apt'
