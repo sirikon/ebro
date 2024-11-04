@@ -1,3 +1,6 @@
+environment:
+  DOCKER_VERSION_GITHUB_ID: "v${DOCKER_VERSION}"
+
 imports:
   compose:
     from: ../docker-compose

@@ -1,4 +1,6 @@
 working_directory: __WORKDIR__
+environment:
+    DOCKER_VERSION: 1.2.3
 tasks:
     default:
         requires:
@@ -25,7 +27,7 @@ modules:
     docker:
         working_directory: __WORKDIR__/docker
         environment:
-            DOCKER_VERSION: 1.2.3
+            DOCKER_VERSION_GITHUB_ID: v${DOCKER_VERSION}
         tasks:
             default:
                 requires:

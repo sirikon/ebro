@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
-
-	"github.com/sirikon/ebro/internal/utils"
 )
 
 func parseModuleFromFile(filePath string) (*Module, error) {
@@ -53,7 +51,6 @@ func parseModuleFromFile(filePath string) (*Module, error) {
 		if module.Modules == nil {
 			module.Modules = make(map[string]Module)
 		}
-		submodule.Environment = utils.MergeEnv(import_obj.Environment, submodule.Environment)
 		module.Modules[import_name] = *submodule
 	}
 

@@ -39,6 +39,7 @@ func NormalizeTaskReferences(catalog Catalog, task_names []string) {
 func catalogModule(module *config.Module, name_trail []string, working_directory *string, environment map[string]string) (Catalog, error) {
 	result := make(Catalog)
 	prefix := ":" + strings.Join(append(name_trail, ""), ":")
+	expandMap(module.Environment, environment)
 	module.Environment = utils.MergeEnv(environment, module.Environment)
 	if module.WorkingDirectory == nil {
 		module.WorkingDirectory = working_directory
@@ -65,6 +66,7 @@ func catalogModule(module *config.Module, name_trail []string, working_directory
 				task.RequiredBy[i] = prefix + task.RequiredBy[i]
 			}
 		}
+		expandMap(task.Environment, module.Environment)
 		task.Environment = utils.MergeEnv(module.Environment, task.Environment)
 		if task.WorkingDirectory == nil {
 			task.WorkingDirectory = module.WorkingDirectory
@@ -92,6 +94,7 @@ func catalogModule(module *config.Module, name_trail []string, working_directory
 	}
 
 	for submodule_name, submodule := range module.Modules {
+		expandMap(submodule.Environment, module.Environment)
 		module_tasks, err := catalogModule(&submodule, append(name_trail, submodule_name), module.WorkingDirectory, utils.MergeEnv(module.Environment, submodule.Environment))
 		if err != nil {
 			return nil, err
@@ -111,4 +114,15 @@ func expand(s string, env map[string]string) (string, error) {
 		}
 		return os.Getenv(s)
 	})
+}
+
+func expandMap(m map[string]string, env map[string]string) (map[string]string, error) {
+	for key, value := range m {
+		result, err := expand(value, env)
+		if err != nil {
+			return nil, fmt.Errorf("expanding %v: %w", value, err)
+		}
+		m[key] = result
+	}
+	return m, nil
 }
