@@ -11,6 +11,11 @@ class EbroTestCase(unittest.TestCase):
         self.workdir = normpath(join(getcwd(), "..", "playground"))
         super().__init__(*args, **kwargs)
 
+    def setUp(self) -> None:
+        run(["rm", "-rf", ".ebro"], cwd=self.workdir, check=True)
+        run(["rm", "-rf", ".cache"], cwd=self.workdir, check=True)
+        return super().setUp()
+
     def assertStdout(self, first, second):
         self.assertEqual(first, dedent(second).strip() + "\n")
 
