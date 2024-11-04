@@ -27,9 +27,7 @@ type Task struct {
 }
 
 type Import struct {
-	From        string            `yaml:"from,omitempty"`
-	Environment map[string]string `yaml:"environment,omitempty"`
-	Generated   *Task             `yaml:"generated,omitempty"`
+	From string `yaml:"from,omitempty"`
 }
 
 func (mf ModuleFile) Validate() error {

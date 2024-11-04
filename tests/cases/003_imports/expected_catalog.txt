@@ -1,6 +1,7 @@
 :apt:default:
     working_directory: __WORKDIR__/.apt
     environment:
+        DOCKER_VERSION: 1.2.3
         EBRO_ROOT: __WORKDIR__
     script: echo 'Installing stuff with apt'
     sources:
@@ -8,6 +9,7 @@
 :default:
     working_directory: __WORKDIR__
     environment:
+        DOCKER_VERSION: 1.2.3
         EBRO_ROOT: __WORKDIR__
     requires:
         - :docker-config
@@ -15,6 +17,7 @@
 :docker-compose-project:
     working_directory: __WORKDIR__
     environment:
+        DOCKER_VERSION: 1.2.3
         EBRO_ROOT: __WORKDIR__
     requires:
         - :docker:compose:default
@@ -24,6 +27,7 @@
 :docker-config:
     working_directory: __WORKDIR__
     environment:
+        DOCKER_VERSION: 1.2.3
         EBRO_ROOT: __WORKDIR__
     required_by:
         - :docker:default
@@ -32,12 +36,14 @@
     working_directory: __WORKDIR__/docker-compose
     environment:
         DOCKER_VERSION: 1.2.3
+        DOCKER_VERSION_GITHUB_ID: v1.2.3
         EBRO_ROOT: __WORKDIR__
     script: echo 'docker compose'
 :docker:default:
     working_directory: __WORKDIR__/docker
     environment:
         DOCKER_VERSION: 1.2.3
+        DOCKER_VERSION_GITHUB_ID: v1.2.3
         EBRO_ROOT: __WORKDIR__
     requires:
         - :docker:compose:default
