@@ -10,4 +10,5 @@ if [ ! -d ".venv" ]; then
     poetry install
 fi
 
+export PYTHONPATH=src
 ./.venv/bin/python -m unittest discover src "*_test.py"

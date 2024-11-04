@@ -6,6 +6,8 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
@@ -19,9 +21,9 @@ type Arguments struct {
 }
 
 type Flags struct {
-	Config  bool `flag:"config" doc:"Display all imported configuration files merged into one"`
-	Catalog bool `flag:"catalog" doc:"Display complete catalog of tasks with their definitive configuration"`
-	Plan    bool `flag:"plan" doc:"Display the execution plan"`
+	Config  bool `flag:"config" doc:"0|Display all imported configuration files merged into one"`
+	Catalog bool `flag:"catalog" doc:"1|Display complete catalog of tasks with their definitive configuration"`
+	Plan    bool `flag:"plan" doc:"2|Display the execution plan"`
 }
 
 var flagRe = regexp.MustCompile("^-{1,2}([a-zA-Z0-9 ]+)$")
@@ -86,18 +88,31 @@ Usage: ebro [flag?] [targets?...]
 Available flags:
 `, " \n\t"))
 	flagsType := reflect.TypeOf(Flags{})
-	flagsWithDoc := make(map[string]string)
+	flagsWithDoc := make(map[int][]string)
+	flagsOrders := []int{}
 	flagLength := 0
 	for i := 0; i < flagsType.NumField(); i++ {
 		field := flagsType.Field(i)
 		flag := field.Tag.Get("flag")
-		flagsWithDoc[flag] = field.Tag.Get("doc")
+		doc_parts := strings.Split(field.Tag.Get("doc"), "|")
+		order, err := strconv.Atoi(doc_parts[0])
+		if err != nil {
+			ExitWithError(err)
+		}
+		doc := doc_parts[1]
+		flagsWithDoc[order] = []string{flag, doc}
+		flagsOrders = append(flagsOrders, order)
 		if len(flag) > flagLength {
 			flagLength = len(flag)
 		}
 	}
 
-	for flag, doc := range flagsWithDoc {
+	slices.Sort(flagsOrders)
+
+	for _, order := range flagsOrders {
+		data := flagsWithDoc[order]
+		flag := data[0]
+		doc := data[1]
 		fmt.Print("  -" + flag)
 		for i := len(flag); i < (flagLength + 2); i++ {
 			fmt.Print(" ")
@@ -111,7 +126,11 @@ func printVersion() {
 }
 
 func ExitWithError(err error) {
-	color.New(color.BgRed).Add(color.FgWhite).Print(" ERROR ")
+	if color.NoColor {
+		fmt.Print("ERROR:")
+	} else {
+		color.New(color.BgRed).Add(color.FgWhite).Print(" ERROR ")
+	}
 	fmt.Print(" ")
 	fmt.Println(err)
 	os.Exit(1)
