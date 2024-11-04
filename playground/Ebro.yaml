@@ -6,44 +6,15 @@ imports:
 
 tasks:
   default:
-    requires: [echoer, producer, docker, other_branch]
-    environment:
-      SOMETHING: something
+    requires: [docker]
     script: |
-      echo "Root: ${EBRO_ROOT}"
-      echo "${SOMETHING}"
+      echo "Done!"
 
-  echoer:
-    script: |
-      cat cache/A.txt
-      cat cache/B.txt
-    sources:
-      - cache/A.txt
-      - cache/B.txt
+  chicken:
+    requires: [egg]
+    script: "echo Chicken ready"
 
-  producer:
-    requires: [produce_a, produce_b]
-
-  produce_a:
-    requires: [cache_dir]
-    required_by: [echoer]
-    script: echo 'this is A'>cache/A.txt
-    skip_if: test -f cache/A.txt
-
-  produce_b:
-    requires: [cache_dir]
-    required_by: [echoer]
-    script: echo 'this is B'>cache/B.txt
-    skip_if: test -f cache/B.txt
-
-  cache_dir:
-    script: mkdir -p cache
-    skip_if: test -d cache
-
-  other_branch:
-    requires: [other_subtask]
-
-  other_subtask:
+  egg:
     ## uncomment for testing cyclic dependency detection
-    # requires: [other_branch]
-    script: echo hello
+    # requires: [chicken]
+    script: echo 'Egg ready'
