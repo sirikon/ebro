@@ -1,9 +1,14 @@
-imports:
-  docker-compose:
-    from: ../docker-compose
+environment:
+  DOCKER_APT_VERSION: "${DOCKER_VERSION:-1.0.0}-1-apt"
 
 tasks:
   default:
-    requires: [docker-compose, ":apt"]
-    script: |
-      echo "Docker in: $(pwd)"
+    requires: [package]
+
+  package:
+    requires: [":apt", package-apt-config]
+
+  package-apt-config:
+    requires: [":apt:pre-config"]
+    required_by: [":apt"]
+    script: echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apt/packages.txt"
