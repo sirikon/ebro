@@ -3,7 +3,6 @@ package cataloger
 import (
 	"fmt"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/sirikon/ebro/internal/config"
@@ -76,19 +75,6 @@ func catalogModule(module *config.Module, name_trail []string, working_directory
 				return nil, fmt.Errorf("expanding source %v for task %v: %w", task.WorkingDirectory, task_name, err)
 			}
 			task.WorkingDirectory = &expanded_working_directory
-		}
-		if task.Sources != nil {
-			for i, source := range task.Sources {
-				expanded_source, err := expand(source, task.Environment)
-				if err != nil {
-					return nil, fmt.Errorf("expanding source %v for task %v: %w", source, task_name, err)
-				}
-				if path.IsAbs(expanded_source) {
-					task.Sources[i] = expanded_source
-				} else {
-					task.Sources[i] = path.Join(*task.WorkingDirectory, expanded_source)
-				}
-			}
 		}
 		result[prefix+task_name] = task
 	}
