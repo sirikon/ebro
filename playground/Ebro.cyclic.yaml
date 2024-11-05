@@ -1,0 +1,14 @@
+tasks:
+  default:
+    requires: [field, chicken]
+
+  field:
+    script: echo Field ready
+
+  chicken:
+    requires: [egg]
+    script: echo Chicken ready
+
+  egg:
+    requires: [chicken]
+    script: echo Egg ready

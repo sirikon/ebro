@@ -23,12 +23,12 @@ func main() {
 
 	arguments := cli.Parse()
 
-	config, err := config.DiscoverConfig()
+	config, err := config.ParseModuleFromFile(arguments.File)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
-	if arguments.Flags.Config {
+	if arguments.Command == cli.CommandConfig {
 		bytes, err := yaml.Marshal(config)
 		if err != nil {
 			cli.ExitWithError(err)
@@ -47,7 +47,7 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	if arguments.Flags.Catalog {
+	if arguments.Command == cli.CommandCatalog {
 		bytes, err := yaml.Marshal(catalog)
 		if err != nil {
 			cli.ExitWithError(err)
@@ -62,7 +62,7 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	if arguments.Flags.Plan {
+	if arguments.Command == cli.CommandPlan {
 		for _, step := range plan {
 			fmt.Println(step)
 		}

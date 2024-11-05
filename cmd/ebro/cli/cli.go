@@ -4,70 +4,97 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"reflect"
 	"regexp"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
 )
 
-var version = "dev"
+type Command string
+type Flag string
+
+const (
+	CommandHelp    Command = "help"
+	CommandVersion Command = "version"
+	CommandConfig  Command = "config"
+	CommandCatalog Command = "catalog"
+	CommandPlan    Command = "plan"
+	CommandRun     Command = "run"
+)
+
+const (
+	FlagFile Flag = "file"
+)
+
+var commands = []Command{CommandHelp, CommandVersion, CommandConfig, CommandCatalog, CommandPlan, CommandRun}
+var flags = []Flag{FlagFile}
 
 type Arguments struct {
-	Flags   Flags
+	Command Command
+	File    string
 	Targets []string
 }
 
-type Flags struct {
-	Config  bool `flag:"config" doc:"0|Display all imported configuration files merged into one"`
-	Catalog bool `flag:"catalog" doc:"1|Display complete catalog of tasks with their definitive configuration"`
-	Plan    bool `flag:"plan" doc:"2|Display the execution plan"`
-}
-
-var flagRe = regexp.MustCompile("^-{1,2}([a-zA-Z0-9 ]+)$")
+var version = "dev"
+var commandRe = regexp.MustCompile("^-([a-zA-Z0-9 ]+)$")
+var flagRe = regexp.MustCompile("^--([a-zA-Z0-9 ]+)$")
 
 func Parse() Arguments {
 	result := Arguments{
-		Flags: Flags{
-			Config:  false,
-			Catalog: false,
-			Plan:    false,
-		},
+		Command: CommandRun,
+		File:    "Ebro.yaml",
 		Targets: []string{":default"},
 	}
+
 	args := os.Args[1:]
 	if len(args) == 0 {
 		return result
 	}
 
-	if matches := flagRe.FindStringSubmatch(args[0]); matches != nil {
+	if matches := commandRe.FindStringSubmatch(args[0]); matches != nil {
 		args = args[1:]
-		receivedFlag := matches[1]
+		receivedCommand := Command(matches[1])
 
-		if receivedFlag == "help" {
+		if i := slices.Index(commands, receivedCommand); i == -1 {
+			ExitWithError(errors.New("unknown command: " + string(receivedCommand)))
+		}
+
+		if receivedCommand == CommandHelp {
 			printHelp()
 			os.Exit(0)
 		}
 
-		if receivedFlag == "version" {
+		if receivedCommand == CommandVersion {
 			printVersion()
 			os.Exit(0)
 		}
 
-		flagsType := reflect.TypeOf(result.Flags)
-		found := false
-		for i := 0; i < flagsType.NumField(); i++ {
-			field := flagsType.Field(i)
-			if receivedFlag == field.Tag.Get("flag") {
-				reflect.ValueOf(&result.Flags).Elem().FieldByName(field.Name).SetBool(true)
-				found = true
-				break
-			}
+		result.Command = receivedCommand
+	}
+
+	scanFlags := true
+	for scanFlags {
+		scanFlags = false
+		if len(args) == 0 {
+			continue
 		}
-		if !found {
-			ExitWithError(errors.New("unknown flag: " + receivedFlag))
+		if matches := flagRe.FindStringSubmatch(args[0]); matches != nil {
+			scanFlags = true
+			args = args[1:]
+			receivedFlag := Flag(matches[1])
+			if i := slices.Index(flags, receivedFlag); i == -1 {
+				ExitWithError(errors.New("unknown flag: " + string(receivedFlag)))
+			}
+
+			if receivedFlag == FlagFile {
+				if len(args) >= 1 {
+					result.File = args[0]
+					args = args[1:]
+				} else {
+					ExitWithError(fmt.Errorf("expected value after --file flag"))
+				}
+			}
 		}
 	}
 
@@ -83,41 +110,22 @@ func Parse() Arguments {
 
 func printHelp() {
 	fmt.Println(strings.Trim(`
-Usage: ebro [flag?] [targets?...]
+Usage: ebro [-command?] [--flags?...] [targets?...]
 
-Available flags:
+Available commands:
 `, " \n\t"))
-	flagsType := reflect.TypeOf(Flags{})
-	flagsWithDoc := make(map[int][]string)
-	flagsOrders := []int{}
-	flagLength := 0
-	for i := 0; i < flagsType.NumField(); i++ {
-		field := flagsType.Field(i)
-		flag := field.Tag.Get("flag")
-		doc_parts := strings.Split(field.Tag.Get("doc"), "|")
-		order, err := strconv.Atoi(doc_parts[0])
-		if err != nil {
-			ExitWithError(err)
+	for _, command := range commands {
+		if command == "run" {
+			continue
 		}
-		doc := doc_parts[1]
-		flagsWithDoc[order] = []string{flag, doc}
-		flagsOrders = append(flagsOrders, order)
-		if len(flag) > flagLength {
-			flagLength = len(flag)
-		}
+		fmt.Println("  -" + command)
 	}
-
-	slices.Sort(flagsOrders)
-
-	for _, order := range flagsOrders {
-		data := flagsWithDoc[order]
-		flag := data[0]
-		doc := data[1]
-		fmt.Print("  -" + flag)
-		for i := len(flag); i < (flagLength + 2); i++ {
-			fmt.Print(" ")
-		}
-		fmt.Println(doc)
+	fmt.Println()
+	fmt.Println(strings.Trim(`
+Available flags:
+	`, " \n\t"))
+	for _, flag := range flags {
+		fmt.Println("  --" + flag)
 	}
 }
 
@@ -132,6 +140,10 @@ func ExitWithError(err error) {
 		color.New(color.BgRed).Add(color.FgWhite).Print(" ERROR ")
 	}
 	fmt.Print(" ")
-	fmt.Println(err)
+	if strings.HasSuffix(err.Error(), "\n") {
+		fmt.Print(err)
+	} else {
+		fmt.Println(err)
+	}
 	os.Exit(1)
 }
