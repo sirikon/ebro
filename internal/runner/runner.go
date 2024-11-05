@@ -89,7 +89,7 @@ func runScript(script string, working_directory string, environment map[string]s
 }
 
 func runScriptWithIo(script string, working_directory string, environment map[string]string, stdout io.Writer, stderr io.Writer) (uint8, error) {
-	file, err := syntax.NewParser().Parse(strings.NewReader(script), "")
+	file, err := syntax.NewParser().Parse(strings.NewReader("set -euo pipefail\n"+script), "")
 	if err != nil {
 		return 1, fmt.Errorf("parsing script: %w", err)
 	}
