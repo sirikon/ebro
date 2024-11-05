@@ -30,11 +30,8 @@ class TestConfig(EbroTestCase):
                             script: |
                                 echo 'Installing apt packages'
                                 cat "${{EBRO_ROOT}}/.cache/apt/packages.txt"
-                            sources:
-                                - ${{EBRO_ROOT}}/.cache/apt/packages.txt
                         pre-config:
                             script: mkdir -p "${{EBRO_ROOT}}/.cache/apt"
-                            skip_if: test -d "${{EBRO_ROOT}}/.cache/apt"
                 docker:
                     working_directory: {self.workdir}/docker
                     environment:
@@ -53,5 +50,7 @@ class TestConfig(EbroTestCase):
                             required_by:
                                 - :apt
                             script: echo "docker==${{DOCKER_APT_VERSION}}" > "${{EBRO_ROOT}}/.cache/apt/packages.txt"
+                            when:
+                                output_changes: echo "docker==${{DOCKER_APT_VERSION}}"
             """,
         )

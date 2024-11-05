@@ -1,8 +1,11 @@
 package runner
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -24,30 +27,44 @@ func Run(catalog cataloger.Catalog, plan planner.Plan) error {
 			continue
 		}
 
-		if task.Sources != nil {
-			changed, err := checkSourcesChanged(task_name, task.Sources)
-			if err != nil {
-				return fmt.Errorf("checking source changes for task %v: %w", task_name, err)
+		skip := false
+		if task.When != nil {
+			skip = true
+
+			if task.When.CheckFails != "" {
+				status, err := runScript(task.When.CheckFails, *task.WorkingDirectory, task.Environment)
+				if err != nil {
+					return fmt.Errorf("running task %v when.check_fails: %w", task_name, err)
+				}
+				if status > 0 {
+					skip = false
+				}
 			}
-			if !changed {
-				color.Green(logLine(task_name, "sources unchanged"))
-				continue
-			}
-			err = hashSources(task_name, task.Sources)
-			if err != nil {
-				return fmt.Errorf("hashing sources for task %v: %w", task_name, err)
+
+			if task.When.OutputChanges != "" {
+				output := bytes.Buffer{}
+				outputWriter := bufio.NewWriter(&output)
+				status, err := runScriptWithIo(task.When.OutputChanges, *task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
+				if err != nil {
+					return fmt.Errorf("running task %v when.output_changes: %w", task_name, err)
+				}
+				if status > 0 {
+					return fmt.Errorf("task %v when.output_changes returned status code %v", task_name, status)
+				}
+				outputWriter.Flush()
+				outputChanged, err := storeTaskOutputAndCheckIfChanged(task_name, output.Bytes())
+				if err != nil {
+					return fmt.Errorf("storing output for task %v when.output_changes: %w", task_name, err)
+				}
+				if outputChanged {
+					skip = false
+				}
 			}
 		}
 
-		if task.SkipIf != "" {
-			status, err := runScript(task.SkipIf, *task.WorkingDirectory, task.Environment)
-			if err != nil {
-				return fmt.Errorf("running task %v skip_if: %w", task_name, err)
-			}
-			if status == 0 {
-				color.Green(logLine(task_name, "skipping"))
-				continue
-			}
+		if skip {
+			color.Green(logLine(task_name, "skipping"))
+			continue
 		}
 
 		color.Yellow(logLine(task_name, "running"))
@@ -67,6 +84,10 @@ func logLine(task_name string, message string) string {
 }
 
 func runScript(script string, working_directory string, environment map[string]string) (uint8, error) {
+	return runScriptWithIo(script, working_directory, environment, os.Stdout, os.Stderr)
+}
+
+func runScriptWithIo(script string, working_directory string, environment map[string]string, stdout io.Writer, stderr io.Writer) (uint8, error) {
 	file, err := syntax.NewParser().Parse(strings.NewReader(script), "")
 	if err != nil {
 		return 1, fmt.Errorf("parsing script: %w", err)
@@ -75,7 +96,7 @@ func runScript(script string, working_directory string, environment map[string]s
 	runner, err := interp.New(
 		interp.Env(expand.ListEnviron(append(os.Environ(), environmentToString(environment)...)...)),
 		interp.Dir(working_directory),
-		interp.StdIO(nil, os.Stdout, os.Stderr),
+		interp.StdIO(nil, stdout, stderr),
 	)
 	if err != nil {
 		return 1, fmt.Errorf("runner creation failed: %w", err)

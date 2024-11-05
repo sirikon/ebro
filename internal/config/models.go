@@ -22,8 +22,12 @@ type Task struct {
 	Requires         []string          `yaml:"requires,omitempty"`
 	RequiredBy       []string          `yaml:"required_by,omitempty"`
 	Script           string            `yaml:"script,omitempty"`
-	SkipIf           string            `yaml:"skip_if,omitempty"`
-	Sources          []string          `yaml:"sources,omitempty"`
+	When             *When             `yaml:"when,omitempty"`
+}
+
+type When struct {
+	CheckFails    string `yaml:"check_fails,omitempty"`
+	OutputChanges string `yaml:"output_changes,omitempty"`
 }
 
 type Import struct {
