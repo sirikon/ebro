@@ -24,16 +24,18 @@ const (
 )
 
 const (
-	FlagFile Flag = "file"
+	FlagFile  Flag = "file"
+	FlagForce Flag = "force"
 )
 
 var commands = []Command{CommandHelp, CommandVersion, CommandConfig, CommandCatalog, CommandPlan, CommandRun}
-var flags = []Flag{FlagFile}
+var flags = []Flag{FlagFile, FlagForce}
 
 type Arguments struct {
 	Command Command
 	File    string
 	Targets []string
+	Force   bool
 }
 
 var version = "dev"
@@ -45,6 +47,7 @@ func Parse() Arguments {
 		Command: CommandRun,
 		File:    "Ebro.yaml",
 		Targets: []string{":default"},
+		Force:   false,
 	}
 
 	args := os.Args[1:]
@@ -94,6 +97,10 @@ func Parse() Arguments {
 				} else {
 					ExitWithError(fmt.Errorf("expected value after --file flag"))
 				}
+			}
+
+			if receivedFlag == FlagForce {
+				result.Force = true
 			}
 		}
 	}

@@ -30,8 +30,12 @@ class TestConfig(EbroTestCase):
                             script: |
                                 echo 'Installing apt packages'
                                 cat "${{EBRO_ROOT}}/.cache/apt/packages.txt"
+                            when:
+                                output_changes: cat "${{EBRO_ROOT}}/.cache/apt/"*
                         pre-config:
                             script: mkdir -p "${{EBRO_ROOT}}/.cache/apt"
+                            when:
+                                check_fails: test -d "${{EBRO_ROOT}}/.cache/apt"
                 docker:
                     working_directory: {self.workdir}/docker
                     environment:
