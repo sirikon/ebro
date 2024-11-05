@@ -69,7 +69,7 @@ func main() {
 		return
 	}
 
-	err = runner.Run(catalog, plan)
+	err = runner.Run(catalog, plan, arguments.Force)
 	if err != nil {
 		cli.ExitWithError(err)
 	}

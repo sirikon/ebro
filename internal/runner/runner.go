@@ -18,7 +18,7 @@ import (
 	"github.com/sirikon/ebro/internal/planner"
 )
 
-func Run(catalog cataloger.Catalog, plan planner.Plan) error {
+func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
 	for _, task_name := range plan {
 		task := catalog[task_name]
 
@@ -28,7 +28,7 @@ func Run(catalog cataloger.Catalog, plan planner.Plan) error {
 		}
 
 		skip := false
-		if task.When != nil {
+		if task.When != nil && !force {
 			skip = true
 
 			if task.When.CheckFails != "" {
@@ -48,10 +48,11 @@ func Run(catalog cataloger.Catalog, plan planner.Plan) error {
 				if err != nil {
 					return fmt.Errorf("running task %v when.output_changes: %w", task_name, err)
 				}
-				if status > 0 {
-					return fmt.Errorf("task %v when.output_changes returned status code %v", task_name, status)
-				}
 				outputWriter.Flush()
+				if status > 0 {
+					return fmt.Errorf("task %v when.output_changes returned status code %v. here is the output:\n%v", task_name, status, output.String())
+				}
+
 				outputChanged, err := storeTaskOutputAndCheckIfChanged(task_name, output.Bytes())
 				if err != nil {
 					return fmt.Errorf("storing output for task %v when.output_changes: %w", task_name, err)

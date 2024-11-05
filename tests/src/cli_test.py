@@ -20,6 +20,7 @@ class TestCli(EbroTestCase):
 
             Available flags:
               --file
+              --force
             """,
         )
 
