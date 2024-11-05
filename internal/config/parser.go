@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func parseModuleFromFile(filePath string) (*Module, error) {
+func ParseModuleFromFile(filePath string) (*Module, error) {
 	moduleFile := ModuleFile{}
 	module := Module{}
 
@@ -44,7 +44,7 @@ func parseModuleFromFile(filePath string) (*Module, error) {
 		if ok {
 			return nil, fmt.Errorf("parsing %v: trying to import module %v, but it already exists", filePath, import_name)
 		}
-		submodule, err := parseModuleFromFile(path.Join(path.Dir(filePath), import_obj.From, "Ebro.yaml"))
+		submodule, err := ParseModuleFromFile(path.Join(path.Dir(filePath), import_obj.From, "Ebro.yaml"))
 		if err != nil {
 			return nil, fmt.Errorf("parsing %v: %w", filePath, err)
 		}

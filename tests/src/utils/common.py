@@ -17,7 +17,7 @@ class EbroTestCase(unittest.TestCase):
         return super().setUp()
 
     def assertStdout(self, first, second):
-        self.assertEqual(first, dedent(second).strip() + "\n")
+        self.assertEqual(dedent(second).strip() + "\n", first)
 
     def ebro(self, *args):
         result = run(
