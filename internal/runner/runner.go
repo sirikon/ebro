@@ -32,11 +32,15 @@ func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
 			skip = true
 
 			if task.When.CheckFails != "" {
-				status, err := runScript(task.When.CheckFails, *task.WorkingDirectory, task.Environment)
+				output := bytes.Buffer{}
+				outputWriter := bufio.NewWriter(&output)
+				status, err := runScriptWithIo(task.When.CheckFails, *task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
 				if err != nil {
 					return fmt.Errorf("running task %v when.check_fails: %w", task_name, err)
 				}
+				outputWriter.Flush()
 				if status > 0 {
+					fmt.Println(output.String())
 					skip = false
 				}
 			}
