@@ -40,7 +40,7 @@ func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
 				}
 				outputWriter.Flush()
 				if status > 0 {
-					fmt.Println(output.String())
+					fmt.Print(output.String())
 					skip = false
 				}
 			}
