@@ -45,7 +45,7 @@ class TestCli(EbroTestCase):
         self.assertStdout(
             stdout,
             """
-            ERROR: planning could not complete. there could be a cyclic dependency. here is the list of tasks remaining to be planned and their requirements:
+            ███ ERROR: planning could not complete. there could be a cyclic dependency. here is the list of tasks remaining to be planned and their requirements:
             :chicken:
                 - :egg
             :default:

@@ -9,12 +9,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/fatih/color"
 	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
 
 	"github.com/sirikon/ebro/internal/cataloger"
+	"github.com/sirikon/ebro/internal/logger"
 	"github.com/sirikon/ebro/internal/planner"
 )
 
@@ -23,7 +23,7 @@ func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
 		task := catalog[task_name]
 
 		if task.Script == "" {
-			color.Green(logLine(task_name, "satisfied"))
+			logger.Info(logLine(task_name, "satisfied"))
 			continue
 		}
 
@@ -64,11 +64,11 @@ func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
 		}
 
 		if skip {
-			color.Green(logLine(task_name, "skipping"))
+			logger.Info(logLine(task_name, "skipping"))
 			continue
 		}
 
-		color.Yellow(logLine(task_name, "running"))
+		logger.Notice(logLine(task_name, "running"))
 		status, err := runScript(task.Script, *task.WorkingDirectory, task.Environment)
 		if err != nil {
 			return fmt.Errorf("running task %v script: %w", task_name, err)
@@ -81,7 +81,7 @@ func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
 }
 
 func logLine(task_name string, message string) string {
-	return "### [" + task_name + "] " + message
+	return "[" + task_name + "] " + message
 }
 
 func runScript(script string, working_directory string, environment map[string]string) (uint8, error) {

@@ -8,7 +8,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/fatih/color"
+	"github.com/sirikon/ebro/internal/logger"
 )
 
 type Command string
@@ -28,8 +28,29 @@ const (
 	FlagForce Flag = "force"
 )
 
-var commands = []Command{CommandHelp, CommandVersion, CommandConfig, CommandCatalog, CommandPlan, CommandRun}
-var flags = []Flag{FlagFile, FlagForce}
+type commandInfo struct {
+	Command     Command
+	Description string
+}
+
+type flagInfo struct {
+	Flag        Flag
+	Description string
+}
+
+var commandList = []commandInfo{
+	{CommandHelp, "Displays this help message"},
+	{CommandVersion, "Display ebro's version"},
+	{CommandConfig, "Display all imported configuration files merged into one"},
+	{CommandCatalog, "Display complete catalog of tasks with their definitive configuration"},
+	{CommandPlan, "Display the execution plan"},
+	{CommandRun, ""},
+}
+
+var flagList = []flagInfo{
+	{FlagFile, "Specify the file that should be loaded as root module. default: Ebro.yaml"},
+	{FlagForce, "Ignore when.* conditionals and dont skip any task"},
+}
 
 type Arguments struct {
 	Command Command
@@ -59,7 +80,7 @@ func Parse() Arguments {
 		args = args[1:]
 		receivedCommand := Command(matches[1])
 
-		if i := slices.Index(commands, receivedCommand); i == -1 {
+		if i := slices.IndexFunc(commandList, func(ci commandInfo) bool { return ci.Command == receivedCommand }); i == -1 {
 			ExitWithError(errors.New("unknown command: " + string(receivedCommand)))
 		}
 
@@ -86,7 +107,7 @@ func Parse() Arguments {
 			scanFlags = true
 			args = args[1:]
 			receivedFlag := Flag(matches[1])
-			if i := slices.Index(flags, receivedFlag); i == -1 {
+			if i := slices.IndexFunc(flagList, func(ci flagInfo) bool { return ci.Flag == receivedFlag }); i == -1 {
 				ExitWithError(errors.New("unknown flag: " + string(receivedFlag)))
 			}
 
@@ -121,18 +142,43 @@ Usage: ebro [-command?] [--flags?...] [targets?...]
 
 Available commands:
 `, " \n\t"))
-	for _, command := range commands {
-		if command == "run" {
-			continue
-		}
-		fmt.Println("  -" + command)
-	}
+	printAvailableCommands()
 	fmt.Println()
 	fmt.Println(strings.Trim(`
 Available flags:
 	`, " \n\t"))
-	for _, flag := range flags {
-		fmt.Println("  --" + flag)
+	printAvailableFlags()
+}
+
+func printAvailableCommands() {
+	padding := 0
+	for _, info := range commandList {
+		if len(string(info.Command)) > padding {
+			padding = len(string(info.Command))
+		}
+	}
+
+	for _, info := range commandList {
+		if info.Description == "" {
+			continue
+		}
+		fmt.Println("  -" + padRight(string(info.Command), padding) + "  " + info.Description)
+	}
+}
+
+func printAvailableFlags() {
+	padding := 0
+	for _, info := range flagList {
+		if len(string(info.Flag)) > padding {
+			padding = len(string(info.Flag))
+		}
+	}
+
+	for _, info := range flagList {
+		if info.Description == "" {
+			continue
+		}
+		fmt.Println("  --" + padRight(string(info.Flag), padding) + "  " + info.Description)
 	}
 }
 
@@ -141,16 +187,13 @@ func printVersion() {
 }
 
 func ExitWithError(err error) {
-	if color.NoColor {
-		fmt.Print("ERROR:")
-	} else {
-		color.New(color.BgRed).Add(color.FgWhite).Print(" ERROR ")
-	}
-	fmt.Print(" ")
-	if strings.HasSuffix(err.Error(), "\n") {
-		fmt.Print(err)
-	} else {
-		fmt.Println(err)
-	}
+	logger.Error(err.Error())
 	os.Exit(1)
+}
+
+func padRight(text string, size int) string {
+	for i := len(text); i < size; i++ {
+		text = text + " "
+	}
+	return text
 }
