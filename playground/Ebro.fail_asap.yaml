@@ -1,0 +1,6 @@
+tasks:
+  default:
+    script: |
+      echo "This should print"
+      echo "${UNBOUND_VARIABLE}"
+      echo "This should not print"
