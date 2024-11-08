@@ -10,9 +10,12 @@ class TestCli(EbroTestCase):
             stdout,
             """
             :apt:pre-config
+            :caddy:package-apt-config
             :docker:package-apt-config
             :apt:default
+            :caddy:package
             :docker:package
+            :caddy:default
             :docker:default
             :default
             """,

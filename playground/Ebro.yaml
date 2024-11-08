@@ -3,10 +3,12 @@ imports:
     from: ./apt
   docker:
     from: ./docker
+  caddy:
+    from: ./caddy
 
 tasks:
   default:
-    requires: [docker]
+    requires: [docker, caddy]
     script: |
       echo "Done!"
 
@@ -15,6 +17,4 @@ tasks:
     script: "echo Chicken ready"
 
   egg:
-    ## uncomment for testing cyclic dependency detection
-    # requires: [chicken]
     script: echo 'Egg ready'
