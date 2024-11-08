@@ -6,18 +6,18 @@ export EBRO_VERSION
 
 function main {
     rm -rf dist
-    GOOS=linux GOARCH=arm64 build
-    GOOS=linux GOARCH=amd64 build
-    GOOS=darwin GOARCH=arm64 build
-    GOOS=darwin GOARCH=amd64 build
+    GOOS=linux GOARCH=arm64 build "Linux__aarch64"
+    GOOS=linux GOARCH=amd64 build "Linux__x86_64"
+    GOOS=darwin GOARCH=arm64 build "Darwin__arm64"
 }
 
 function build {
+    dest="dist/${1}/ebro"
     echo "Building ${GOOS} ${GOARCH}"
-    mkdir -p "dist/${GOOS}_${GOARCH}"
+    mkdir -p "$(dirname "$dest")"
     go build \
         -ldflags "-X github.com/sirikon/ebro/cmd/ebro/cli.version=${EBRO_VERSION}" \
-        -o "dist/${GOOS}_${GOARCH}/ebro" \
+        -o "$dest" \
         cmd/ebro/main.go
 }
 
