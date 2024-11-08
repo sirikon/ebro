@@ -89,7 +89,7 @@ func logLine(task_name string, message string) string {
 }
 
 func runScript(script string, working_directory string, environment map[string]string) (uint8, error) {
-	return runScriptWithIo(script, working_directory, environment, os.Stdout, os.Stderr)
+	return runScriptWithIo(script, working_directory, environment, os.Stdout, os.Stdout)
 }
 
 func runScriptWithIo(script string, working_directory string, environment map[string]string, stdout io.Writer, stderr io.Writer) (uint8, error) {

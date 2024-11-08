@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/fatih/color"
@@ -16,12 +17,12 @@ func Notice(text string) {
 }
 
 func Error(text string) {
-	color.New(color.FgHiRed).Add(color.Bold).Print("███ ERROR: ")
-	fmt.Println(normalizeFinalNewLine(text))
+	color.New(color.FgHiRed).Add(color.Bold).Fprint(os.Stderr, "███ ERROR: ")
+	fmt.Fprintln(os.Stderr, normalizeFinalNewLine(text))
 }
 
 func Line(colorAttr color.Attribute, text string) {
-	color.New(colorAttr).Println("███ " + normalizeFinalNewLine(text))
+	color.New(colorAttr).Fprintln(os.Stderr, "███ "+normalizeFinalNewLine(text))
 }
 
 func normalizeFinalNewLine(text string) string {

@@ -1,6 +1,6 @@
 from os import getcwd
 from os.path import join, normpath
-from subprocess import run, PIPE
+from subprocess import run, PIPE, STDOUT
 from textwrap import dedent
 import unittest
 
@@ -24,6 +24,6 @@ class EbroTestCase(unittest.TestCase):
             [join(getcwd(), "..", "out", "ebro"), *args],
             cwd=self.workdir,
             stdout=PIPE,
-            stderr=PIPE,
+            stderr=STDOUT,
         )
         return result.returncode, result.stdout.decode("utf-8")

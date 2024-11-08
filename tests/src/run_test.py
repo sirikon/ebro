@@ -65,3 +65,16 @@ class TestRun(EbroTestCase):
             Done!
             """,
         )
+
+    def test_scripts_fail_asap(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.fail_asap.yaml")
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:default] running
+            This should print
+            UNBOUND_VARIABLE: unbound variable
+            ███ ERROR: task :default returned status code 1
+            """,
+        )
