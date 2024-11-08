@@ -18,6 +18,7 @@ class TestConfig(EbroTestCase):
                 default:
                     requires:
                         - docker
+                        - caddy
                     script: |
                         echo "Done!"
                 egg:
@@ -29,13 +30,32 @@ class TestConfig(EbroTestCase):
                         default:
                             script: |
                                 echo 'Installing apt packages'
-                                cat "${{EBRO_ROOT}}/.cache/apt/packages.txt"
+                                cat "${{EBRO_ROOT}}/.cache/apt/packages/"*
                             when:
-                                output_changes: cat "${{EBRO_ROOT}}/.cache/apt/"*
+                                output_changes: cat "${{EBRO_ROOT}}/.cache/apt/packages/"*
                         pre-config:
-                            script: mkdir -p "${{EBRO_ROOT}}/.cache/apt"
+                            script: mkdir -p "${{EBRO_ROOT}}/.cache/apt/packages"
                             when:
-                                check_fails: test -d "${{EBRO_ROOT}}/.cache/apt"
+                                check_fails: test -d "${{EBRO_ROOT}}/.cache/apt/packages"
+                caddy:
+                    working_directory: {self.workdir}/caddy
+                    tasks:
+                        default:
+                            requires:
+                                - package
+                        package:
+                            requires:
+                                - :apt
+                                - package-apt-config
+                        package-apt-config:
+                            requires:
+                                - :apt:pre-config
+                            required_by:
+                                - :apt
+                            script: echo caddy > "${{EBRO_ROOT}}/.cache/apt/packages/caddy.txt"
+                            when:
+                                check_fails: test -f "${{EBRO_ROOT}}/.cache/apt/packages/caddy.txt"
+                                output_changes: echo caddy
                 docker:
                     working_directory: {self.workdir}/docker
                     environment:
@@ -53,9 +73,9 @@ class TestConfig(EbroTestCase):
                                 - :apt:pre-config
                             required_by:
                                 - :apt
-                            script: echo "docker==${{DOCKER_APT_VERSION}}" > "${{EBRO_ROOT}}/.cache/apt/packages.txt"
+                            script: echo "docker==${{DOCKER_APT_VERSION}}" > "${{EBRO_ROOT}}/.cache/apt/packages/docker.txt"
                             when:
-                                check_fails: test -f "${{EBRO_ROOT}}/.cache/apt/packages.txt"
+                                check_fails: test -f "${{EBRO_ROOT}}/.cache/apt/packages/docker.txt"
                                 output_changes: echo "docker==${{DOCKER_APT_VERSION}}"
             """,
         )
