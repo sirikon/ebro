@@ -43,3 +43,25 @@ class TestRun(EbroTestCase):
             Done!
             """,
         )
+
+        # Third execution, with force, should look like the first one
+        exit_code, stdout = self.ebro("--force")
+        self.assertEqual(exit_code, 0)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:apt:pre-config] running
+            ███ [:caddy:package-apt-config] running
+            ███ [:docker:package-apt-config] running
+            ███ [:apt:default] running
+            Installing apt packages
+            caddy
+            docker==1.0.0-1-apt
+            ███ [:caddy:package] satisfied
+            ███ [:docker:package] satisfied
+            ███ [:caddy:default] satisfied
+            ███ [:docker:default] satisfied
+            ███ [:default] running
+            Done!
+            """,
+        )
