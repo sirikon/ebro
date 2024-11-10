@@ -3,7 +3,7 @@
 > [!WARNING]
 > Work in progress. Undocumented.
 
-ebro is a tool for defining tasks with their dependencies and executing them in the correct order.
+**ebro** is a task runner. A tool for defining tasks with their requirements and executing them in the correct order.
 
 It's configured using Yaml files (sorry) and the tasks are shell scripts interpreted with [mvdan/sh](https://github.com/mvdan/sh).
 
@@ -42,4 +42,4 @@ tasks:
       check_fails: test -d cache
 ```
 
-It's heavily inspired in [go-task/task](https://github.com/go-task/task), but built around a personal need for configuring servers, although it's not tied to this use case.
+It's heavily inspired in [go-task/task](https://github.com/go-task/task), but originally built around a personal need for configuring servers, although it's not tied to this use case.
