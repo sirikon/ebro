@@ -63,7 +63,7 @@ func cloneGitReference(ref *gitReference) error {
 	logger.Notice("cloning " + ref.cloneUrl)
 	_, err = git.PlainClone(ref.clonePath, false, &git.CloneOptions{
 		URL:           ref.cloneUrl,
-		ReferenceName: plumbing.ReferenceName(ref.branch),
+		ReferenceName: plumbing.NewBranchReferenceName(ref.branch),
 		SingleBranch:  true,
 		Progress:      os.Stderr,
 	})
