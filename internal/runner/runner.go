@@ -19,11 +19,11 @@ import (
 )
 
 func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
-	for _, task_name := range plan {
-		task := catalog[task_name]
+	for _, taskName := range plan {
+		task := catalog[taskName]
 
 		if task.Script == "" {
-			logger.Info(logLine(task_name, "satisfied"))
+			logger.Info(logLine(taskName, "satisfied"))
 			continue
 		}
 
@@ -36,7 +36,7 @@ func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
 				outputWriter := bufio.NewWriter(&output)
 				status, err := runScriptWithIo(task.When.CheckFails, *task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
 				if err != nil {
-					return fmt.Errorf("running task %v when.check_fails: %w", task_name, err)
+					return fmt.Errorf("running task %v when.check_fails: %w", taskName, err)
 				}
 				outputWriter.Flush()
 				if status > 0 {
@@ -50,16 +50,16 @@ func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
 				outputWriter := bufio.NewWriter(&output)
 				status, err := runScriptWithIo(task.When.OutputChanges, *task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
 				if err != nil {
-					return fmt.Errorf("running task %v when.output_changes: %w", task_name, err)
+					return fmt.Errorf("running task %v when.output_changes: %w", taskName, err)
 				}
 				outputWriter.Flush()
 				if status > 0 {
-					return fmt.Errorf("task %v when.output_changes returned status code %v. here is the output:\n%v", task_name, status, output.String())
+					return fmt.Errorf("task %v when.output_changes returned status code %v. here is the output:\n%v", taskName, status, output.String())
 				}
 
-				outputChanged, err := storeTaskOutputAndCheckIfChanged(task_name, output.Bytes())
+				outputChanged, err := storeTaskOutputAndCheckIfChanged(taskName, output.Bytes())
 				if err != nil {
-					return fmt.Errorf("storing output for task %v when.output_changes: %w", task_name, err)
+					return fmt.Errorf("storing output for task %v when.output_changes: %w", taskName, err)
 				}
 				if outputChanged {
 					skip = false
@@ -68,31 +68,31 @@ func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
 		}
 
 		if skip {
-			logger.Info(logLine(task_name, "skipping"))
+			logger.Info(logLine(taskName, "skipping"))
 			continue
 		}
 
-		logger.Notice(logLine(task_name, "running"))
+		logger.Notice(logLine(taskName, "running"))
 		status, err := runScript(task.Script, *task.WorkingDirectory, task.Environment)
 		if err != nil {
-			return fmt.Errorf("running task %v script: %w", task_name, err)
+			return fmt.Errorf("running task %v script: %w", taskName, err)
 		}
 		if status != 0 {
-			return fmt.Errorf("task %v returned status code %v", task_name, status)
+			return fmt.Errorf("task %v returned status code %v", taskName, status)
 		}
 	}
 	return nil
 }
 
-func logLine(task_name string, message string) string {
-	return "[" + task_name + "] " + message
+func logLine(taskName string, message string) string {
+	return "[" + taskName + "] " + message
 }
 
-func runScript(script string, working_directory string, environment map[string]string) (uint8, error) {
-	return runScriptWithIo(script, working_directory, environment, os.Stdout, os.Stdout)
+func runScript(script string, workingDirectory string, environment map[string]string) (uint8, error) {
+	return runScriptWithIo(script, workingDirectory, environment, os.Stdout, os.Stdout)
 }
 
-func runScriptWithIo(script string, working_directory string, environment map[string]string, stdout io.Writer, stderr io.Writer) (uint8, error) {
+func runScriptWithIo(script string, workingDirectory string, environment map[string]string, stdout io.Writer, stderr io.Writer) (uint8, error) {
 	file, err := syntax.NewParser().Parse(strings.NewReader("set -euo pipefail\n"+script), "")
 	if err != nil {
 		return 1, fmt.Errorf("parsing script: %w", err)
@@ -100,7 +100,7 @@ func runScriptWithIo(script string, working_directory string, environment map[st
 
 	runner, err := interp.New(
 		interp.Env(expand.ListEnviron(append(os.Environ(), environmentToString(environment)...)...)),
-		interp.Dir(working_directory),
+		interp.Dir(workingDirectory),
 		interp.StdIO(nil, stdout, stderr),
 	)
 	if err != nil {

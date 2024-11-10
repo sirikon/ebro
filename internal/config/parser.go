@@ -31,11 +31,11 @@ func parseModuleFromFile(filePath string) (*Module, error) {
 	}
 
 	if moduleFile.WorkingDirectory == nil {
-		working_directory, err := filepath.Abs(path.Dir(filePath))
+		workingDirectory, err := filepath.Abs(path.Dir(filePath))
 		if err != nil {
 			return nil, fmt.Errorf("parsing %v: obtaining absolute path to directory: %w", filePath, err)
 		}
-		module.WorkingDirectory = &working_directory
+		module.WorkingDirectory = &workingDirectory
 	} else {
 		module.WorkingDirectory = moduleFile.WorkingDirectory
 	}
@@ -43,33 +43,34 @@ func parseModuleFromFile(filePath string) (*Module, error) {
 	module.Tasks = moduleFile.Tasks
 	module.Modules = moduleFile.Modules
 
-	for import_name, import_obj := range moduleFile.Imports {
-		_, ok := module.Modules[import_name]
+	for importName, importObj := range moduleFile.Imports {
+		_, ok := module.Modules[importName]
 		if ok {
-			return nil, fmt.Errorf("parsing %v: trying to import module %v, but it already exists", filePath, import_name)
+			return nil, fmt.Errorf("parsing %v: trying to import module %v, but it already exists", filePath, importName)
 		}
-		module_file_path := path.Join(path.Dir(filePath), import_obj.From, "Ebro.yaml")
-		git_refernce, err := parseGitReference(import_obj.From)
+
+		moduleFilePath := path.Join(path.Dir(filePath), importObj.From, "Ebro.yaml")
+		gitReference, err := parseGitReference(importObj.From)
 		if err != nil {
-			return nil, fmt.Errorf("parsing possible git reference %v in file %v: %w", import_obj.From, filePath, err)
+			return nil, fmt.Errorf("parsing possible git reference %v in file %v: %w", importObj.From, filePath, err)
 		}
 
-		if git_refernce != nil {
-			err := gitCloneModule(git_refernce)
+		if gitReference != nil {
+			err := cloneGitReference(gitReference)
 			if err != nil {
-				return nil, fmt.Errorf("cloning %v: %w", import_name, err)
+				return nil, fmt.Errorf("cloning %v: %w", importName, err)
 			}
-			module_file_path = path.Join(git_refernce.clonePath, git_refernce.subPath, "Ebro.yaml")
+			moduleFilePath = path.Join(gitReference.clonePath, gitReference.subPath, "Ebro.yaml")
 		}
 
-		submodule, err := parseModuleFromFile(module_file_path)
+		submodule, err := parseModuleFromFile(moduleFilePath)
 		if err != nil {
 			return nil, fmt.Errorf("parsing %v: %w", filePath, err)
 		}
 		if module.Modules == nil {
 			module.Modules = make(map[string]Module)
 		}
-		module.Modules[import_name] = *submodule
+		module.Modules[importName] = *submodule
 	}
 
 	return &module, nil

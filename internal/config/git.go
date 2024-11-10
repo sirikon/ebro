@@ -20,21 +20,21 @@ type gitReference struct {
 	subPath   string
 }
 
-func parseGitReference(_url string) (*gitReference, error) {
-	if !strings.HasPrefix(_url, "git+") {
+func parseGitReference(refUrl string) (*gitReference, error) {
+	if !strings.HasPrefix(refUrl, "git+") {
 		return nil, nil
 	}
-	_url = strings.TrimPrefix(_url, "git+")
-	parsedUrl, err := url.Parse(_url)
+	refUrl = strings.TrimPrefix(refUrl, "git+")
+	parsedUrl, err := url.Parse(refUrl)
 	if err != nil {
-		return nil, fmt.Errorf("parsing url %v: %w", _url, err)
+		return nil, fmt.Errorf("parsing url %v: %w", refUrl, err)
 	}
 	branch := "master"
 	subPath := "."
 	if parsedUrl.Fragment != "" {
 		values, err := url.ParseQuery(strings.TrimPrefix(parsedUrl.Fragment, "?"))
 		if err != nil {
-			return nil, fmt.Errorf("parsing fragment of url %v: %w", _url, err)
+			return nil, fmt.Errorf("parsing fragment of url %v: %w", refUrl, err)
 		}
 		if val, ok := values["path"]; ok {
 			subPath = val[0]
@@ -52,7 +52,7 @@ func parseGitReference(_url string) (*gitReference, error) {
 	}, nil
 }
 
-func gitCloneModule(ref *gitReference) error {
+func cloneGitReference(ref *gitReference) error {
 	_, err := os.Stat(ref.clonePath)
 	if err == nil {
 		return nil

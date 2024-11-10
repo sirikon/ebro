@@ -9,7 +9,7 @@ import (
 	"path"
 )
 
-func storeTaskOutputAndCheckIfChanged(task_name string, output []byte) (bool, error) {
+func storeTaskOutputAndCheckIfChanged(taskName string, output []byte) (bool, error) {
 	changed := false
 
 	newHash, err := hashBytes(output)
@@ -17,7 +17,7 @@ func storeTaskOutputAndCheckIfChanged(task_name string, output []byte) (bool, er
 		return changed, fmt.Errorf("hashing output: %w", err)
 	}
 
-	outputPath := path.Join(".ebro", "output_tracking", task_name)
+	outputPath := path.Join(".ebro", "output_tracking", taskName)
 	err = os.MkdirAll(path.Dir(outputPath), os.ModePerm)
 	if err != nil {
 		return changed, fmt.Errorf("creating directory for output tracking: %w", err)
@@ -28,7 +28,7 @@ func storeTaskOutputAndCheckIfChanged(task_name string, output []byte) (bool, er
 		changed = true
 	} else {
 		if err != nil {
-			return changed, fmt.Errorf("reading output tracker for task %v: %w", task_name, err)
+			return changed, fmt.Errorf("reading output tracker for task %v: %w", taskName, err)
 		}
 		currentHash := string(currentHashBytes)
 
@@ -38,7 +38,7 @@ func storeTaskOutputAndCheckIfChanged(task_name string, output []byte) (bool, er
 	if changed {
 		err = os.WriteFile(outputPath, []byte(newHash), os.ModePerm)
 		if err != nil {
-			return changed, fmt.Errorf("writing output tracker for task %v: %w", task_name, err)
+			return changed, fmt.Errorf("writing output tracker for task %v: %w", taskName, err)
 		}
 	}
 

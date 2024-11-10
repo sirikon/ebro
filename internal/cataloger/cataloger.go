@@ -24,37 +24,37 @@ func MakeCatalog(module *config.Module) (Catalog, error) {
 	return catalog, nil
 }
 
-func NormalizeTaskReferences(catalog Catalog, task_names []string) {
-	for i, task_name := range task_names {
-		defaulted_task_name := task_name + ":default"
-		_, taskExists := catalog[task_name]
-		_, defaultedTaskExists := catalog[defaulted_task_name]
+func NormalizeTaskReferences(catalog Catalog, taskNames []string) {
+	for i, taskName := range taskNames {
+		defaultedTaskName := taskName + ":default"
+		_, taskExists := catalog[taskName]
+		_, defaultedTaskExists := catalog[defaultedTaskName]
 		if !taskExists && defaultedTaskExists {
-			task_names[i] = defaulted_task_name
+			taskNames[i] = defaultedTaskName
 		}
 	}
 }
 
-func catalogModule(module *config.Module, name_trail []string, working_directory *string, environment map[string]string) (Catalog, error) {
+func catalogModule(module *config.Module, nameTrail []string, workingDirectory *string, environment map[string]string) (Catalog, error) {
 	result := make(Catalog)
-	prefix := ":" + strings.Join(append(name_trail, ""), ":")
+	prefix := ":" + strings.Join(append(nameTrail, ""), ":")
 	expandMap(module.Environment, environment)
 	module.Environment = utils.MergeEnv(environment, module.Environment)
 	if module.WorkingDirectory == nil {
-		module.WorkingDirectory = working_directory
+		module.WorkingDirectory = workingDirectory
 	} else {
-		expanded_working_directory, err := expand(*module.WorkingDirectory, module.Environment)
+		expandedWorkingDirectory, err := expand(*module.WorkingDirectory, module.Environment)
 		if err != nil {
 			return nil, fmt.Errorf("expanding source %v: %w", module.WorkingDirectory, err)
 		}
-		module.WorkingDirectory = &expanded_working_directory
+		module.WorkingDirectory = &expandedWorkingDirectory
 	}
 
 	if _, ok := module.Environment["EBRO_ROOT"]; !ok {
 		module.Environment["EBRO_ROOT"] = *module.WorkingDirectory
 	}
 
-	for task_name, task := range module.Tasks {
+	for taskName, task := range module.Tasks {
 		for i := range task.Requires {
 			if !strings.HasPrefix(task.Requires[i], ":") {
 				task.Requires[i] = prefix + task.Requires[i]
@@ -70,23 +70,23 @@ func catalogModule(module *config.Module, name_trail []string, working_directory
 		if task.WorkingDirectory == nil {
 			task.WorkingDirectory = module.WorkingDirectory
 		} else {
-			expanded_working_directory, err := expand(*task.WorkingDirectory, task.Environment)
+			expandedWorkingDirectory, err := expand(*task.WorkingDirectory, task.Environment)
 			if err != nil {
-				return nil, fmt.Errorf("expanding source %v for task %v: %w", task.WorkingDirectory, task_name, err)
+				return nil, fmt.Errorf("expanding source %v for task %v: %w", task.WorkingDirectory, taskName, err)
 			}
-			task.WorkingDirectory = &expanded_working_directory
+			task.WorkingDirectory = &expandedWorkingDirectory
 		}
-		result[prefix+task_name] = task
+		result[prefix+taskName] = task
 	}
 
-	for submodule_name, submodule := range module.Modules {
+	for submoduleName, submodule := range module.Modules {
 		expandMap(submodule.Environment, module.Environment)
-		module_tasks, err := catalogModule(&submodule, append(name_trail, submodule_name), module.WorkingDirectory, utils.MergeEnv(module.Environment, submodule.Environment))
+		moduleTasks, err := catalogModule(&submodule, append(nameTrail, submoduleName), module.WorkingDirectory, utils.MergeEnv(module.Environment, submodule.Environment))
 		if err != nil {
 			return nil, err
 		}
-		for task_name, task := range module_tasks {
-			result[task_name] = task
+		for taskName, task := range moduleTasks {
+			result[taskName] = task
 		}
 	}
 

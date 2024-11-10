@@ -15,12 +15,12 @@ func MakePlan(catalog cataloger.Catalog, targets []string) (Plan, error) {
 	tasksToRun := []string{}
 	requirementsIndex := make(map[string][]string)
 
-	addTasksToRun := func(task_names ...string) {
-		for _, task_name := range task_names {
-			if i := slices.Index(tasksToRun, task_name); i == -1 {
-				tasksToRun = append(tasksToRun, task_name)
-				if _, ok := requirementsIndex[task_name]; !ok {
-					requirementsIndex[task_name] = []string{}
+	addTasksToRun := func(taskNames ...string) {
+		for _, taskName := range taskNames {
+			if i := slices.Index(tasksToRun, taskName); i == -1 {
+				tasksToRun = append(tasksToRun, taskName)
+				if _, ok := requirementsIndex[taskName]; !ok {
+					requirementsIndex[taskName] = []string{}
 				}
 			}
 		}
@@ -42,12 +42,12 @@ func MakePlan(catalog cataloger.Catalog, targets []string) (Plan, error) {
 	}
 
 	for i := 0; i < len(tasksToRun); i++ {
-		task_name := tasksToRun[i]
-		task := catalog[task_name]
+		taskName := tasksToRun[i]
+		task := catalog[taskName]
 		addTasksToRun(task.Requires...)
-		addRequirements(task_name, task.Requires...)
+		addRequirements(taskName, task.Requires...)
 		for _, parent := range task.RequiredBy {
-			addRequirements(parent, task_name)
+			addRequirements(parent, taskName)
 		}
 	}
 
