@@ -8,8 +8,8 @@ import (
 	"github.com/gofrs/flock"
 	"gopkg.in/yaml.v3"
 
-	"github.com/sirikon/ebro/cmd/ebro/cli"
 	"github.com/sirikon/ebro/internal/cataloger"
+	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/runner"
@@ -23,7 +23,17 @@ func main() {
 
 	arguments := cli.Parse()
 
-	config, err := config.ParseModuleFromFile(arguments.File)
+	if arguments.Command == cli.CommandHelp {
+		cli.PrintHelp()
+		os.Exit(0)
+	}
+
+	if arguments.Command == cli.CommandVersion {
+		cli.PrintVersion()
+		os.Exit(0)
+	}
+
+	config, err := config.ParseModuleFromFile(*arguments.GetFlagString(cli.FlagFile))
 	if err != nil {
 		cli.ExitWithError(err)
 	}
@@ -69,7 +79,7 @@ func main() {
 		return
 	}
 
-	err = runner.Run(catalog, plan, arguments.Force)
+	err = runner.Run(catalog, plan, *arguments.GetFlagBool(cli.FlagForce))
 	if err != nil {
 		cli.ExitWithError(err)
 	}
