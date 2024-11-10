@@ -13,59 +13,70 @@ import (
 	"github.com/sirikon/ebro/internal/logger"
 )
 
-type gitReference struct {
-	cloneUrl  string
-	clonePath string
-	branch    string
-	subPath   string
+type gitImport struct {
+	url     string
+	ref     plumbing.ReferenceName
+	path    string
+	subpath string
 }
 
-func parseGitReference(refUrl string) (*gitReference, error) {
-	if !strings.HasPrefix(refUrl, "git+") {
+func parseGitImport(importUrl string) (*gitImport, error) {
+	if !strings.HasPrefix(importUrl, "git+") {
 		return nil, nil
 	}
-	refUrl = strings.TrimPrefix(refUrl, "git+")
-	parsedUrl, err := url.Parse(refUrl)
+
+	parsedUrl, err := url.Parse(strings.TrimPrefix(importUrl, "git+"))
 	if err != nil {
-		return nil, fmt.Errorf("parsing url %v: %w", refUrl, err)
+		return nil, fmt.Errorf("parsing url %v: %w", importUrl, err)
 	}
-	branch := "master"
-	subPath := "."
+
+	result := gitImport{
+		url:     parsedUrl.Scheme + "://" + parsedUrl.Host + parsedUrl.Path,
+		subpath: ".",
+		ref:     "",
+		path:    "",
+	}
+
+	setResultRef := func(ref plumbing.ReferenceName) {
+		result.ref = ref
+		result.path = path.Join(".ebro", "git", parsedUrl.Scheme, parsedUrl.Host+parsedUrl.Path, string(ref))
+	}
+	setResultRef(plumbing.Master)
+
 	if parsedUrl.Fragment != "" {
-		values, err := url.ParseQuery(strings.TrimPrefix(parsedUrl.Fragment, "?"))
+		fragmentQuery, err := url.ParseQuery(strings.TrimPrefix(parsedUrl.Fragment, "?"))
 		if err != nil {
-			return nil, fmt.Errorf("parsing fragment of url %v: %w", refUrl, err)
+			return nil, fmt.Errorf("parsing fragment of url %v: %w", importUrl, err)
 		}
-		if val, ok := values["path"]; ok {
-			subPath = val[0]
+
+		if val, ok := fragmentQuery["ref"]; ok {
+			setResultRef(plumbing.ReferenceName(val[0]))
 		}
-		if val, ok := values["branch"]; ok {
-			branch = val[0]
+		if val, ok := fragmentQuery["path"]; ok {
+			result.subpath = val[0]
 		}
 	}
 
-	return &gitReference{
-		cloneUrl:  parsedUrl.Scheme + "://" + parsedUrl.Host + parsedUrl.Path,
-		clonePath: path.Join(".ebro", "git", parsedUrl.Scheme, parsedUrl.Host+parsedUrl.Path, branch),
-		branch:    branch,
-		subPath:   subPath,
-	}, nil
+	return &result, nil
 }
 
-func cloneGitReference(ref *gitReference) error {
-	_, err := os.Stat(ref.clonePath)
+func cloneGitImport(gi *gitImport) error {
+	_, err := os.Stat(gi.path)
 	if err == nil {
 		return nil
 	}
+
 	if !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
-	logger.Notice("cloning " + ref.cloneUrl)
-	_, err = git.PlainClone(ref.clonePath, false, &git.CloneOptions{
-		URL:           ref.cloneUrl,
-		ReferenceName: plumbing.NewBranchReferenceName(ref.branch),
+
+	logger.Notice("cloning " + gi.url)
+	_, err = git.PlainClone(gi.path, false, &git.CloneOptions{
+		URL:           gi.url,
+		ReferenceName: gi.ref,
 		SingleBranch:  true,
 		Progress:      os.Stderr,
 	})
+
 	return err
 }
