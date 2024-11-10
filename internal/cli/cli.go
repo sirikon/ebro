@@ -11,14 +11,13 @@ import (
 	"github.com/sirikon/ebro/internal/logger"
 )
 
-var version = "dev"
 var commandRe = regexp.MustCompile("^-([a-zA-Z0-9 ]+)$")
 var flagRe = regexp.MustCompile("^--([a-zA-Z0-9 ]+)$")
 
 func Parse() ExecutionArguments {
 	result := ExecutionArguments{
 		Command: CommandRun,
-		Targets: []string{":default"},
+		Targets: []string{":" + DefaultTarget},
 	}
 
 	args := os.Args[1:]

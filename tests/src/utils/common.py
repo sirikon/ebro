@@ -16,8 +16,11 @@ class EbroTestCase(unittest.TestCase):
         run(["rm", "-rf", ".cache"], cwd=self.workdir, check=True)
         return super().setUp()
 
-    def assertStdout(self, first, second):
+    def assertStdout(self, first: str, second: str):
         self.assertEqual(dedent(second).strip() + "\n", first)
+
+    def assertStdoutStrict(self, first: str, second: str):
+        self.assertEqual(second, first)
 
     def ebro(self, *args):
         result = run(

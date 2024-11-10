@@ -16,7 +16,7 @@ function build {
     echo "Building ${GOOS} ${GOARCH}"
     mkdir -p "$(dirname "$dest")"
     go build \
-        -ldflags "-X github.com/sirikon/ebro/cmd/ebro/cli.version=${EBRO_VERSION}" \
+        -ldflags "-X github.com/sirikon/ebro/internal/build.Version=${EBRO_VERSION}" \
         -o "$dest" \
         cmd/ebro/main.go
 }

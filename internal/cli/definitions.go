@@ -2,6 +2,8 @@ package cli
 
 import "reflect"
 
+const DefaultTarget = "default"
+
 var FlagFile = &Flag{
 	Name:        "file",
 	Description: "Specify the file that should be loaded as root module",
@@ -51,7 +53,7 @@ var CommandVersion = &Command{
 
 var CommandHelp = &Command{
 	Name:        "help",
-	Description: "Displays this help message",
+	Description: "Display this help message",
 }
 
 var commands = []*Command{CommandRun, CommandConfig, CommandCatalog, CommandPlan, CommandVersion, CommandHelp}

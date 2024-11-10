@@ -6,18 +6,46 @@ class TestCli(EbroTestCase):
     def test_help_is_displayed(self):
         exit_code, stdout = self.ebro("-help")
         self.assertEqual(exit_code, 0)
-        self.assertStdout(
+        self.assertStdoutStrict(
             stdout,
             """
-            Usage: ebro [-command?] [--flags?...] [targets?...]
+  ebro [--flags...] [targets...]
+    # Run everything
+    flags:
+      --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+      --force       Ignore when.* conditionals and dont skip any task. default: false
+    targets:
+      defaults to [default]
 
-            Available commands:
-              -config   Display all imported configuration files merged into one
-              -catalog  Display complete catalog of tasks with their definitive configuration
-              -plan     Display the execution plan
-              -version  Display ebro's version
-              -help     Displays this help message
-            """,
+
+  ebro -config [--flags...]
+    # Display all imported configuration files merged into one
+    flags:
+      --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+
+
+  ebro -catalog [--flags...]
+    # Display complete catalog of tasks with their definitive configuration
+    flags:
+      --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+
+
+  ebro -plan [--flags...] [targets...]
+    # Display the execution plan
+    flags:
+      --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+    targets:
+      defaults to [default]
+
+
+  ebro -version
+    # Display ebro's version
+
+
+  ebro -help
+    # Display this help message
+
+""",
         )
 
     def test_unknown_commands_are_reported(self):
