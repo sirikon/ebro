@@ -1,0 +1,11 @@
+imports:
+  apt:
+    from: ./apt
+  caddy:
+    from: git+https://github.com/sirikon/ebro.git#?path=playground/caddy
+
+tasks:
+  default:
+    requires: [caddy]
+    script: |
+      echo "Done!"
