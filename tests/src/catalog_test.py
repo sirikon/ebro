@@ -4,7 +4,7 @@ from utils.common import EbroTestCase
 class TestCatalog(EbroTestCase):
 
     def test_catalog_is_correct(self):
-        exit_code, stdout = self.ebro("-catalog")
+        exit_code, stdout = self.ebro("-inventory")
         self.assertEqual(exit_code, 0)
         self.assertStdout(
             stdout,

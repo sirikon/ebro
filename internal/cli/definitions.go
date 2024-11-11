@@ -25,9 +25,9 @@ var CommandRun = &Command{
 	AcceptsTargets: true,
 }
 
-var CommandCatalog = &Command{
-	Name:           "catalog",
-	Description:    "Display complete catalog of tasks with their definitive configuration",
+var CommandInventory = &Command{
+	Name:           "inventory",
+	Description:    "Display complete inventory of tasks with their definitive configuration",
 	Flags:          []*Flag{FlagFile},
 	AcceptsTargets: false,
 }
@@ -49,4 +49,4 @@ var CommandHelp = &Command{
 	Description: "Display this help message",
 }
 
-var commands = []*Command{CommandRun, CommandCatalog, CommandPlan, CommandVersion, CommandHelp}
+var commands = []*Command{CommandRun, CommandInventory, CommandPlan, CommandVersion, CommandHelp}

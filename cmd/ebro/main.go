@@ -48,7 +48,7 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	if arguments.Command == cli.CommandCatalog {
+	if arguments.Command == cli.CommandInventory {
 		bytes, err := yaml.Marshal(catalog)
 		if err != nil {
 			cli.ExitWithError(err)

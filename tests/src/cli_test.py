@@ -18,8 +18,8 @@ class TestCli(EbroTestCase):
       defaults to [default]
 
 
-  ebro -catalog [--flags...]
-    # Display complete catalog of tasks with their definitive configuration
+  ebro -inventory [--flags...]
+    # Display complete inventory of tasks with their definitive configuration
     flags:
       --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
 
