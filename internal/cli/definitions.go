@@ -25,13 +25,6 @@ var CommandRun = &Command{
 	AcceptsTargets: true,
 }
 
-var CommandConfig = &Command{
-	Name:           "config",
-	Description:    "Display all imported configuration files merged into one",
-	Flags:          []*Flag{FlagFile},
-	AcceptsTargets: false,
-}
-
 var CommandCatalog = &Command{
 	Name:           "catalog",
 	Description:    "Display complete catalog of tasks with their definitive configuration",
@@ -56,4 +49,4 @@ var CommandHelp = &Command{
 	Description: "Display this help message",
 }
 
-var commands = []*Command{CommandRun, CommandConfig, CommandCatalog, CommandPlan, CommandVersion, CommandHelp}
+var commands = []*Command{CommandRun, CommandCatalog, CommandPlan, CommandVersion, CommandHelp}

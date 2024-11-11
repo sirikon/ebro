@@ -38,15 +38,6 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	if arguments.Command == cli.CommandConfig {
-		bytes, err := yaml.Marshal(config)
-		if err != nil {
-			cli.ExitWithError(err)
-		}
-		fmt.Print(string(bytes))
-		return
-	}
-
 	catalog, err := cataloger.MakeCatalog(config)
 	if err != nil {
 		cli.ExitWithError(err)
