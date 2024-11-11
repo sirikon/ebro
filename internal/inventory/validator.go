@@ -1,8 +1,8 @@
-package cataloger
+package inventory
 
 import "fmt"
 
-func (c Catalog) Validate() error {
+func (c Inventory) Validate() error {
 	for taskName, task := range c {
 		for _, otherTaskName := range append(task.Requires, task.RequiredBy...) {
 			if _, ok := c[otherTaskName]; !ok {

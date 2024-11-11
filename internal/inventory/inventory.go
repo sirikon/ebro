@@ -1,4 +1,4 @@
-package cataloger
+package inventory
 
 import (
 	"fmt"
@@ -10,33 +10,33 @@ import (
 	"mvdan.cc/sh/v3/shell"
 )
 
-type Catalog map[string]config.Task
+type Inventory map[string]config.Task
 
-func MakeCatalog(module *config.Module) (Catalog, error) {
-	catalog, err := catalogModule(module, []string{}, nil, make(map[string]string))
+func MakeInventory(module *config.Module) (Inventory, error) {
+	inv, err := processModule(module, []string{}, nil, make(map[string]string))
 	if err != nil {
-		return nil, fmt.Errorf("making catalog: %w", err)
+		return nil, fmt.Errorf("making inventory: %w", err)
 	}
-	for _, task := range catalog {
-		NormalizeTaskReferences(catalog, task.Requires)
-		NormalizeTaskReferences(catalog, task.RequiredBy)
+	for _, task := range inv {
+		NormalizeTaskReferences(inv, task.Requires)
+		NormalizeTaskReferences(inv, task.RequiredBy)
 	}
-	return catalog, nil
+	return inv, nil
 }
 
-func NormalizeTaskReferences(catalog Catalog, taskNames []string) {
+func NormalizeTaskReferences(inv Inventory, taskNames []string) {
 	for i, taskName := range taskNames {
 		defaultedTaskName := taskName + ":default"
-		_, taskExists := catalog[taskName]
-		_, defaultedTaskExists := catalog[defaultedTaskName]
+		_, taskExists := inv[taskName]
+		_, defaultedTaskExists := inv[defaultedTaskName]
 		if !taskExists && defaultedTaskExists {
 			taskNames[i] = defaultedTaskName
 		}
 	}
 }
 
-func catalogModule(module *config.Module, nameTrail []string, workingDirectory *string, environment map[string]string) (Catalog, error) {
-	result := make(Catalog)
+func processModule(module *config.Module, nameTrail []string, workingDirectory *string, environment map[string]string) (Inventory, error) {
+	result := make(Inventory)
 	prefix := ":" + strings.Join(append(nameTrail, ""), ":")
 	expandMap(module.Environment, environment)
 	module.Environment = utils.MergeEnv(environment, module.Environment)
@@ -81,7 +81,7 @@ func catalogModule(module *config.Module, nameTrail []string, workingDirectory *
 
 	for submoduleName, submodule := range module.Modules {
 		expandMap(submodule.Environment, module.Environment)
-		moduleTasks, err := catalogModule(&submodule, append(nameTrail, submoduleName), module.WorkingDirectory, utils.MergeEnv(module.Environment, submodule.Environment))
+		moduleTasks, err := processModule(&submodule, append(nameTrail, submoduleName), module.WorkingDirectory, utils.MergeEnv(module.Environment, submodule.Environment))
 		if err != nil {
 			return nil, err
 		}

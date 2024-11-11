@@ -8,9 +8,9 @@ import (
 	"github.com/gofrs/flock"
 	"gopkg.in/yaml.v3"
 
-	"github.com/sirikon/ebro/internal/cataloger"
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/config"
+	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/runner"
 )
@@ -38,18 +38,18 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	catalog, err := cataloger.MakeCatalog(config)
+	inv, err := inventory.MakeInventory(config)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
-	err = catalog.Validate()
+	err = inv.Validate()
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
 	if arguments.Command == cli.CommandInventory {
-		bytes, err := yaml.Marshal(catalog)
+		bytes, err := yaml.Marshal(inv)
 		if err != nil {
 			cli.ExitWithError(err)
 		}
@@ -57,8 +57,8 @@ func main() {
 		return
 	}
 
-	cataloger.NormalizeTaskReferences(catalog, arguments.Targets)
-	plan, err := planner.MakePlan(catalog, arguments.Targets)
+	inventory.NormalizeTaskReferences(inv, arguments.Targets)
+	plan, err := planner.MakePlan(inv, arguments.Targets)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
@@ -70,7 +70,7 @@ func main() {
 		return
 	}
 
-	err = runner.Run(catalog, plan, *arguments.GetFlagBool(cli.FlagForce))
+	err = runner.Run(inv, plan, *arguments.GetFlagBool(cli.FlagForce))
 	if err != nil {
 		cli.ExitWithError(err)
 	}

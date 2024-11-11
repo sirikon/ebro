@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/sirikon/ebro/internal/cataloger"
+	"github.com/sirikon/ebro/internal/inventory"
 	"gopkg.in/yaml.v3"
 )
 
 type Plan []string
 
-func MakePlan(catalog cataloger.Catalog, targets []string) (Plan, error) {
+func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
 	result := Plan{}
 	tasksToRun := []string{}
 	requirementsIndex := make(map[string][]string)
@@ -35,7 +35,7 @@ func MakePlan(catalog cataloger.Catalog, targets []string) (Plan, error) {
 	}
 
 	for _, target := range targets {
-		if _, ok := catalog[target]; !ok {
+		if _, ok := inv[target]; !ok {
 			return nil, fmt.Errorf("target task %v does not exist", target)
 		}
 		addTasksToRun(target)
@@ -43,7 +43,7 @@ func MakePlan(catalog cataloger.Catalog, targets []string) (Plan, error) {
 
 	for i := 0; i < len(tasksToRun); i++ {
 		taskName := tasksToRun[i]
-		task := catalog[taskName]
+		task := inv[taskName]
 		addTasksToRun(task.Requires...)
 		addRequirements(taskName, task.Requires...)
 		for _, parent := range task.RequiredBy {

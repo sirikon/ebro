@@ -13,14 +13,14 @@ import (
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
 
-	"github.com/sirikon/ebro/internal/cataloger"
+	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/logger"
 	"github.com/sirikon/ebro/internal/planner"
 )
 
-func Run(catalog cataloger.Catalog, plan planner.Plan, force bool) error {
+func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 	for _, taskName := range plan {
-		task := catalog[taskName]
+		task := inv[taskName]
 
 		if task.Script == "" {
 			logger.Info(logLine(taskName, "satisfied"))
