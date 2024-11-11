@@ -3,28 +3,39 @@ package inventory
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
-	"github.com/sirikon/ebro/internal/config"
-	"github.com/sirikon/ebro/internal/utils"
 	"mvdan.cc/sh/v3/shell"
+
+	"github.com/sirikon/ebro/internal/cli"
+	"github.com/sirikon/ebro/internal/config"
 )
 
 type Inventory map[string]config.Task
 
-func MakeInventory(module *config.Module) (Inventory, error) {
-	inv, err := processModule(module, []string{}, nil, make(map[string]string))
+func MakeInventory(arguments cli.ExecutionArguments) (Inventory, error) {
+	inv := Inventory{}
+	workingDirectory, err := os.Getwd()
 	if err != nil {
-		return nil, fmt.Errorf("making inventory: %w", err)
+		return nil, fmt.Errorf("obtaining working directory: %w", err)
 	}
+
+	modulePath := path.Join(workingDirectory, *arguments.GetFlagString(cli.FlagFile))
+	err = processModule(inv, modulePath, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
+	if err != nil {
+		return nil, fmt.Errorf("processing module in %v: %w", modulePath, err)
+	}
+
 	for _, task := range inv {
-		NormalizeTaskReferences(inv, task.Requires)
-		NormalizeTaskReferences(inv, task.RequiredBy)
+		NormalizeTaskNames(inv, task.Requires)
+		NormalizeTaskNames(inv, task.RequiredBy)
 	}
+
 	return inv, nil
 }
 
-func NormalizeTaskReferences(inv Inventory, taskNames []string) {
+func NormalizeTaskNames(inv Inventory, taskNames []string) {
 	for i, taskName := range taskNames {
 		defaultedTaskName := taskName + ":default"
 		_, taskExists := inv[taskName]
@@ -35,80 +46,95 @@ func NormalizeTaskReferences(inv Inventory, taskNames []string) {
 	}
 }
 
-func processModule(module *config.Module, nameTrail []string, workingDirectory *string, environment map[string]string) (Inventory, error) {
-	result := make(Inventory)
-	prefix := ":" + strings.Join(append(nameTrail, ""), ":")
-	expandMap(module.Environment, environment)
-	module.Environment = utils.MergeEnv(environment, module.Environment)
-	if module.WorkingDirectory == nil {
-		module.WorkingDirectory = workingDirectory
-	} else {
-		expandedWorkingDirectory, err := expand(*module.WorkingDirectory, module.Environment)
-		if err != nil {
-			return nil, fmt.Errorf("expanding source %v: %w", module.WorkingDirectory, err)
-		}
-		module.WorkingDirectory = &expandedWorkingDirectory
+func processModule(inv Inventory, modulePath string, moduleNameTrail []string, environment map[string]string) error {
+	workingDirectory := path.Dir(modulePath)
+	module, err := config.ParseModule(modulePath)
+	if err != nil {
+		return fmt.Errorf("parsing module %v: %w", modulePath, err)
 	}
 
-	if _, ok := module.Environment["EBRO_ROOT"]; !ok {
-		module.Environment["EBRO_ROOT"] = *module.WorkingDirectory
+	taskPrefix := ":" + strings.Join(append(moduleNameTrail, ""), ":")
+	makeTaskNameAbsolute := func(taskName string) string {
+		if !strings.HasPrefix(taskName, ":") {
+			return taskPrefix + taskName
+		}
+		return taskName
+	}
+
+	moduleEnvironment, err := expandMergeEnv(module.Environment, environment)
+	if err != nil {
+		return fmt.Errorf("expanding module environment in %v: %w", modulePath, err)
+	}
+	module.Environment = moduleEnvironment
+
+	if module.WorkingDirectory == "" {
+		module.WorkingDirectory = workingDirectory
+	} else if !path.IsAbs(module.WorkingDirectory) {
+		module.WorkingDirectory = path.Join(workingDirectory, module.WorkingDirectory)
 	}
 
 	for taskName, task := range module.Tasks {
-		for i := range task.Requires {
-			if !strings.HasPrefix(task.Requires[i], ":") {
-				task.Requires[i] = prefix + task.Requires[i]
-			}
+		taskAbsoluteName := taskPrefix + taskName
+		if _, ok := inv[taskAbsoluteName]; ok {
+			return fmt.Errorf("task %v (defined as %v in %v) is already present in the inventory", taskAbsoluteName, taskName, modulePath)
 		}
-		for i := range task.RequiredBy {
-			if !strings.HasPrefix(task.RequiredBy[i], ":") {
-				task.RequiredBy[i] = prefix + task.RequiredBy[i]
-			}
-		}
-		expandMap(task.Environment, module.Environment)
-		task.Environment = utils.MergeEnv(module.Environment, task.Environment)
-		if task.WorkingDirectory == nil {
-			task.WorkingDirectory = module.WorkingDirectory
-		} else {
-			expandedWorkingDirectory, err := expand(*task.WorkingDirectory, task.Environment)
-			if err != nil {
-				return nil, fmt.Errorf("expanding source %v for task %v: %w", task.WorkingDirectory, taskName, err)
-			}
-			task.WorkingDirectory = &expandedWorkingDirectory
-		}
-		result[prefix+taskName] = task
-	}
-
-	for submoduleName, submodule := range module.Modules {
-		expandMap(submodule.Environment, module.Environment)
-		moduleTasks, err := processModule(&submodule, append(nameTrail, submoduleName), module.WorkingDirectory, utils.MergeEnv(module.Environment, submodule.Environment))
+		taskEnvironment, err := expandMergeEnv(task.Environment, module.Environment)
 		if err != nil {
-			return nil, err
+			return fmt.Errorf("expanding task %v environment in %v: %w", taskName, modulePath, err)
 		}
-		for taskName, task := range moduleTasks {
-			result[taskName] = task
+		task.Environment = taskEnvironment
+		for i, t := range task.Requires {
+			task.Requires[i] = makeTaskNameAbsolute(t)
+		}
+		for i, t := range task.RequiredBy {
+			task.RequiredBy[i] = makeTaskNameAbsolute(t)
+		}
+		if task.WorkingDirectory == "" {
+			task.WorkingDirectory = module.WorkingDirectory
+		} else if !path.IsAbs(task.WorkingDirectory) {
+			task.WorkingDirectory = path.Join(module.WorkingDirectory, task.WorkingDirectory)
+		}
+		inv[taskAbsoluteName] = task
+	}
+
+	for importName, importObj := range module.Imports {
+		importEnvironment, err := expandMergeEnv(importObj.Environment, module.Environment)
+		if err != nil {
+			return fmt.Errorf("expanding import %v environment in %v: %w", importName, modulePath, err)
+		}
+		importModulePath, err := config.ImportModule(path.Dir(modulePath), importObj.From)
+		if err != nil {
+			return fmt.Errorf("parsing import %v in %v: %w", importObj.From, modulePath, err)
+		}
+		err = processModule(inv, importModulePath, append(moduleNameTrail, importName), importEnvironment)
+		if err != nil {
+			return fmt.Errorf("importing %v: %w", importName, err)
 		}
 	}
 
+	return nil
+}
+
+func expandMergeEnv(childEnv map[string]string, parentEnv map[string]string) (map[string]string, error) {
+	result := map[string]string{}
+	for key, value := range parentEnv {
+		result[key] = value
+	}
+	for key, value := range childEnv {
+		expandedValue, err := expandString(value, parentEnv)
+		if err != nil {
+			return nil, fmt.Errorf("expanding %v: %w", value, err)
+		}
+		result[key] = expandedValue
+	}
 	return result, nil
 }
 
-func expand(s string, env map[string]string) (string, error) {
+func expandString(s string, env map[string]string) (string, error) {
 	return shell.Expand(s, func(s string) string {
 		if val, ok := env[s]; ok {
 			return val
 		}
 		return os.Getenv(s)
 	})
-}
-
-func expandMap(m map[string]string, env map[string]string) (map[string]string, error) {
-	for key, value := range m {
-		result, err := expand(value, env)
-		if err != nil {
-			return nil, fmt.Errorf("expanding %v: %w", value, err)
-		}
-		m[key] = result
-	}
-	return m, nil
 }

@@ -1,0 +1,13 @@
+working_directory: /somewhere/absolute
+
+tasks:
+  default:
+    script: echo "Hello!"
+
+  other-absolute:
+    working_directory: /other/absolute
+    script: echo "Hello from the other absolute side!"
+
+  other-relative:
+    working_directory: other/relative
+    script: echo "Hello from the other relative side!"

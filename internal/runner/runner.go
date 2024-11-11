@@ -13,12 +13,12 @@ import (
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
 
-	"github.com/sirikon/ebro/internal/inventory2"
+	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/logger"
 	"github.com/sirikon/ebro/internal/planner"
 )
 
-func Run(inv inventory2.Inventory, plan planner.Plan, force bool) error {
+func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 	for _, taskName := range plan {
 		task := inv[taskName]
 

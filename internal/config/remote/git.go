@@ -1,4 +1,4 @@
-package config
+package remote
 
 import (
 	"errors"
@@ -13,14 +13,14 @@ import (
 	"github.com/sirikon/ebro/internal/logger"
 )
 
-type gitImport struct {
-	url     string
-	ref     plumbing.ReferenceName
-	path    string
-	subpath string
+type GitImport struct {
+	Url     string
+	Ref     plumbing.ReferenceName
+	Path    string
+	Subpath string
 }
 
-func parseGitImport(importUrl string) (*gitImport, error) {
+func ParseGitImport(importUrl string) (*GitImport, error) {
 	if !strings.HasPrefix(importUrl, "git+") {
 		return nil, nil
 	}
@@ -30,16 +30,16 @@ func parseGitImport(importUrl string) (*gitImport, error) {
 		return nil, fmt.Errorf("parsing url %v: %w", importUrl, err)
 	}
 
-	result := gitImport{
-		url:     parsedUrl.Scheme + "://" + parsedUrl.Host + parsedUrl.Path,
-		subpath: ".",
-		ref:     "",
-		path:    "",
+	result := GitImport{
+		Url:     parsedUrl.Scheme + "://" + parsedUrl.Host + parsedUrl.Path,
+		Subpath: ".",
+		Ref:     "",
+		Path:    "",
 	}
 
 	setResultRef := func(ref plumbing.ReferenceName) {
-		result.ref = ref
-		result.path = path.Join(".ebro", "git", parsedUrl.Scheme, parsedUrl.Host+parsedUrl.Path, string(ref))
+		result.Ref = ref
+		result.Path = path.Join(".ebro", "git", parsedUrl.Scheme, parsedUrl.Host+parsedUrl.Path, string(ref))
 	}
 	setResultRef(plumbing.Master)
 
@@ -53,15 +53,15 @@ func parseGitImport(importUrl string) (*gitImport, error) {
 			setResultRef(plumbing.ReferenceName(val[0]))
 		}
 		if val, ok := fragmentQuery["path"]; ok {
-			result.subpath = val[0]
+			result.Subpath = val[0]
 		}
 	}
 
 	return &result, nil
 }
 
-func cloneGitImport(gi *gitImport) error {
-	_, err := os.Stat(gi.path)
+func CloneGitImport(gi *GitImport) error {
+	_, err := os.Stat(gi.Path)
 	if err == nil {
 		return nil
 	}
@@ -70,10 +70,10 @@ func cloneGitImport(gi *gitImport) error {
 		return err
 	}
 
-	logger.Notice("cloning " + gi.url)
-	_, err = git.PlainClone(gi.path, false, &git.CloneOptions{
-		URL:           gi.url,
-		ReferenceName: gi.ref,
+	logger.Notice("cloning " + gi.Url)
+	_, err = git.PlainClone(gi.Path, false, &git.CloneOptions{
+		URL:           gi.Url,
+		ReferenceName: gi.Ref,
 		SingleBranch:  true,
 		Progress:      os.Stderr,
 	})

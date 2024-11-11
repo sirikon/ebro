@@ -15,7 +15,7 @@ class TestRun(EbroTestCase):
             ███ [:apt:default] running
             Installing apt packages
             caddy
-            docker==1.0.0-1-apt
+            docker==2.0.0-1-apt
             ███ [:caddy:package] satisfied
             ███ [:docker:package] satisfied
             ███ [:caddy:default] satisfied
@@ -56,7 +56,7 @@ class TestRun(EbroTestCase):
             ███ [:apt:default] running
             Installing apt packages
             caddy
-            docker==1.0.0-1-apt
+            docker==2.0.0-1-apt
             ███ [:caddy:package] satisfied
             ███ [:docker:package] satisfied
             ███ [:caddy:default] satisfied

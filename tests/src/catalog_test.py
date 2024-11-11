@@ -69,14 +69,16 @@ class TestInventory(EbroTestCase):
             :docker:default:
                 working_directory: {self.workdir}/docker
                 environment:
-                    DOCKER_APT_VERSION: 1.0.0-1-apt
+                    DOCKER_APT_VERSION: 2.0.0-1-apt
+                    DOCKER_VERSION: 2.0.0
                     EBRO_ROOT: {self.workdir}
                 requires:
                     - :docker:package
             :docker:package:
                 working_directory: {self.workdir}/docker
                 environment:
-                    DOCKER_APT_VERSION: 1.0.0-1-apt
+                    DOCKER_APT_VERSION: 2.0.0-1-apt
+                    DOCKER_VERSION: 2.0.0
                     EBRO_ROOT: {self.workdir}
                 requires:
                     - :apt:default
@@ -84,7 +86,8 @@ class TestInventory(EbroTestCase):
             :docker:package-apt-config:
                 working_directory: {self.workdir}/docker
                 environment:
-                    DOCKER_APT_VERSION: 1.0.0-1-apt
+                    DOCKER_APT_VERSION: 2.0.0-1-apt
+                    DOCKER_VERSION: 2.0.0
                     EBRO_ROOT: {self.workdir}
                 requires:
                     - :apt:pre-config
@@ -99,5 +102,31 @@ class TestInventory(EbroTestCase):
                 environment:
                     EBRO_ROOT: {self.workdir}
                 script: echo 'Egg ready'
+            """,
+        )
+
+    def test_inventory_with_absolute_workdir_is_correct(self):
+        exit_code, stdout = self.ebro(
+            "-inventory", "--file", "Ebro.workdirs.yaml"
+        )
+        self.assertEqual(exit_code, 0)
+        self.assertStdout(
+            stdout,
+            f"""
+            :default:
+                working_directory: /somewhere/absolute
+                environment:
+                    EBRO_ROOT: {self.workdir}
+                script: echo "Hello!"
+            :other-absolute:
+                working_directory: /other/absolute
+                environment:
+                    EBRO_ROOT: {self.workdir}
+                script: echo "Hello from the other absolute side!"
+            :other-relative:
+                working_directory: /somewhere/absolute/other/relative
+                environment:
+                    EBRO_ROOT: {self.workdir}
+                script: echo "Hello from the other relative side!"
             """,
         )

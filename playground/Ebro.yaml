@@ -3,6 +3,8 @@ imports:
     from: ./apt
   docker:
     from: ./docker
+    environment:
+      DOCKER_VERSION: "2.0.0"
   caddy:
     from: ./caddy
 
