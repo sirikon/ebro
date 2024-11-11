@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-./meta/build.sh
+function main {
+    go test ./...
 
-cd tests
+    ./meta/build.sh
 
-if [ ! -d ".venv" ]; then
-    export POETRY_VIRTUALENVS_IN_PROJECT="true"
-    poetry install
-fi
+    cd tests
 
-export PYTHONPATH=src
-./.venv/bin/python -m unittest discover src "*_test.py"
+    if [ ! -d ".venv" ]; then
+        export POETRY_VIRTUALENVS_IN_PROJECT="true"
+        poetry install
+    fi
+
+    export PYTHONPATH=src
+    ./.venv/bin/python -m unittest discover src "*_test.py"
+
+}
+
+main "$@"

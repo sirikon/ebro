@@ -1,6 +1,9 @@
 package cli
 
-import "reflect"
+import (
+	"fmt"
+	"reflect"
+)
 
 type Flag struct {
 	Name        string
@@ -28,11 +31,17 @@ type ExecutionArguments struct {
 }
 
 func (ea ExecutionArguments) GetFlagString(flag *Flag) *string {
+	if flag.Kind != reflect.String {
+		panic(fmt.Sprintf("flag %v is not string", flag.Name))
+	}
 	value := ea.getFlag(flag).(string)
 	return &value
 }
 
 func (ea ExecutionArguments) GetFlagBool(flag *Flag) *bool {
+	if flag.Kind != reflect.Bool {
+		panic(fmt.Sprintf("flag %v is not bool", flag.Name))
+	}
 	value := ea.getFlag(flag).(bool)
 	return &value
 }
