@@ -1,14 +1,16 @@
 package cli
 
-import "reflect"
+import (
+	"reflect"
 
-const DefaultTarget = "default"
+	"github.com/sirikon/ebro/internal/constants"
+)
 
 var FlagFile = &Flag{
 	Name:        "file",
 	Description: "Specify the file that should be loaded as root module",
 	Kind:        reflect.String,
-	Default:     "Ebro.yaml",
+	Default:     constants.DefaultFile,
 }
 
 var FlagForce = &Flag{

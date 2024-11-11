@@ -55,7 +55,14 @@ class TestCli(EbroTestCase):
     def test_version_is_displayed(self):
         exit_code, stdout = self.ebro("-version")
         self.assertEqual(exit_code, 0)
-        self.assertStdout(stdout, "dev")
+        self.assertStdout(
+            stdout,
+            """
+            version: dev
+            commit: HEAD
+            date: 1970-01-01T00:00:00Z
+            """,
+        )
 
     def test_file_flag_handles_missing_arg_correctly(self):
         exit_code, stdout = self.ebro("--file")

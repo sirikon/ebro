@@ -3,13 +3,36 @@ package cli
 import (
 	"fmt"
 	"reflect"
+	"strconv"
+	"time"
 
 	"github.com/fatih/color"
-	"github.com/sirikon/ebro/internal/build"
+	"github.com/sirikon/ebro/internal/constants"
+	"gopkg.in/yaml.v3"
 )
 
+type versionData struct {
+	Version string    `yaml:"version"`
+	Commit  string    `yaml:"commit"`
+	Date    time.Time `yaml:"date"`
+}
+
 func PrintVersion() {
-	fmt.Println(build.Version)
+	timestamp, err := strconv.ParseInt(constants.GetTimestamp(), 10, 64)
+	if err != nil {
+		ExitWithError(fmt.Errorf("formatting timestamp constant: %w", err))
+	}
+	tm := time.Unix(timestamp, 0)
+	data := versionData{
+		Version: constants.GetVersion(),
+		Commit:  constants.GetCommit(),
+		Date:    tm.UTC(),
+	}
+	bytes, err := yaml.Marshal(data)
+	if err != nil {
+		ExitWithError(err)
+	}
+	fmt.Print(string(bytes))
 }
 
 func PrintHelp() {
@@ -39,7 +62,7 @@ func printCommands() {
 		}
 		if command.AcceptsTargets {
 			fmt.Println("    targets:")
-			fmt.Println("      defaults to [" + color.MagentaString(DefaultTarget) + "]")
+			fmt.Println("      defaults to [" + color.MagentaString(constants.DefaultTarget) + "]")
 		}
 		fmt.Println()
 	}

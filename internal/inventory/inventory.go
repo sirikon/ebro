@@ -10,6 +10,7 @@ import (
 
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/config"
+	"github.com/sirikon/ebro/internal/constants"
 )
 
 type Inventory map[string]config.Task
@@ -106,7 +107,7 @@ func processModule(inv Inventory, modulePath string, moduleNameTrail []string, e
 		if err != nil {
 			return fmt.Errorf("parsing import %v in %v: %w", importObj.From, modulePath, err)
 		}
-		err = processModule(inv, importModulePath, append(moduleNameTrail, importName), importEnvironment)
+		err = processModule(inv, path.Join(importModulePath, constants.DefaultFile), append(moduleNameTrail, importName), importEnvironment)
 		if err != nil {
 			return fmt.Errorf("importing %v: %w", importName, err)
 		}

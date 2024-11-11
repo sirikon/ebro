@@ -38,8 +38,8 @@ func ImportModule(base string, from string) (string, error) {
 			return "", fmt.Errorf("cloning git import %v: %w", from, err)
 		}
 
-		return path.Join(parsedGitImport.Path, parsedGitImport.Subpath, "Ebro.yaml"), nil
+		return path.Join(parsedGitImport.Path, parsedGitImport.Subpath), nil
 	}
 
-	return path.Join(base, from, "Ebro.yaml"), nil
+	return path.Join(base, from), nil
 }

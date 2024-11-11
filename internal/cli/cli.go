@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"slices"
 
+	"github.com/sirikon/ebro/internal/constants"
 	"github.com/sirikon/ebro/internal/logger"
 )
 
@@ -17,7 +18,7 @@ var flagRe = regexp.MustCompile("^--([a-zA-Z0-9 ]+)$")
 func Parse() ExecutionArguments {
 	result := ExecutionArguments{
 		Command: CommandRun,
-		Targets: []string{":" + DefaultTarget},
+		Targets: []string{":" + constants.DefaultTarget},
 	}
 
 	args := os.Args[1:]

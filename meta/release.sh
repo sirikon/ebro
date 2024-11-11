@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-EBRO_VERSION="$(git rev-parse --verify HEAD)"
-export EBRO_VERSION
+EBRO_COMMIT="$(git rev-parse --verify HEAD)"
+export EBRO_COMMIT
 
 function main {
     rm -rf dist
@@ -13,10 +13,13 @@ function main {
 
 function build {
     dest="dist/${1}/ebro"
+    timestamp="$(date +%s)"
     echo "Building ${GOOS} ${GOARCH}"
     mkdir -p "$(dirname "$dest")"
     go build \
-        -ldflags "-X github.com/sirikon/ebro/internal/build.Version=${EBRO_VERSION}" \
+        -ldflags "-X github.com/sirikon/ebro/internal/constants.version=${EBRO_COMMIT} \
+        -X github.com/sirikon/ebro/internal/constants.commit=${EBRO_COMMIT} \
+        -X github.com/sirikon/ebro/internal/constants.timestamp=${timestamp}" \
         -o "$dest" \
         cmd/ebro/main.go
 }
