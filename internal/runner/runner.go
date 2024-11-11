@@ -13,12 +13,12 @@ import (
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
 
-	"github.com/sirikon/ebro/internal/inventory"
+	"github.com/sirikon/ebro/internal/inventory2"
 	"github.com/sirikon/ebro/internal/logger"
 	"github.com/sirikon/ebro/internal/planner"
 )
 
-func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
+func Run(inv inventory2.Inventory, plan planner.Plan, force bool) error {
 	for _, taskName := range plan {
 		task := inv[taskName]
 
@@ -34,7 +34,7 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 			if task.When.CheckFails != "" {
 				output := bytes.Buffer{}
 				outputWriter := bufio.NewWriter(&output)
-				status, err := runScriptWithIo(task.When.CheckFails, *task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
+				status, err := runScriptWithIo(task.When.CheckFails, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
 				if err != nil {
 					return fmt.Errorf("running task %v when.check_fails: %w", taskName, err)
 				}
@@ -48,7 +48,7 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 			if task.When.OutputChanges != "" {
 				output := bytes.Buffer{}
 				outputWriter := bufio.NewWriter(&output)
-				status, err := runScriptWithIo(task.When.OutputChanges, *task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
+				status, err := runScriptWithIo(task.When.OutputChanges, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
 				if err != nil {
 					return fmt.Errorf("running task %v when.output_changes: %w", taskName, err)
 				}
@@ -73,7 +73,7 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 		}
 
 		logger.Notice(logLine(taskName, "running"))
-		status, err := runScript(task.Script, *task.WorkingDirectory, task.Environment)
+		status, err := runScript(task.Script, task.WorkingDirectory, task.Environment)
 		if err != nil {
 			return fmt.Errorf("running task %v script: %w", taskName, err)
 		}

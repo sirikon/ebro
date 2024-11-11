@@ -9,8 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/sirikon/ebro/internal/cli"
-	"github.com/sirikon/ebro/internal/config"
-	"github.com/sirikon/ebro/internal/inventory"
+	"github.com/sirikon/ebro/internal/inventory2"
 	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/runner"
 )
@@ -33,17 +32,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	config, err := config.ParseModuleFromFile(*arguments.GetFlagString(cli.FlagFile))
-	if err != nil {
-		cli.ExitWithError(err)
-	}
-
-	inv, err := inventory.MakeInventory(config)
-	if err != nil {
-		cli.ExitWithError(err)
-	}
-
-	err = inv.Validate()
+	inv, err := inventory2.MakeInventory(arguments)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
@@ -57,7 +46,7 @@ func main() {
 		return
 	}
 
-	inventory.NormalizeTaskReferences(inv, arguments.Targets)
+	inventory2.NormalizeTaskNames(inv, arguments.Targets)
 	plan, err := planner.MakePlan(inv, arguments.Targets)
 	if err != nil {
 		cli.ExitWithError(err)

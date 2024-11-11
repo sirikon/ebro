@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/sirikon/ebro/internal/inventory"
+	"github.com/sirikon/ebro/internal/inventory2"
 	"gopkg.in/yaml.v3"
 )
 
 type Plan []string
 
-func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
+func MakePlan(inv inventory2.Inventory, targets []string) (Plan, error) {
 	result := Plan{}
 	tasksToRun := []string{}
 	requirementsIndex := make(map[string][]string)

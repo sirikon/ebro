@@ -10,7 +10,7 @@ class TestInventory(EbroTestCase):
             stdout,
             f"""
             :apt:default:
-                working_directory: {self.workdir}/apt
+                working_directory: {self.workdir}/apt/wd
                 environment:
                     EBRO_ROOT: {self.workdir}
                 script: |
@@ -19,7 +19,7 @@ class TestInventory(EbroTestCase):
                 when:
                     output_changes: cat "${{EBRO_ROOT}}/.cache/apt/packages/"*
             :apt:pre-config:
-                working_directory: {self.workdir}/apt
+                working_directory: {self.workdir}/apt/wd
                 environment:
                     EBRO_ROOT: {self.workdir}
                 script: mkdir -p "${{EBRO_ROOT}}/.cache/apt/packages"
