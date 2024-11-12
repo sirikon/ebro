@@ -11,3 +11,18 @@ tasks:
   other-relative:
     working_directory: other/relative
     script: echo "Hello from the other relative side!"
+
+modules:
+  submodule:
+    working_directory: submodule
+    tasks:
+      other:
+        script: echo "Hello from the other side!"
+
+      other-absolute:
+        working_directory: /other/absolute
+        script: echo "Hello from the other absolute side!"
+
+      other-relative:
+        working_directory: other/relative
+        script: echo "Hello from the other relative side!"

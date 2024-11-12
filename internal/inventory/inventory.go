@@ -23,7 +23,7 @@ func MakeInventory(arguments cli.ExecutionArguments) (Inventory, error) {
 	}
 
 	modulePath := path.Join(workingDirectory, *arguments.GetFlagString(cli.FlagFile))
-	err = processModule(inv, modulePath, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
+	err = processModuleFile(inv, modulePath, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
 	if err != nil {
 		return nil, fmt.Errorf("processing module in %v: %w", modulePath, err)
 	}
@@ -47,13 +47,22 @@ func NormalizeTaskNames(inv Inventory, taskNames []string) {
 	}
 }
 
-func processModule(inv Inventory, modulePath string, moduleNameTrail []string, environment map[string]string) error {
+func processModuleFile(inv Inventory, modulePath string, moduleNameTrail []string, environment map[string]string) error {
 	workingDirectory := path.Dir(modulePath)
 	module, err := config.ParseModule(modulePath)
 	if err != nil {
 		return fmt.Errorf("parsing module %v: %w", modulePath, err)
 	}
 
+	err = processModule(inv, module, moduleNameTrail, environment, workingDirectory)
+	if err != nil {
+		return fmt.Errorf("processing module %v: %w", modulePath, err)
+	}
+
+	return nil
+}
+
+func processModule(inv Inventory, module config.Module, moduleNameTrail []string, environment map[string]string, workingDirectory string) error {
 	taskPrefix := ":" + strings.Join(append(moduleNameTrail, ""), ":")
 	makeTaskNameAbsolute := func(taskName string) string {
 		if !strings.HasPrefix(taskName, ":") {
@@ -64,7 +73,7 @@ func processModule(inv Inventory, modulePath string, moduleNameTrail []string, e
 
 	moduleEnvironment, err := expandMergeEnv(module.Environment, environment)
 	if err != nil {
-		return fmt.Errorf("expanding module environment in %v: %w", modulePath, err)
+		return fmt.Errorf("expanding module environment: %w", err)
 	}
 	module.Environment = moduleEnvironment
 
@@ -77,11 +86,11 @@ func processModule(inv Inventory, modulePath string, moduleNameTrail []string, e
 	for taskName, task := range module.Tasks {
 		taskAbsoluteName := taskPrefix + taskName
 		if _, ok := inv[taskAbsoluteName]; ok {
-			return fmt.Errorf("task %v (defined as %v in %v) is already present in the inventory", taskAbsoluteName, taskName, modulePath)
+			return fmt.Errorf("task %v (defined as %v) is already present in the inventory", taskAbsoluteName, taskName)
 		}
 		taskEnvironment, err := expandMergeEnv(task.Environment, module.Environment)
 		if err != nil {
-			return fmt.Errorf("expanding task %v environment in %v: %w", taskName, modulePath, err)
+			return fmt.Errorf("expanding task %v environment: %w", taskName, err)
 		}
 		task.Environment = taskEnvironment
 		for i, t := range task.Requires {
@@ -101,15 +110,26 @@ func processModule(inv Inventory, modulePath string, moduleNameTrail []string, e
 	for importName, importObj := range module.Imports {
 		importEnvironment, err := expandMergeEnv(importObj.Environment, module.Environment)
 		if err != nil {
-			return fmt.Errorf("expanding import %v environment in %v: %w", importName, modulePath, err)
+			return fmt.Errorf("expanding import %v environment: %w", importName, err)
 		}
-		importModulePath, err := config.ImportModule(path.Dir(modulePath), importObj.From)
+		importModulePath, err := config.ImportModule(workingDirectory, importObj.From)
 		if err != nil {
-			return fmt.Errorf("parsing import %v in %v: %w", importObj.From, modulePath, err)
+			return fmt.Errorf("parsing import %v: %w", importObj.From, err)
 		}
-		err = processModule(inv, path.Join(importModulePath, constants.DefaultFile), append(moduleNameTrail, importName), importEnvironment)
+		err = processModuleFile(inv, path.Join(importModulePath, constants.DefaultFile), append(moduleNameTrail, importName), importEnvironment)
 		if err != nil {
-			return fmt.Errorf("importing %v: %w", importName, err)
+			return fmt.Errorf("processing import %v: %w", importName, err)
+		}
+	}
+
+	for submoduleName, submodule := range module.Modules {
+		submoduleEnvironment, err := expandMergeEnv(submodule.Environment, module.Environment)
+		if err != nil {
+			return fmt.Errorf("expanding module %v environment: %w", submoduleName, err)
+		}
+		err = processModule(inv, submodule, append(moduleNameTrail, submoduleName), submoduleEnvironment, module.WorkingDirectory)
+		if err != nil {
+			return fmt.Errorf("processing module %v: %w", submoduleName, err)
 		}
 	}
 

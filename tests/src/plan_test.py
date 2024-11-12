@@ -1,7 +1,7 @@
 from utils.common import EbroTestCase
 
 
-class TestCli(EbroTestCase):
+class TestPlan(EbroTestCase):
 
     def test_default_plan_is_correct(self):
         exit_code, stdout = self.ebro("-plan")
@@ -22,23 +22,23 @@ class TestCli(EbroTestCase):
         )
 
     def test_plan_for_different_task_is_correct(self):
-        exit_code, stdout = self.ebro("-plan", "chicken")
+        exit_code, stdout = self.ebro("-plan", "farm:chicken")
         self.assertEqual(exit_code, 0)
         self.assertStdout(
             stdout,
             """
-            :egg
-            :chicken
+            :farm:egg
+            :farm:chicken
             """,
         )
 
     def test_plan_for_freestanging_task_is_correct(self):
-        exit_code, stdout = self.ebro("-plan", "egg")
+        exit_code, stdout = self.ebro("-plan", "farm:egg")
         self.assertEqual(exit_code, 0)
         self.assertStdout(
             stdout,
             """
-            :egg
+            :farm:egg
             """,
         )
 

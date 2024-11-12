@@ -17,7 +17,9 @@ tasks:
       cat cache/A.txt
       cat cache/B.txt
     when:
-      output_changes: cat cache/A.txt && cache/B.txt
+      output_changes: |
+        cat cache/A.txt
+        cat cache/B.txt
 
   producer:
     requires: [produce_a, produce_b]

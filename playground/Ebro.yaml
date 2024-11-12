@@ -14,9 +14,16 @@ tasks:
     script: |
       echo "Done!"
 
-  chicken:
-    requires: [egg]
-    script: "echo Chicken ready"
+modules:
+  farm:
+    imports:
+      tractor:
+        from: ./tractor
 
-  egg:
-    script: echo 'Egg ready'
+    tasks:
+      chicken:
+        requires: [egg]
+        script: "echo Chicken ready"
+
+      egg:
+        script: echo 'Egg ready'

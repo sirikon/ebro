@@ -50,13 +50,6 @@ class TestInventory(EbroTestCase):
                 when:
                     check_fails: test -f "${{EBRO_ROOT}}/.cache/apt/packages/caddy.txt"
                     output_changes: echo caddy
-            :chicken:
-                working_directory: {self.workdir}
-                environment:
-                    EBRO_ROOT: {self.workdir}
-                requires:
-                    - :egg
-                script: echo Chicken ready
             :default:
                 working_directory: {self.workdir}
                 environment:
@@ -97,18 +90,28 @@ class TestInventory(EbroTestCase):
                 when:
                     check_fails: test -f "${{EBRO_ROOT}}/.cache/apt/packages/docker.txt"
                     output_changes: echo "docker==${{DOCKER_APT_VERSION}}"
-            :egg:
+            :farm:chicken:
+                working_directory: {self.workdir}
+                environment:
+                    EBRO_ROOT: {self.workdir}
+                requires:
+                    - :farm:egg
+                script: echo Chicken ready
+            :farm:egg:
                 working_directory: {self.workdir}
                 environment:
                     EBRO_ROOT: {self.workdir}
                 script: echo 'Egg ready'
+            :farm:tractor:default:
+                working_directory: {self.workdir}/tractor
+                environment:
+                    EBRO_ROOT: {self.workdir}
+                script: echo "Tractor is here"
             """,
         )
 
     def test_inventory_with_absolute_workdir_is_correct(self):
-        exit_code, stdout = self.ebro(
-            "-inventory", "--file", "Ebro.workdirs.yaml"
-        )
+        exit_code, stdout = self.ebro("-inventory", "--file", "Ebro.workdirs.yaml")
         self.assertEqual(exit_code, 0)
         self.assertStdout(
             stdout,
@@ -125,6 +128,21 @@ class TestInventory(EbroTestCase):
                 script: echo "Hello from the other absolute side!"
             :other-relative:
                 working_directory: /somewhere/absolute/other/relative
+                environment:
+                    EBRO_ROOT: {self.workdir}
+                script: echo "Hello from the other relative side!"
+            :submodule:other:
+                working_directory: /somewhere/absolute/submodule
+                environment:
+                    EBRO_ROOT: {self.workdir}
+                script: echo "Hello from the other side!"
+            :submodule:other-absolute:
+                working_directory: /other/absolute
+                environment:
+                    EBRO_ROOT: {self.workdir}
+                script: echo "Hello from the other absolute side!"
+            :submodule:other-relative:
+                working_directory: /somewhere/absolute/submodule/other/relative
                 environment:
                     EBRO_ROOT: {self.workdir}
                 script: echo "Hello from the other relative side!"
