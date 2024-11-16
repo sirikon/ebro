@@ -20,3 +20,18 @@ class TestGitImport(EbroTestCase):
             Done!
             """,
         )
+
+        # second call should not clone again
+        exit_code, stdout = self.ebro(
+            "--file", "Ebro.fake_git.yaml", env={"TEST_REPOSITORY_URL": repository_url}
+        )
+        self.assertEqual(exit_code, 0)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:fake:default] running
+            I am fake
+            ███ [:default] running
+            Done!
+            """,
+        )

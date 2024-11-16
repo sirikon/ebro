@@ -43,8 +43,7 @@ def fake_git_server(func):
         try:
             func(*args, repository_url, **kwargs)
         finally:
-            pass
-            # _docker("rm", "-f", container_id)
+            _docker("rm", "-f", container_id)
 
     return wrapper
 
