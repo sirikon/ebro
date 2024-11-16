@@ -30,9 +30,9 @@ def fake_git_server(func):
         repository_url = f"http://127.0.0.1:{local_port}/git/fake.git"
         retries = 300
         while retries > 0:
-            sleep(0.01)
             retries = retries - 1
             try:
+                sleep(0.01)
                 conn = http.client.HTTPConnection(f"127.0.0.1:{local_port}")
                 conn.request("GET", "/")
                 conn.getresponse()
