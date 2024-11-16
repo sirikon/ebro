@@ -1,0 +1,9 @@
+imports:
+  fake:
+    from: git+${TEST_REPOSITORY_URL}#?path=modules/fake
+
+tasks:
+  default:
+    requires: [fake]
+    script: |
+      echo "Done!"

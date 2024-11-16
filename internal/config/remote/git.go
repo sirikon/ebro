@@ -75,7 +75,7 @@ func CloneGitImport(gi *GitImport) error {
 		URL:           gi.Url,
 		ReferenceName: gi.Ref,
 		SingleBranch:  true,
-		Progress:      os.Stderr,
+		Progress:      nil,
 	})
 
 	return err

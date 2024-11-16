@@ -112,9 +112,13 @@ func processModule(inv Inventory, module config.Module, moduleNameTrail []string
 		if err != nil {
 			return fmt.Errorf("expanding import %v environment: %w", importName, err)
 		}
-		importModulePath, err := config.ImportModule(workingDirectory, importObj.From)
+		expandedFrom, err := expandString(importObj.From, module.Environment)
 		if err != nil {
-			return fmt.Errorf("parsing import %v: %w", importObj.From, err)
+			return fmt.Errorf("expanding import from %v: %w", importObj.From, err)
+		}
+		importModulePath, err := config.ImportModule(workingDirectory, expandedFrom)
+		if err != nil {
+			return fmt.Errorf("parsing import %v: %w", expandedFrom, err)
 		}
 		err = processModuleFile(inv, path.Join(importModulePath, constants.DefaultFile), append(moduleNameTrail, importName), importEnvironment)
 		if err != nil {
