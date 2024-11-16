@@ -47,3 +47,34 @@ class TestGitImport(EbroTestCase):
             Done!
             """,
         )
+
+    @fake_git_server
+    def test_git_import_validates_fragments_1(self, repository_url):
+        exit_code, stdout = self.ebro(
+            "--file",
+            "Ebro.git_import_test_fail_1.yaml",
+            env={"TEST_REPOSITORY_URL": repository_url},
+        )
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ cloning {repository_url}
+            ███ ERROR: processing module in {self.workdir}/Ebro.git_import_test_fail_1.yaml: processing module {self.workdir}/Ebro.git_import_test_fail_1.yaml: parsing import git+{repository_url}#caddy?ref=wrongbranch: cloning git import git+{repository_url}#caddy?ref=wrongbranch: couldn't find remote ref "refs/heads/wrongbranch"
+            """,
+        )
+
+    @fake_git_server
+    def test_git_import_validates_fragments_2(self, repository_url):
+        exit_code, stdout = self.ebro(
+            "--file",
+            "Ebro.git_import_test_fail_2.yaml",
+            env={"TEST_REPOSITORY_URL": repository_url},
+        )
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ ERROR: processing module in {self.workdir}/Ebro.git_import_test_fail_2.yaml: processing module {self.workdir}/Ebro.git_import_test_fail_2.yaml: parsing import git+{repository_url}#caddy?branch=master: parsing possible git import git+{repository_url}#caddy?branch=master: unknown query parameter in git import fragment: branch
+            """,
+        )

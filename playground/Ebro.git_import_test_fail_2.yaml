@@ -1,8 +1,8 @@
 imports:
   apt:
-    from: git+${TEST_REPOSITORY_URL}#apt
+    from: ./apt
   caddy:
-    from: git+${TEST_REPOSITORY_URL}#caddy
+    from: git+${TEST_REPOSITORY_URL}#caddy?branch=master
 
 tasks:
   default:

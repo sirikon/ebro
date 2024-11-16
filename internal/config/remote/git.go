@@ -44,16 +44,21 @@ func ParseGitImport(importUrl string) (*GitImport, error) {
 	setResultRef(plumbing.Master)
 
 	if parsedUrl.Fragment != "" {
-		fragmentQuery, err := url.ParseQuery(strings.TrimPrefix(parsedUrl.Fragment, "?"))
+		parsedFragmentUrl, err := url.Parse(parsedUrl.Fragment)
 		if err != nil {
 			return nil, fmt.Errorf("parsing fragment of url %v: %w", importUrl, err)
 		}
-
-		if val, ok := fragmentQuery["ref"]; ok {
-			setResultRef(plumbing.ReferenceName(val[0]))
+		parsedFragmentUrlQuery := parsedFragmentUrl.Query()
+		for key, value := range parsedFragmentUrlQuery {
+			if key == "ref" {
+				setResultRef(plumbing.ReferenceName(value[0]))
+				continue
+			}
+			return nil, fmt.Errorf("unknown query parameter in git import fragment: %v", key)
 		}
-		if val, ok := fragmentQuery["path"]; ok {
-			result.Subpath = val[0]
+
+		if parsedFragmentUrl.Path != "" {
+			result.Subpath = parsedFragmentUrl.Path
 		}
 	}
 
