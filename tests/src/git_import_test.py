@@ -7,15 +7,22 @@ class TestGitImport(EbroTestCase):
     @fake_git_server
     def test_git_import_works(self, repository_url):
         exit_code, stdout = self.ebro(
-            "--file", "Ebro.fake_git.yaml", env={"TEST_REPOSITORY_URL": repository_url}
+            "--file",
+            "Ebro.git_import_test.yaml",
+            env={"TEST_REPOSITORY_URL": repository_url},
         )
         self.assertEqual(exit_code, 0)
         self.assertStdout(
             stdout,
             f"""
             ███ cloning {repository_url}
-            ███ [:fake:default] running
-            I am fake
+            ███ [:apt:pre-config] running
+            ███ [:caddy:package-apt-config] running
+            ███ [:apt:default] running
+            Installing apt packages
+            caddy
+            ███ [:caddy:package] satisfied
+            ███ [:caddy:default] satisfied
             ███ [:default] running
             Done!
             """,
@@ -23,14 +30,19 @@ class TestGitImport(EbroTestCase):
 
         # second call should not clone again
         exit_code, stdout = self.ebro(
-            "--file", "Ebro.fake_git.yaml", env={"TEST_REPOSITORY_URL": repository_url}
+            "--file",
+            "Ebro.git_import_test.yaml",
+            env={"TEST_REPOSITORY_URL": repository_url},
         )
         self.assertEqual(exit_code, 0)
         self.assertStdout(
             stdout,
             f"""
-            ███ [:fake:default] running
-            I am fake
+            ███ [:apt:pre-config] skipping
+            ███ [:caddy:package-apt-config] skipping
+            ███ [:apt:default] skipping
+            ███ [:caddy:package] satisfied
+            ███ [:caddy:default] satisfied
             ███ [:default] running
             Done!
             """,

@@ -2,7 +2,7 @@ imports:
   apt:
     from: ./apt
   caddy:
-    from: git+https://github.com/sirikon/ebro.git#playground/caddy
+    from: git+${TEST_REPOSITORY_URL}#?path=caddy
 
 tasks:
   default:

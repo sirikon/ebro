@@ -16,7 +16,7 @@ def fake_git_server(func):
             "-p",
             "80",
             "-v",
-            join(getcwd(), "./fake_git_server/content") + ":/content:ro",
+            join(getcwd(), "..", "playground") + ":/content:ro",
             "-v",
             join(getcwd(), "./fake_git_server/entrypoint.sh") + ":/entrypoint.sh:ro",
             "ynohat/git-http-backend",
