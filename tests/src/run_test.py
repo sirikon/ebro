@@ -78,3 +78,26 @@ class TestRun(EbroTestCase):
             ███ ERROR: task :default returned status code 1
             """,
         )
+
+    def test_failing_scripts_are_not_cached_by_output_changes(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.fail_with_output_change.yaml")
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:default] running
+            This should print all the time
+            ███ ERROR: task :default returned status code 1
+            """,
+        )
+
+        exit_code, stdout = self.ebro("--file", "Ebro.fail_with_output_change.yaml")
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:default] running
+            This should print all the time
+            ███ ERROR: task :default returned status code 1
+            """,
+        )

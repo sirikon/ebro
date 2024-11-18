@@ -45,6 +45,15 @@ func storeTaskOutputAndCheckIfChanged(taskName string, output []byte) (bool, err
 	return changed, nil
 }
 
+func removeTaskOutput(taskName string) error {
+	outputPath := path.Join(".ebro", "output_tracking", taskName)
+	err := os.Remove(outputPath)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("removing %v task output: %w", taskName, err)
+	}
+	return nil
+}
+
 func hashBytes(data []byte) (string, error) {
 	hasher := sha256.New()
 	_, err := hasher.Write(data)

@@ -74,11 +74,23 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 
 		logger.Notice(logLine(taskName, "running"))
 		status, err := runScript(task.Script, task.WorkingDirectory, task.Environment)
+
+		var final_err error
+
 		if err != nil {
-			return fmt.Errorf("running task %v script: %w", taskName, err)
+			final_err = fmt.Errorf("running task %v script: %w", taskName, err)
 		}
+
 		if status != 0 {
-			return fmt.Errorf("task %v returned status code %v", taskName, status)
+			final_err = fmt.Errorf("task %v returned status code %v", taskName, status)
+		}
+
+		if final_err != nil {
+			err := removeTaskOutput(taskName)
+			if err != nil {
+				return fmt.Errorf("removing task output after failure: %w", err)
+			}
+			return final_err
 		}
 	}
 	return nil

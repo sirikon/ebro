@@ -1,0 +1,7 @@
+tasks:
+  default:
+    script: |
+      echo "This should print all the time"
+      exit 1
+    when:
+      output_changes: echo hello
