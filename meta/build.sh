@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+root="$(pwd)"
 mkdir -p out
-go build -o out/ebro cmd/ebro/main.go
+cd src
+go build -o "$root/out/ebro" cmd/ebro/main.go
