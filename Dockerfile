@@ -1,4 +1,4 @@
-FROM golang:1.23.2
+FROM golang:1.23.3
 WORKDIR /wd
 
 # Copy .mod and .sum files first to donwload dependencies and cache de layer
