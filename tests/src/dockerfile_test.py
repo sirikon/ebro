@@ -2,7 +2,7 @@ import unittest
 import re
 
 
-class TestCli(unittest.TestCase):
+class TestDockerfile(unittest.TestCase):
 
     # I do not accept any feedback or opinion about this godforsaken
     # test. Whatever you're going to tell me, I already know.
