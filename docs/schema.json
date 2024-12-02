@@ -9,6 +9,9 @@
         "working_directory": {
             "type": "string"
         },
+        "environment": {
+            "type": "object"
+        },
         "imports": {
             "type": "object",
             "additionalProperties": {
