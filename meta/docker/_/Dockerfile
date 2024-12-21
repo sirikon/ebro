@@ -19,6 +19,7 @@ COPY .git ./.git
 
 # Build
 RUN ./meta/build-dist.sh
+RUN mv ./out /out
 
 
 
@@ -42,10 +43,11 @@ COPY ./meta/website/_/ ./meta/website/_/
 COPY ./meta/website/build.sh ./meta/website/build.sh
 COPY ./docs ./docs
 RUN ./meta/website/build.sh
+RUN mv ./out /out
 
 
 
-FROM scratch
-COPY --from=dist /w/out /out
-COPY --from=website /w/out /out
+FROM scratch AS all
+COPY --from=dist /out /out
+COPY --from=website /out /out
 CMD ["false"]

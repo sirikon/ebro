@@ -4,6 +4,9 @@ set -euo pipefail
 EBRO_COMMIT="$(git rev-parse --verify HEAD)"
 export EBRO_COMMIT
 EBRO_VERSION="nightly/$EBRO_COMMIT"
+if [ "$(git tag --points-at "$EBRO_COMMIT" | wc -l)" == "1" ]; then
+    EBRO_VERSION="$(git tag --points-at "$EBRO_COMMIT")"
+fi
 
 function main {
     rm -rf out/dist
