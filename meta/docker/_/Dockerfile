@@ -1,5 +1,7 @@
-FROM golang:1.23.3
-WORKDIR /wd
+ARG GO_VERSION=0.0.0
+
+FROM golang:${GO_VERSION}
+WORKDIR /w
 
 # Copy .mod and .sum files first to donwload dependencies and cache de layer
 # before including any source code
@@ -7,10 +9,11 @@ COPY src/go.mod ./src/go.mod
 COPY src/go.sum ./src/go.sum
 RUN cd src && go mod download
 
-# Copy the rest and run release
+# Copy the rest
 COPY src ./src
-COPY meta/release.sh ./meta/release.sh
+COPY meta/build-dist.sh ./meta/build-dist.sh
 COPY .git ./.git
-RUN ./meta/release.sh
 
-RUN mv ./dist /dist
+# Build
+RUN ./meta/build-dist.sh
+RUN mv ./out /out

@@ -4,4 +4,4 @@ set -euo pipefail
 root="$(pwd)"
 mkdir -p out
 cd src
-go build -o "$root/out/ebro" cmd/ebro/main.go
+CGO_ENABLED=0 go build -o "$root/out/ebro" cmd/ebro/main.go
