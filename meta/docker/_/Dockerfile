@@ -6,7 +6,7 @@ ARG PYTHON_VERSION=0.0.0
 FROM golang:${GO_VERSION} AS dist
 WORKDIR /w
 
-# Copy .mod and .sum files first to donwload dependencies and cache de layer
+# Copy .mod and .sum files first to download dependencies and cache de layer
 # before including any source code
 COPY src/go.mod ./src/go.mod
 COPY src/go.sum ./src/go.sum
