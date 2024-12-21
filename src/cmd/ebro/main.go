@@ -15,11 +15,6 @@ import (
 )
 
 func main() {
-	err := lock()
-	if err != nil {
-		cli.ExitWithError(err)
-	}
-
 	arguments := cli.Parse()
 
 	if arguments.Command == cli.CommandHelp {
@@ -57,6 +52,11 @@ func main() {
 			fmt.Println(step)
 		}
 		return
+	}
+
+	err = lock()
+	if err != nil {
+		cli.ExitWithError(err)
 	}
 
 	err = runner.Run(inv, plan, *arguments.GetFlagBool(cli.FlagForce))
