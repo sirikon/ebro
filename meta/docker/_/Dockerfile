@@ -1,6 +1,9 @@
 ARG GO_VERSION=0.0.0
+ARG PYTHON_VERSION=0.0.0
 
-FROM golang:${GO_VERSION}
+
+
+FROM golang:${GO_VERSION} AS dist
 WORKDIR /w
 
 # Copy .mod and .sum files first to donwload dependencies and cache de layer
@@ -16,4 +19,32 @@ COPY .git ./.git
 
 # Build
 RUN ./meta/build-dist.sh
-RUN mv ./out /out
+
+
+
+FROM python:${PYTHON_VERSION} AS docs
+
+# Poetry
+ARG POETRY_VERSION='0.0.0'
+ENV POETRY_VERSION="${POETRY_VERSION}"
+ENV POETRY_INSTALLER_COMMIT="d62875fc05fb20062175cd14d19a96dbefa48640"
+ENV POETRY_HOME=/poetry
+ENV PATH="/poetry/bin:${PATH}"
+RUN curl -fsSL "https://raw.githubusercontent.com/python-poetry/install.python-poetry.org/${POETRY_INSTALLER_COMMIT}/install-poetry.py" | python -
+
+WORKDIR /w
+COPY ./meta/python/_/pyproject.toml ./meta/python/_/pyproject.toml
+COPY ./meta/python/_/poetry.lock ./meta/python/_/poetry.lock
+COPY ./meta/python/poetry.sh ./meta/python/poetry.sh
+RUN ./meta/python/poetry.sh install
+COPY ./meta/python/ensure-venv.sh ./meta/python/ensure-venv.sh
+COPY ./meta/docs/_/ ./meta/docs/_/
+COPY ./meta/docs/build.sh ./meta/docs/build.sh
+RUN ./meta/docs/build.sh
+
+
+
+FROM scratch
+COPY --from=dist /w/out /out
+COPY --from=docs /w/out /out
+CMD ["false"]
