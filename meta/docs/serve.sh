@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PYTHONPATH="$(realpath "$(dirname "${BASH_SOURCE[0]}")")/_/src"
+export PYTHONPATH
+exec ./meta/python/_/.venv/bin/python -m flask \
+    --app ebro_docs.app \
+    run --port 8000 --debug

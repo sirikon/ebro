@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+./meta/build.sh
 cd playground
-exec go run ../cmd/ebro/main.go "$@"
+exec ../out/ebro "$@"

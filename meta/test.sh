@@ -12,13 +12,10 @@ function main {
     ./meta/build.sh
 
     log "Running e2e tests"
-    cd tests
-    if [ ! -d ".venv" ]; then
-        export POETRY_VIRTUALENVS_IN_PROJECT="true"
-        poetry install
-    fi
+    ./meta/python/ensure-venv.sh
     export PYTHONPATH=src
-    ./.venv/bin/python -m unittest discover src "*_test.py"
+    cd tests
+    ./../meta/python/_/.venv/bin/python -m unittest discover src "*_test.py"
 }
 
 function log {
