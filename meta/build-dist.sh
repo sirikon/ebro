@@ -26,6 +26,7 @@ function build {
             -o "$dest" \
             cmd/ebro/main.go
     )
+    sha256sum "$dest" | sed -E 's/^([a-z0-9]+).*$/\1/' >"$dest.sha256"
 }
 
 main "$@"

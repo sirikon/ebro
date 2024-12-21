@@ -3,10 +3,14 @@ body {
   margin: 1em;
 }
 
+.x-header,
 .x-content {
-  padding: 1px 1em;
-  background-color: white;
   display: block;
   margin: auto;
   max-width: 800px;
+}
+
+.x-content {
+  padding: 1px 1em;
+  background-color: white;
 }

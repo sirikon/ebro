@@ -1,6 +1,8 @@
 from pathlib import Path
+from os import getcwd
+from os.path import join
 
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, send_file
 from markdown import Markdown
 
 
@@ -12,14 +14,11 @@ def index():
     md = Markdown(
         output_format="html5", extensions=["extra", "meta", "codehilite"], tab_length=2
     )
-    html = md.convert(Path("docs/README.md").read_text())
+    with open("docs/README.md", "r") as f:
+        html = md.convert(f.read())
     return render_template("index.html", content=html)
 
 
 @app.get("/schema.json")
 def schema():
-    return Response(
-        Path("docs/schema.json").read_bytes(),
-        200,
-        {"Content-Type": "application/json; charset=utf8"},
-    )
+    return send_file(join(getcwd(), "docs", "schema.json"))
