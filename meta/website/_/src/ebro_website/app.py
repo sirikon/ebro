@@ -16,7 +16,12 @@ def index():
     )
     with open("docs/README.md", "r") as f:
         html = md.convert(f.read())
-    return render_template("index.html", content=html)
+    return render_template("_base.html", content=html)
+
+
+@app.get("/versions/")
+def version():
+    return render_template("_base.html", content="")
 
 
 @app.get("/schema.json")

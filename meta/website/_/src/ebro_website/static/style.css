@@ -4,13 +4,24 @@ body {
 }
 
 .x-header,
-.x-content {
+.x-body {
   display: block;
   margin: auto;
   max-width: 800px;
 }
 
+.x-body {
+  display: flex;
+}
+
+.x-sidebar {
+  flex-shrink: 0;
+  padding: 1px 0;
+  margin-right: 1em;
+}
+
 .x-content {
+  flex-grow: 1;
   padding: 1px 1em;
   background-color: white;
 }

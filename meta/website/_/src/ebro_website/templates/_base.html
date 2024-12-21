@@ -10,12 +10,20 @@
 </head>
 
 <body>
+
   <div class="x-header">
     <h1>Ebro</h1>
   </div>
-  <div class="x-content">
-    {{content|safe}}
+  <div class="x-body">
+    <div class="x-sidebar">
+      <a href="/">Home</a><br>
+      <a href="/versions/">Versions</a>
+    </div>
+    <div class="x-content">
+      {{content|safe}}
+    </div>
   </div>
+
 </body>
 
 </html>
