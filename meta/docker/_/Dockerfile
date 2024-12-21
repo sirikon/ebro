@@ -40,6 +40,7 @@ RUN ./meta/python/poetry.sh install
 COPY ./meta/python/ensure-venv.sh ./meta/python/ensure-venv.sh
 COPY ./meta/docs/_/ ./meta/docs/_/
 COPY ./meta/docs/build.sh ./meta/docs/build.sh
+COPY ./docs ./docs
 RUN ./meta/docs/build.sh
 
 

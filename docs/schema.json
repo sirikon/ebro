@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://ebro.srk.bz/docs/schema.json",
+    "$id": "https://ebro.sirikon.me/schema.json",
     "title": "Ebro.yaml",
     "description": "Ebro.yaml file definition",
     "type": "object",
