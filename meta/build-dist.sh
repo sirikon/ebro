@@ -25,7 +25,7 @@ function build {
         cd src
         CGO_ENABLED=0 go build \
             -ldflags \
-            "-X github.com/sirikon/ebro/internal/constants.version=${EBRO_COMMIT} \
+            "-X github.com/sirikon/ebro/internal/constants.version=${EBRO_VERSION} \
             -X github.com/sirikon/ebro/internal/constants.commit=${EBRO_COMMIT} \
             -X github.com/sirikon/ebro/internal/constants.timestamp=${timestamp}" \
             -o "$dest" \
