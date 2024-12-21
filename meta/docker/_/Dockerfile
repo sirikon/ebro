@@ -22,7 +22,7 @@ RUN ./meta/build-dist.sh
 
 
 
-FROM python:${PYTHON_VERSION} AS docs
+FROM python:${PYTHON_VERSION} AS website
 
 # Poetry
 ARG POETRY_VERSION='0.0.0'
@@ -38,14 +38,14 @@ COPY ./meta/python/_/poetry.lock ./meta/python/_/poetry.lock
 COPY ./meta/python/poetry.sh ./meta/python/poetry.sh
 RUN ./meta/python/poetry.sh install
 COPY ./meta/python/ensure-venv.sh ./meta/python/ensure-venv.sh
-COPY ./meta/docs/_/ ./meta/docs/_/
-COPY ./meta/docs/build.sh ./meta/docs/build.sh
+COPY ./meta/website/_/ ./meta/website/_/
+COPY ./meta/website/build.sh ./meta/website/build.sh
 COPY ./docs ./docs
-RUN ./meta/docs/build.sh
+RUN ./meta/website/build.sh
 
 
 
 FROM scratch
 COPY --from=dist /w/out /out
-COPY --from=docs /w/out /out
+COPY --from=website /w/out /out
 CMD ["false"]
