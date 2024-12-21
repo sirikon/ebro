@@ -3,6 +3,7 @@ set -euo pipefail
 
 EBRO_COMMIT="$(git rev-parse --verify HEAD)"
 export EBRO_COMMIT
+EBRO_VERSION="nightly/$EBRO_COMMIT"
 
 function main {
     rm -rf out/dist
@@ -12,7 +13,8 @@ function main {
 }
 
 function build {
-    dest="$(pwd)/out/dist/${1}/ebro"
+    variant="$1"
+    dest="$(pwd)/out/dist/${EBRO_VERSION}/${variant}/ebro"
     timestamp="$(date +%s)"
     echo "Building ${GOOS} ${GOARCH}"
     mkdir -p "$(dirname "$dest")"
