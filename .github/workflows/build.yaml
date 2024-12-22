@@ -11,4 +11,6 @@ jobs:
         run: ./meta/docker/build.sh
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: ./meta/release/github.sh
