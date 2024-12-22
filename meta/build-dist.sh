@@ -22,6 +22,7 @@ function main {
 
     if [ -n "$EBRO_RELEASE" ]; then
         echo "$EBRO_RELEASE" >out/dist/RELEASE
+        echo "$EBRO_COMMIT" >out/dist/RELEASE_COMMIT
     fi
 }
 
