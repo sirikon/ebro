@@ -6,7 +6,7 @@ declare -A EBRO_SUMS=(
     # gen:EBRO_SUMS
 )
 
-EBRO_BIN=".ebro/bin/ebro"
+EBRO_BIN=".ebro/bin/${EBRO_VERSION}/ebro"
 if [ ! -f "$EBRO_BIN" ] || [ ! -x "$EBRO_BIN" ]; then
     variant="$(uname -s)__$(uname -m)"
     if [ ! "${EBRO_SUMS[$variant]+ok}" ]; then
