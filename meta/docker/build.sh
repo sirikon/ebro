@@ -15,7 +15,7 @@ if [ -n "${ACTIONS_RUNTIME_TOKEN}" ]; then
         --driver-opt default-load=true \
         --bootstrap \
         --use
-    extra_args+=(--builder=docker-container --cache-to type=gha --cache-from type=gha)
+    extra_args+=(--cache-to type=gha --cache-from type=gha)
 fi
 
 rm -rf out
