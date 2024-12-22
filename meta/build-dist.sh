@@ -41,6 +41,7 @@ function build {
             cmd/ebro/main.go
     )
     sha256sum "$dest" | sed -E 's/^([a-z0-9]+).*$/\1/' >"$dest.sha256"
+    sed -i -E "s/^( +)# gen:EBRO_SUMS/[\"$variant\"]=\"$(cat "$dest.sha256")\"\n\1# gen:EBRO_SUMS/" "$(dirname "$dest")/ebrow"
 }
 
 main "$@"
