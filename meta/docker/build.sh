@@ -13,7 +13,8 @@ if [ -n "${ACTIONS_RUNTIME_TOKEN}" ]; then
     docker builder create \
         --driver docker-container \
         --driver-opt default-load=true \
-        --bootstrap
+        --bootstrap \
+        --use
     extra_args+=(--builder=docker-container --cache-to type=gha --cache-from type=gha)
 fi
 
