@@ -14,6 +14,7 @@ RUN cd src && go mod download
 
 # Copy the rest
 COPY src ./src
+COPY scripts ./scripts
 COPY meta/build-dist.sh ./meta/build-dist.sh
 COPY .git ./.git
 
