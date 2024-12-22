@@ -3,7 +3,7 @@ set -euo pipefail
 
 EBRO_COMMIT="$(git rev-parse --verify HEAD)"
 export EBRO_COMMIT
-EBRO_VERSION="nightly/$EBRO_COMMIT"
+EBRO_VERSION="nightly_$EBRO_COMMIT"
 EBRO_RELEASE=""
 if [ "$(git tag --points-at "$EBRO_COMMIT" | wc -l)" == "1" ]; then
     EBRO_VERSION="$(git tag --points-at "$EBRO_COMMIT")"
@@ -15,10 +15,11 @@ function main {
     mkdir -p "out/dist/${EBRO_VERSION}"
 
     sed -E "s/^.*# gen:EBRO_VERSION$/EBRO_VERSION=\"${EBRO_VERSION}\"/" <scripts/ebrow >"out/dist/${EBRO_VERSION}/ebrow"
-
     GOOS=linux GOARCH=arm64 build "Linux__aarch64"
     GOOS=linux GOARCH=amd64 build "Linux__x86_64"
     GOOS=darwin GOARCH=arm64 build "Darwin__arm64"
+    sed -i -E "/^ +# gen:EBRO_SUMS/d" "out/dist/${EBRO_VERSION}/ebrow"
+
     if [ -n "$EBRO_RELEASE" ]; then
         echo "$EBRO_RELEASE" >out/dist/RELEASE
     fi
@@ -41,7 +42,7 @@ function build {
             cmd/ebro/main.go
     )
     sha256sum "$dest" | sed -E 's/^([a-z0-9]+).*$/\1/' >"$dest.sha256"
-    sed -i -E "s/^( +)# gen:EBRO_SUMS/[\"$variant\"]=\"$(cat "$dest.sha256")\"\n\1# gen:EBRO_SUMS/" "$(dirname "$dest")/ebrow"
+    sed -i -E "s/^( +)# gen:EBRO_SUMS/\1[\"$variant\"]=\"$(cat "$dest.sha256")\"\n\1# gen:EBRO_SUMS/" "$(dirname "$dest")/ebrow"
 }
 
 main "$@"
