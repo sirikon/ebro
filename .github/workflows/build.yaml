@@ -8,7 +8,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Build
-        run: ./meta/docker/build.sh
+        run: ./meta/docker/build.sh dist
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
         env:
