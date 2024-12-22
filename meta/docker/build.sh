@@ -7,17 +7,6 @@ PYTHON_VERSION="$(grep python <.tool-versions | sed -E 's/^python (.*)$/\1/g')"
 POETRY_VERSION="$(grep poetry <.tool-versions | sed -E 's/^poetry (.*)$/\1/g')"
 TAG="ebro-build:$(base64 </dev/urandom | tr -d '[A-Z]+/' | head -c 8 || true)"
 
-extra_args=()
-if [ -n "${ACTIONS_RUNTIME_TOKEN}" ]; then
-    echo "GitHub Actions detected. Enabling GHA Docker cache."
-    docker builder create \
-        --name docker-container \
-        --driver docker-container \
-        --driver-opt default-load=true \
-        --bootstrap
-    extra_args+=(--builder=docker-container --cache-to type=gha --cache-from type=gha)
-fi
-
 rm -rf out
 docker build \
     -t "$TAG" \
@@ -26,7 +15,6 @@ docker build \
     --build-arg "PYTHON_VERSION=${PYTHON_VERSION}" \
     --build-arg "POETRY_VERSION=${POETRY_VERSION}" \
     --target "$TARGET" \
-    "${extra_args[@]}" \
     .
 container_id="$(docker create "$TAG")"
 docker cp "$container_id:/out" ./out
