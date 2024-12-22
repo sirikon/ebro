@@ -60,7 +60,7 @@ Here's a summary of what just happened:
 
 Ebro on start will check for a file called `Ebro.yaml` in the working directory and parse it if present, constructing what is called the **inventory**, a collection of every task available with their definitive configuration for running.
 
-You can check the inventory yourself by calling `./ebrow -inventory`, you'll notice extra details like the deffinitive list of extra environment variables that will be included in each task execution, or the working directory.
+You can check the inventory yourself by calling `./ebrow -inventory`, you'll notice extra details like the definitive list of extra environment variables that will be included in each task execution, or the working directory.
 
 Next, it will construct a **plan**, which is an ordered list of all the tasks that will be executed sequentially in order to reach our target task, which by default is `default`, but can be any other by passing it as an argument (`./ebrow echoer`).
 
@@ -90,7 +90,7 @@ But if we execute `./ebrow` again, we'll see this output:
 ███ [:default] satisfied
 ```
 
-Ebro skips tasks whenever possible, and the task definition is what mandates when a task should be skipped. In our example, the task `echoer` is skipped whenever the output of running `cat cache/A.txt` and `cat cache/B.txt` doesn't change. In the case of the task `produce_a`, it skips whenever the command `test -f cache/A.txt` fails, because the file `cache/A.txt` doesn't exist.
+Ebro skips tasks whenever possible, and the task definition is what mandates when a task should be skipped. In our example, the task `echoer` is skipped whenever the output of running `cat cache/A.txt` and `cat cache/B.txt` doesn't change. In the case of the task `produce_a`, it skips whenever the command `test -f cache/A.txt` succeeds, because the file `cache/A.txt` already exists.
 
 Now we'll manually edit the file `cache/A.txt`, run `./ebrow` again, and see the result.
 
