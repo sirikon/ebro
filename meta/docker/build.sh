@@ -10,7 +10,11 @@ TAG="ebro-build:$(base64 </dev/urandom | tr -d '[A-Z]+/' | head -c 8 || true)"
 extra_args=()
 if [ -n "${ACTIONS_RUNTIME_TOKEN}" ]; then
     echo "GitHub Actions detected. Enabling GHA Docker cache."
-    extra_args+=(--builder=docker-container --load --cache-to type=gha --cache-from type=gha)
+    docker builder create \
+        --driver docker-container \
+        --driver-opt default-load=true \
+        --bootstrap
+    extra_args+=(--builder=docker-container --cache-to type=gha --cache-from type=gha)
 fi
 
 rm -rf out
