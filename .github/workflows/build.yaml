@@ -1,0 +1,14 @@
+name: Build Ebro
+on: [push]
+jobs:
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build
+        run: ./meta/docker/build.sh
+      # - name: Publish
+      #   if: github.ref == 'refs/heads/master'
+      #   run: ./meta/docker/publish.sh
