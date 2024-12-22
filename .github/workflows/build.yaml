@@ -10,5 +10,5 @@ jobs:
       - name: Build
         run: ./meta/docker/build.sh
       - name: Release
-        if: github.ref == 'refs/heads/newbuild'
+        if: startsWith(github.ref, 'refs/tags/')
         run: ./meta/release/github.sh
