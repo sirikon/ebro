@@ -9,6 +9,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Build
         run: ./meta/docker/build.sh
-      # - name: Publish
-      #   if: github.ref == 'refs/heads/master'
-      #   run: ./meta/docker/publish.sh
+      - name: Release
+        if: github.ref == 'refs/heads/newbuild'
+        run: ./meta/release/github.sh
