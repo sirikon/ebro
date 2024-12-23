@@ -12,6 +12,11 @@ md = Markdown(
 )
 
 
+@app.template_filter("markdown")
+def markdown(text: str) -> str:
+    return md.convert(text)
+
+
 @app.get("/")
 def index():
     with open("docs/README.md", "r") as f:

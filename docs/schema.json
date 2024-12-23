@@ -15,10 +15,10 @@
             "type": "object"
         },
         "imports": {
-            "description": "Other modules can be imported. Each key in the object will be the module's name when imported.",
+            "description": "Other modules can be imported.",
             "type": "object",
             "additionalProperties": {
-                "description": "The definition of the imported module",
+                "description": "Each key in the object will be the module's name when imported.",
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
@@ -27,17 +27,17 @@
                         "type": "string"
                     },
                     "environment": {
-                        "description": "Additional environment variables available for all the tasks inside the imported module. Using `${VAR}` is possible to interpolate variables that come from the parent environment (current module or Ebro's execution environment), but **not+* from the same environment object.",
+                        "description": "Additional environment variables available for all the tasks inside the imported module. Using `${VAR}` is possible to interpolate variables that come from the parent environment (current module or Ebro's execution environment), but **not** from the same environment object.",
                         "type": "object"
                     }
                 }
             }
         },
         "tasks": {
-            "description": "Collection of tasks defined in the module. Each key in the object will be the task's name.",
+            "description": "Collection of tasks defined in the module.",
             "type": "object",
             "additionalProperties": {
-                "description": "The definition of the task",
+                "description": "Each key in the object will be the task's name.",
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
@@ -89,6 +89,7 @@
             "description": "Modules can have other modules inside",
             "type": "object",
             "additionalProperties": {
+                "description": "Each key in the object will be the module's name",
                 "$ref": "#"
             }
         }
