@@ -42,34 +42,42 @@
                 "additionalProperties": false,
                 "properties": {
                     "working_directory": {
+                        "description": "The working directory for the task. Defaults to the module working directory. Relative paths are valid and will be added to the default value to compute the final value.",
                         "type": "string"
                     },
                     "environment": {
+                        "description": "Additional environment variables available the task. Using `${VAR}` is possible to interpolate variables that come from the parent environment (module or Ebro's execution environment), but **not+* from the same environment object.",
                         "type": "object"
                     },
                     "requires": {
+                        "description": "List of task names that need to execute before this one does. It is possible to reference tasks from other modules by writing the full path of the task (module and task name) prepended with a colon (:).",
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
                     },
                     "required_by": {
+                        "description": "List of task names that require this task to be executed before those. The opposite of `requires`. It is possible to reference tasks from other modules by writing the full path of the task (module and task name) prepended with a colon (:).",
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
                     },
                     "script": {
+                        "description": "Bash script of the task",
                         "type": "string"
                     },
                     "when": {
+                        "description": "Configure ways in which the task could be skipped. These are computed as an OR, meaning: One of them triggering is enough to trigger the task execution.",
                         "type": "object",
                         "additionalProperties": false,
                         "properties": {
                             "check_fails": {
+                                "description": "Bash script. After execution, the exit code will be checked. If it succeeded (exit code 0), the task is skipped. If it fails (exit code different than 0), the task is executed.",
                                 "type": "string"
                             },
                             "output_changes": {
+                                "description": "Bash script. After execution, the output (stdout and stderr combined) will be compared with the output of the last time it executed and the task succeeded. If the output is the same, the task is skipped. If the output is different, the task is executed. If there is no previous output stored, the task is executed.",
                                 "type": "string"
                             }
                         }
@@ -78,6 +86,7 @@
             }
         },
         "modules": {
+            "description": "Modules can have other modules inside",
             "type": "object",
             "additionalProperties": {
                 "$ref": "#"
