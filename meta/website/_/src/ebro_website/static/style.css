@@ -3,6 +3,15 @@ body {
   margin: 1em;
 }
 
+ul li {
+  margin: 0.5em 0;
+}
+
+code {
+  background-color: #f8f8f8;
+  padding: 0 0.3em;
+}
+
 .x-header,
 .x-menu,
 .x-body {
@@ -38,4 +47,9 @@ body {
   padding: 1em;
   overflow-y: hidden;
   overflow-x: auto;
+}
+
+.codehilite code {
+  background-color: transparent;
+  padding: initial;
 }

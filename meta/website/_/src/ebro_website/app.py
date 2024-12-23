@@ -1,4 +1,4 @@
-from pathlib import Path
+import json
 from os import getcwd, listdir
 from os.path import join
 
@@ -23,7 +23,11 @@ def index():
 def ebro_format():
     with open("docs/ebro-format.md", "r") as f:
         html = md.convert(f.read())
-    return render_template("ebro-format.html", content=html, active_menu="ebro-format")
+    with open("docs/schema.json", "r") as f:
+        schema = json.loads(f.read())
+    return render_template(
+        "ebro-format.html", content=html, schema=schema, active_menu="ebro-format"
+    )
 
 
 @app.get("/install")
