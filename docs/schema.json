@@ -11,7 +11,7 @@
             "type": "string"
         },
         "environment": {
-            "description": "Additional environment variables available for all the tasks inside the module. Using `${VAR}` is possible to interpolate variables that come from the parent environment (parent module or Ebro's execution environment), but **not+* from the same environment object.",
+            "description": "Additional environment variables available for all the tasks inside the module. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (parent module or Ebro's execution environment), but **not** from the same environment object.",
             "type": "object"
         },
         "imports": {
@@ -27,7 +27,7 @@
                         "type": "string"
                     },
                     "environment": {
-                        "description": "Additional environment variables available for all the tasks inside the imported module. Using `${VAR}` is possible to interpolate variables that come from the parent environment (current module or Ebro's execution environment), but **not** from the same environment object.",
+                        "description": "Additional environment variables available for all the tasks inside the imported module. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (current module or Ebro's execution environment), but **not** from the same environment object.",
                         "type": "object"
                     }
                 }
@@ -46,18 +46,18 @@
                         "type": "string"
                     },
                     "environment": {
-                        "description": "Additional environment variables available the task. Using `${VAR}` is possible to interpolate variables that come from the parent environment (module or Ebro's execution environment), but **not+* from the same environment object.",
+                        "description": "Additional environment variables available the task. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (module or Ebro's execution environment), but **not** from the same environment object.",
                         "type": "object"
                     },
                     "requires": {
-                        "description": "List of task names that need to execute before this one does. It is possible to reference tasks from other modules by writing the full path of the task (module and task name) prepended with a colon (:).",
+                        "description": "List of task names that need to execute before this one does. It is possible to reference tasks from other modules by writing the full path of the task (module and task name) prepended with a colon (`:`).",
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
                     },
                     "required_by": {
-                        "description": "List of task names that require this task to be executed before those. The opposite of `requires`. It is possible to reference tasks from other modules by writing the full path of the task (module and task name) prepended with a colon (:).",
+                        "description": "List of task names that require this task to be executed before those. The opposite of `requires`. It is possible to reference tasks from other modules by writing the full path of the task (module and task name) prepended with a colon (`:`).",
                         "type": "array",
                         "items": {
                             "type": "string"
