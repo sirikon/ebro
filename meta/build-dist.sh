@@ -28,7 +28,8 @@ function main {
 
 function build {
     variant="$1"
-    dest="$(pwd)/out/dist/${EBRO_VERSION}/ebro-${variant}"
+    filename="ebro-${variant}"
+    dest="$(pwd)/out/dist/${EBRO_VERSION}/${filename}"
     timestamp="$(date +%s)"
     echo "Building ${GOOS} ${GOARCH}"
     mkdir -p "$(dirname "$dest")"
@@ -42,8 +43,12 @@ function build {
             -o "$dest" \
             cmd/ebro/main.go
     )
-    sha256sum "$dest" | sed -E 's/^([a-z0-9]+).*$/\1/' >"$dest.sha256"
-    sed -i -E "s/^( +)# gen:EBRO_SUMS/\1[\"$variant\"]=\"$(cat "$dest.sha256")\"\n\1# gen:EBRO_SUMS/" "$(dirname "$dest")/ebrow"
+    (
+        cd "$(dirname "$dest")"
+        sha256sum "$filename" >"$filename.sha256"
+        hash="$(sed -E 's/^([a-z0-9]+).*$/\1/' <"$filename.sha256")"
+        sed -i -E "s/^( +)# gen:EBRO_SUMS/\1[\"$variant\"]=\"${hash}\"\n\1# gen:EBRO_SUMS/" "ebrow"
+    )
 }
 
 main "$@"

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ebro</title>
+  <title>Ebro{% block title %}{% endblock %}</title>
   <link rel="stylesheet" href="/static/codehilite.css">
   <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -14,14 +14,13 @@
   <div class="x-header">
     <h1>Ebro</h1>
   </div>
+  <div class="x-menu">
+    <a class="x-menu-item {% if active_menu == 'home' %}is-active{% endif %}" href="/">Home</a>
+    <a class="x-menu-item {% if active_menu == 'install' %}is-active{% endif %}" href="/install/">Install</a>
+    <a class="x-menu-item {% if active_menu == 'changelog' %}is-active{% endif %}" href="/changelog/">Changelog</a>
+  </div>
   <div class="x-body">
-    <div class="x-sidebar">
-      <a href="/">Home</a><br>
-      <a href="/versions/">Versions</a>
-    </div>
-    <div class="x-content">
-      {{content|safe}}
-    </div>
+    {% block body %}{% endblock %}
   </div>
 
 </body>

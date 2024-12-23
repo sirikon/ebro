@@ -45,18 +45,18 @@ To give it a try, create a folder in your system, copy the content above in a fi
 
 ```bash
 curl --locaton --output ebrow 'https://github.com/sirikon/ebro/releases/latest/download/ebrow'
-chmod +x ebrow # give execution permissions
 ```
 
-And now, call `ebrow`
+**Before running it**, read the script and understand what it does (because you shouldn't blindly execute scripts from the internet).
+
+`ebrow` is Ebro's "workspace script". It is a Bash script that contains a reference to an exact Ebro version and is able to download it, verify its integrity, and place it inside the `.ebro` directory created next to itself. The next time you execute it, it will use the already-downloaded Ebro binary. It ensures that the correct binary is present in the workspace.
+
+Now, let's give it execution permissions and execute it:
 
 ```bash
+chmod +x ebrow
 ./ebrow
 ```
-
-Here's a summary of what just happened:
-
-`ebrow` is Ebro's "workspace script". It is a Bash script that contains a reference to an exact Ebro version and is able to download it, verify its integrity, and place it inside the `.ebro` directory, created next to itself. The next time you execute it, it will use the already-downloaded Ebro binary. It ensures that the correct binary is present in the workspace.
 
 Ebro on start will check for a file called `Ebro.yaml` in the working directory and parse it if present, constructing what is called the **inventory**, a collection of every task available with their definitive configuration for running.
 
