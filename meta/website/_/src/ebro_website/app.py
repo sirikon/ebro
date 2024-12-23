@@ -19,17 +19,26 @@ def index():
     return render_template("index.html", content=html, active_menu="home")
 
 
-@app.get("/install/")
+@app.get("/ebro-format")
+def ebro_format():
+    with open("docs/ebro-format.md", "r") as f:
+        html = md.convert(f.read())
+    return render_template("ebro-format.html", content=html, active_menu="ebro-format")
+
+
+@app.get("/install")
 def install():
     with open("docs/install.md", "r") as f:
         html = md.convert(f.read())
     return render_template("install.html", content=html, active_menu="install")
 
 
-@app.get("/changelog/")
+@app.get("/changelog")
 def version():
     versions = []
-    for item in listdir("docs/changelog"):
+    items = listdir("docs/changelog")
+    items.sort(reverse=True)
+    for item in items:
         tag = item.removesuffix(".md")
         with open(join("docs", "changelog", item), "r") as f:
             html = md.convert(f.read())

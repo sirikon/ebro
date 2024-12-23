@@ -2,7 +2,7 @@ Ebro is a task runner. Tasks are defined inside YAML files, scripted with Bash, 
 
 Ebro is distributed as a single binary, including the script interpreter ([mvdan/sh](https://github.com/mvdan/sh)).
 
-The format of Ebro's Yaml files is defined in [this JSON Schema](./schema.json). Here is an example:
+The format of Ebro.yaml files is defined [here](./ebro-format). Here is an example:
 
 ```yaml
 tasks:

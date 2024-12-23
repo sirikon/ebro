@@ -7,29 +7,37 @@
     "additionalProperties": false,
     "properties": {
         "working_directory": {
+            "description": "The default working directory for all the tasks inside the module. Defaults to the parent module working directory or the current working directory if it is the root module. Relative paths are valid and will be added to the default value to compute the final value.",
             "type": "string"
         },
         "environment": {
+            "description": "Additional environment variables available for all the tasks inside the module. Using `${VAR}` is possible to interpolate variables that come from the parent environment (parent module or Ebro's execution environment), but **not+* from the same environment object.",
             "type": "object"
         },
         "imports": {
+            "description": "Other modules can be imported. Each key in the object will be the module's name when imported.",
             "type": "object",
             "additionalProperties": {
+                "description": "The definition of the imported module",
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
                     "from": {
+                        "description": "The path to a directory containing a Ebro.yaml file. Relative paths will be added to the module's working directory to compute the final path.",
                         "type": "string"
                     },
                     "environment": {
+                        "description": "Additional environment variables available for all the tasks inside the imported module. Using `${VAR}` is possible to interpolate variables that come from the parent environment (current module or Ebro's execution environment), but **not+* from the same environment object.",
                         "type": "object"
                     }
                 }
             }
         },
         "tasks": {
+            "description": "Collection of tasks defined in the module. Each key in the object will be the task's name.",
             "type": "object",
             "additionalProperties": {
+                "description": "The definition of the task",
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {

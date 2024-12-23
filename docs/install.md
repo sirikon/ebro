@@ -5,7 +5,7 @@ curl --locaton --output ebrow 'https://github.com/sirikon/ebro/releases/latest/d
 chmod +x ebrow
 ```
 
-`ebrow` is a Bash script that contains a reference to an exact Ebro version and is able to download it, verify its integrity, and place it inside the `.ebro` directory, created next to itself. 
+`ebrow` is a Bash script that contains a reference to an exact Ebro version and is able to download it, verify its integrity, and place it inside the `.ebro` directory, created next to itself. [Read the base script](https://github.com/sirikon/ebro/blob/master/scripts/ebrow).
 
 This is the recommended way of installing Ebro, as the `ebrow` file can be committed to a code repository, helping to maintain a consistent environment for all the collaborators in a project.
 
