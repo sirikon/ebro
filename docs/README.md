@@ -44,7 +44,7 @@ tasks:
 To give it a try, create a folder in your system, copy the content above in a file inside it called `Ebro.yaml`, and also download the `ebrow` script alongside it.
 
 ```bash
-curl --locaton --output ebrow 'https://github.com/sirikon/ebro/releases/latest/download/ebrow'
+curl --location --output ebrow 'https://github.com/sirikon/ebro/releases/latest/download/ebrow'
 ```
 
 **Before running it**, read the script and understand what it does (because you shouldn't blindly execute scripts from the internet).

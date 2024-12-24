@@ -1,7 +1,7 @@
 ## Using the `ebrow` workspace script
 
 ```bash
-curl --locaton --output ebrow 'https://github.com/sirikon/ebro/releases/latest/download/ebrow'
+curl --location --output ebrow 'https://github.com/sirikon/ebro/releases/latest/download/ebrow'
 chmod +x ebrow
 ```
 
