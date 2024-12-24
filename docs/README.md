@@ -70,7 +70,7 @@ Finally, it will execute the plan, running tasks sequentially until the end.
 
 <details markdown="1">
 <summary>
-All scripts include <code>set -euo pipefail</code>. <code>script</code> includes <code>set -x</code>.
+All scripts include <code>set -euo pipefail</code>.
 </summary>
 
 Before running any Bash script in `script`, `when.output_changes` or `when.check_fails`, Ebro will prepend to the script the lines `set -euo pipefail` to ensure sane defaults:
@@ -78,10 +78,6 @@ Before running any Bash script in `script`, `when.output_changes` or `when.check
 - `-e`: Exit on error
 - `-u`: Usage of unset variables is considered an error
 - `-o pipefail`: The pipeline’s return status is the value of the last (rightmost) command to exit with a non-zero status, or zero if all commands exit successfully
-
-In case of `script`, it will also add `set -x`:
-
-- `-x`: Print a trace of simple commands.
 
 More on Bash's documentation: [The Set Builtin](https://www.gnu.org/software/bash/manual/bash.html#The-Set-Builtin).
 
@@ -91,15 +87,10 @@ During the first execution it will execute everything, with no skips, which soul
 
 ```
 ███ [:cache_dir] running
-+ mkdir -p cache
 ███ [:produce_a] running
-+ echo 'this is A'
 ███ [:produce_b] running
-+ echo 'this is B'
 ███ [:echoer] running
-+ cat cache/A.txt
 this is A
-+ cat cache/B.txt
 this is B
 ███ [:producer] satisfied
 ███ [:default] satisfied

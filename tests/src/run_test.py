@@ -10,15 +10,10 @@ class TestRun(EbroTestCase):
             stdout,
             f"""
             ███ [:apt:pre-config] running
-            + mkdir -p {self.workdir}/.cache/apt/packages
             ███ [:caddy:package-apt-config] running
-            + echo caddy
             ███ [:docker:package-apt-config] running
-            + echo 'docker==2.0.0-1-apt'
             ███ [:apt:default] running
-            + echo 'Installing apt packages'
             Installing apt packages
-            + cat {self.workdir}/.cache/apt/packages/caddy.txt {self.workdir}/.cache/apt/packages/docker.txt
             caddy
             docker==2.0.0-1-apt
             ███ [:caddy:package] satisfied
@@ -26,7 +21,6 @@ class TestRun(EbroTestCase):
             ███ [:caddy:default] satisfied
             ███ [:docker:default] satisfied
             ███ [:default] running
-            + echo Done!
             Done!
             """,
         )
@@ -46,7 +40,6 @@ class TestRun(EbroTestCase):
             ███ [:caddy:default] satisfied
             ███ [:docker:default] satisfied
             ███ [:default] running
-            + echo Done!
             Done!
             """,
         )
@@ -58,15 +51,10 @@ class TestRun(EbroTestCase):
             stdout,
             f"""
             ███ [:apt:pre-config] running
-            + mkdir -p {self.workdir}/.cache/apt/packages
             ███ [:caddy:package-apt-config] running
-            + echo caddy
             ███ [:docker:package-apt-config] running
-            + echo 'docker==2.0.0-1-apt'
             ███ [:apt:default] running
-            + echo 'Installing apt packages'
             Installing apt packages
-            + cat {self.workdir}/.cache/apt/packages/caddy.txt {self.workdir}/.cache/apt/packages/docker.txt
             caddy
             docker==2.0.0-1-apt
             ███ [:caddy:package] satisfied
@@ -74,7 +62,6 @@ class TestRun(EbroTestCase):
             ███ [:caddy:default] satisfied
             ███ [:docker:default] satisfied
             ███ [:default] running
-            + echo Done!
             Done!
             """,
         )
@@ -86,7 +73,6 @@ class TestRun(EbroTestCase):
             stdout,
             f"""
             ███ [:default] running
-            + echo 'This should print'
             This should print
             UNBOUND_VARIABLE: unbound variable
             ███ ERROR: task :default returned status code 1
@@ -100,9 +86,7 @@ class TestRun(EbroTestCase):
             stdout,
             f"""
             ███ [:default] running
-            + echo 'This should print all the time'
             This should print all the time
-            + exit 1
             ███ ERROR: task :default returned status code 1
             """,
         )
@@ -113,9 +97,7 @@ class TestRun(EbroTestCase):
             stdout,
             f"""
             ███ [:default] running
-            + echo 'This should print all the time'
             This should print all the time
-            + exit 1
             ███ ERROR: task :default returned status code 1
             """,
         )
@@ -127,7 +109,6 @@ class TestRun(EbroTestCase):
             stdout,
             f"""
             ███ [:b] running
-            + echo B
             B
             ███ [:default] satisfied
             """,
@@ -140,10 +121,8 @@ class TestRun(EbroTestCase):
             stdout,
             f"""
             ███ [:always_fails] running
-            + echo Running
             Running
             ███ [:never_fails] running
-            + echo Running
             Running
             ███ [:default] satisfied
             """,
@@ -155,7 +134,6 @@ class TestRun(EbroTestCase):
             stdout,
             f"""
             ███ [:always_fails] running
-            + echo Running
             Running
             ███ [:never_fails] skipping
             ███ [:default] satisfied
