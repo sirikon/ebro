@@ -148,3 +148,15 @@ class TestInventory(EbroTestCase):
                 script: echo "Hello from the other relative side!"
             """,
         )
+
+    def test_inventory_fails_with_task_with_nothing_to_do(self):
+        exit_code, stdout = self.ebro(
+            "-inventory", "--file", "Ebro.fail_when_nothing_to_do.yaml"
+        )
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ ERROR: processing module in {self.workdir}/Ebro.fail_when_nothing_to_do.yaml: processing module {self.workdir}/Ebro.fail_when_nothing_to_do.yaml: task default failed validation: task has nothing to do (no requires nor script)
+            """,
+        )

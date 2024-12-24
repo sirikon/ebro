@@ -88,6 +88,9 @@ func processModule(inv Inventory, module config.Module, moduleNameTrail []string
 		if _, ok := inv[taskAbsoluteName]; ok {
 			return fmt.Errorf("task %v (defined as %v) is already present in the inventory", taskAbsoluteName, taskName)
 		}
+		if err := task.Validate(); err != nil {
+			return fmt.Errorf("task %v failed validation: %w", taskName, err)
+		}
 		taskEnvironment, err := expandMergeEnv(task.Environment, module.Environment)
 		if err != nil {
 			return fmt.Errorf("expanding task %v environment: %w", taskName, err)

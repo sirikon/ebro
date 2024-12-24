@@ -35,6 +35,10 @@ B
 ███ [:default] satisfied
 ```
 
+### Tasks with nothing to do are invalid
+
+From now on, tasks that have nothing to do (no `script` nor `requires`) are considered invalid and Ebro's execution will error during the inventory process.
+
 ## Miscellanea
 
 Now, the `.sha256` files produced during the release process are valid files to be checked by `sha256sum` by running `sha256sum --check <binary>.sha256`, easing up the check process. Before this release it just contained the SHA256 checksum of the file.

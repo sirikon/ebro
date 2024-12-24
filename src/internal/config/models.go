@@ -1,5 +1,7 @@
 package config
 
+import "fmt"
+
 type Module struct {
 	WorkingDirectory string            `yaml:"working_directory,omitempty"`
 	Imports          map[string]Import `yaml:"imports,omitempty"`
@@ -25,4 +27,11 @@ type When struct {
 type Import struct {
 	From        string            `yaml:"from,omitempty"`
 	Environment map[string]string `yaml:"environment,omitempty"`
+}
+
+func (t Task) Validate() error {
+	if len(t.Requires) == 0 && t.Script == "" {
+		return fmt.Errorf("task has nothing to do (no requires nor script)")
+	}
+	return nil
 }
