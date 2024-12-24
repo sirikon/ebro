@@ -1,0 +1,15 @@
+tasks:
+  default:
+    requires: [never_fails, always_fails]
+
+  never_fails:
+    script: echo "Running"
+    when:
+      output_changes: echo hello
+      check_fails: exit 0
+
+  always_fails:
+    script: echo "Running"
+    when:
+      output_changes: echo hello
+      check_fails: exit 1

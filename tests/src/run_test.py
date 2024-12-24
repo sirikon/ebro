@@ -113,3 +113,29 @@ class TestRun(EbroTestCase):
             ███ [:default] satisfied
             """,
         )
+
+    def test_when_checkers_behave_correctly(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.when_checkers_are_OR.yaml")
+        self.assertEqual(exit_code, 0)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:always_fails] running
+            Running
+            ███ [:never_fails] running
+            Running
+            ███ [:default] satisfied
+            """,
+        )
+
+        exit_code, stdout = self.ebro("--file", "Ebro.when_checkers_are_OR.yaml")
+        self.assertEqual(exit_code, 0)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:always_fails] running
+            Running
+            ███ [:never_fails] skipping
+            ███ [:default] satisfied
+            """,
+        )
