@@ -88,7 +88,7 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 		if final_err != nil {
 			err := removeTaskOutput(taskName)
 			if err != nil {
-				return fmt.Errorf("removing task output after failure: %w", err)
+				return fmt.Errorf("removing output after failure of task %v: %w", taskName, err)
 			}
 			return final_err
 		}

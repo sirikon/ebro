@@ -27,7 +27,7 @@ func ParseGitImport(importUrl string) (*GitImport, error) {
 
 	parsedUrl, err := url.Parse(strings.TrimPrefix(importUrl, "git+"))
 	if err != nil {
-		return nil, fmt.Errorf("parsing url %v: %w", importUrl, err)
+		return nil, fmt.Errorf("parsing url: %w", err)
 	}
 
 	result := GitImport{
@@ -46,7 +46,7 @@ func ParseGitImport(importUrl string) (*GitImport, error) {
 	if parsedUrl.Fragment != "" {
 		parsedFragmentUrl, err := url.Parse(parsedUrl.Fragment)
 		if err != nil {
-			return nil, fmt.Errorf("parsing fragment of url %v: %w", importUrl, err)
+			return nil, fmt.Errorf("parsing fragment of url: %w", err)
 		}
 		parsedFragmentUrlQuery := parsedFragmentUrl.Query()
 		for key, value := range parsedFragmentUrlQuery {

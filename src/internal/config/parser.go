@@ -15,12 +15,12 @@ func ParseModule(modulePath string) (Module, error) {
 
 	body, err := os.ReadFile(modulePath)
 	if err != nil {
-		return module, fmt.Errorf("reading file %v: %w", modulePath, err)
+		return module, fmt.Errorf("reading module file: %w", err)
 	}
 
 	err = yaml.Unmarshal(body, &module)
 	if err != nil {
-		return module, fmt.Errorf("unmarshalling file %v: %w", modulePath, err)
+		return module, fmt.Errorf("unmarshalling module file: %w", err)
 	}
 
 	return module, nil
@@ -29,13 +29,13 @@ func ParseModule(modulePath string) (Module, error) {
 func ImportModule(base string, from string) (string, error) {
 	parsedGitImport, err := remote.ParseGitImport(from)
 	if err != nil {
-		return "", fmt.Errorf("parsing possible git import %v: %w", from, err)
+		return "", fmt.Errorf("parsing possible git import: %w", err)
 	}
 
 	if parsedGitImport != nil {
 		err := remote.CloneGitImport(parsedGitImport)
 		if err != nil {
-			return "", fmt.Errorf("cloning git import %v: %w", from, err)
+			return "", fmt.Errorf("cloning git import: %w", err)
 		}
 
 		return path.Join(parsedGitImport.Path, parsedGitImport.Subpath), nil

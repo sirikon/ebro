@@ -60,7 +60,7 @@ class TestGitImport(EbroTestCase):
             stdout,
             f"""
             ███ cloning {repository_url}
-            ███ ERROR: processing module in {self.workdir}/Ebro.git_import_test_fail_1.yaml: processing module {self.workdir}/Ebro.git_import_test_fail_1.yaml: parsing import git+{repository_url}#caddy?ref=wrongbranch: cloning git import git+{repository_url}#caddy?ref=wrongbranch: couldn't find remote ref "refs/heads/wrongbranch"
+            ███ ERROR: processing module file in {self.workdir}/Ebro.git_import_test_fail_1.yaml: processing module: parsing import git+{repository_url}#caddy?ref=wrongbranch: cloning git import: couldn't find remote ref "refs/heads/wrongbranch"
             """,
         )
 
@@ -75,6 +75,6 @@ class TestGitImport(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: processing module in {self.workdir}/Ebro.git_import_test_fail_2.yaml: processing module {self.workdir}/Ebro.git_import_test_fail_2.yaml: parsing import git+{repository_url}#caddy?branch=master: parsing possible git import git+{repository_url}#caddy?branch=master: unknown query parameter in git import fragment: branch
+            ███ ERROR: processing module file in {self.workdir}/Ebro.git_import_test_fail_2.yaml: processing module: parsing import git+{repository_url}#caddy?branch=master: parsing possible git import: unknown query parameter in git import fragment: branch
             """,
         )

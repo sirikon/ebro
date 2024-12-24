@@ -28,7 +28,7 @@ func storeTaskOutputAndCheckIfChanged(taskName string, output []byte) (bool, err
 		changed = true
 	} else {
 		if err != nil {
-			return changed, fmt.Errorf("reading output tracker for task %v: %w", taskName, err)
+			return changed, fmt.Errorf("reading output tracker: %w", err)
 		}
 		currentHash := string(currentHashBytes)
 
@@ -38,7 +38,7 @@ func storeTaskOutputAndCheckIfChanged(taskName string, output []byte) (bool, err
 	if changed {
 		err = os.WriteFile(outputPath, []byte(newHash), os.ModePerm)
 		if err != nil {
-			return changed, fmt.Errorf("writing output tracker for task %v: %w", taskName, err)
+			return changed, fmt.Errorf("writing output tracker: %w", err)
 		}
 	}
 
@@ -49,7 +49,7 @@ func removeTaskOutput(taskName string) error {
 	outputPath := path.Join(".ebro", "output_tracking", taskName)
 	err := os.Remove(outputPath)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return fmt.Errorf("removing %v task output: %w", taskName, err)
+		return fmt.Errorf("removing task output: %w", err)
 	}
 	return nil
 }

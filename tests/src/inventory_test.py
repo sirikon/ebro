@@ -157,6 +157,6 @@ class TestInventory(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: processing module in {self.workdir}/Ebro.fail_when_nothing_to_do.yaml: processing module {self.workdir}/Ebro.fail_when_nothing_to_do.yaml: task default failed validation: task has nothing to do (no requires nor script)
+            ███ ERROR: processing module file in {self.workdir}/Ebro.fail_when_nothing_to_do.yaml: processing module: task default failed validation: task has nothing to do (no requires nor script)
             """,
         )

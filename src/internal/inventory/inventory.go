@@ -25,7 +25,7 @@ func MakeInventory(arguments cli.ExecutionArguments) (Inventory, error) {
 	modulePath := path.Join(workingDirectory, *arguments.GetFlagString(cli.FlagFile))
 	err = processModuleFile(inv, modulePath, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
 	if err != nil {
-		return nil, fmt.Errorf("processing module in %v: %w", modulePath, err)
+		return nil, fmt.Errorf("processing module file in %v: %w", modulePath, err)
 	}
 
 	for _, task := range inv {
@@ -51,12 +51,12 @@ func processModuleFile(inv Inventory, modulePath string, moduleNameTrail []strin
 	workingDirectory := path.Dir(modulePath)
 	module, err := config.ParseModule(modulePath)
 	if err != nil {
-		return fmt.Errorf("parsing module %v: %w", modulePath, err)
+		return fmt.Errorf("parsing module: %w", err)
 	}
 
 	err = processModule(inv, module, moduleNameTrail, environment, workingDirectory)
 	if err != nil {
-		return fmt.Errorf("processing module %v: %w", modulePath, err)
+		return fmt.Errorf("processing module: %w", err)
 	}
 
 	return nil
