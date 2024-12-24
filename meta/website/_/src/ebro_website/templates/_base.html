@@ -15,11 +15,10 @@
     <h1>Ebro</h1>
   </div>
   <div class="x-menu">
-    <a class="x-menu-item {% if active_menu == 'home' %}is-active{% endif %}" href="/">Home</a>
-    <a class="x-menu-item {% if active_menu == 'ebro-format' %}is-active{% endif %}" href="/ebro-format"><code>Ebro.yaml</code></a>
-    <a class="x-menu-item {% if active_menu == 'install' %}is-active{% endif %}" href="/install">Install</a>
-    <a class="x-menu-item {% if active_menu == 'changelog' %}is-active{% endif %}" href="/changelog">Changelog</a>
-    <a class="x-menu-item" href="https://github.com/sirikon/ebro">Source Code</a>
+    {% for menu_item in MENU %}
+    <a class="x-menu-item {% if menu_item.id and active_menu == menu_item.id %}is-active{% endif %}"
+      href="{{ menu_item.url }}">{{menu_item.name|safe}}</a>
+    {% endfor %}
     <div class="x-menu-filler"></div>
   </div>
   <div class="x-body">
