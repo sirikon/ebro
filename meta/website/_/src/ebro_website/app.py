@@ -3,7 +3,7 @@ from os import getcwd
 from os.path import join
 from subprocess import run, PIPE
 
-from flask import Flask, render_template, send_file, request
+from flask import Flask, render_template, send_file
 from markdown import Markdown
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
@@ -26,10 +26,15 @@ class MyTreeprocessor(Treeprocessor):
         for el in els:
             parent_map[el].remove(el)
 
+        # Remove elements that should be explicitly removed from the website
+        els = root.findall(".//div[@remove-in-website]")
+        for el in els:
+            parent_map[el].remove(el)
+
 
 class MyExtension(Extension):
     def extendMarkdown(self, md):
-        md.treeprocessors.register(MyTreeprocessor(), "mytreeprocessor", 1)
+        md.treeprocessors.register(MyTreeprocessor(), "mytreeprocessor", -1)
 
 
 app = Flask(__name__)
