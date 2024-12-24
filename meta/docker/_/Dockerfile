@@ -43,6 +43,7 @@ COPY ./meta/python/ensure-venv.sh ./meta/python/ensure-venv.sh
 COPY ./meta/website/_/ ./meta/website/_/
 COPY ./meta/website/build.sh ./meta/website/build.sh
 COPY ./docs ./docs
+COPY .git ./.git
 RUN ./meta/website/build.sh
 RUN mv ./out /out
 

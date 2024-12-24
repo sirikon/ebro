@@ -1,6 +1,7 @@
 import json
 from os import getcwd, listdir
 from os.path import join
+from subprocess import run, PIPE
 
 from flask import Flask, render_template, send_file, request
 from markdown import Markdown
@@ -47,13 +48,8 @@ def install():
 @app.get("/changelog")
 def version():
     versions = []
-    items = listdir("docs/changelog")
-    items.sort(reverse=True)
-    for item in items:
-        tag = item.removesuffix(".md")
-        if tag == "HEAD":
-            continue
-        with open(join("docs", "changelog", item), "r") as f:
+    for tag in get_tagged_versions():
+        with open(join("docs", "changelog", tag + ".md"), "r") as f:
             html = md.convert(f.read())
         versions.append({"tag": tag, "notes": html})
     return render_template("changelog.html", versions=versions, active_menu="changelog")
@@ -62,3 +58,12 @@ def version():
 @app.get("/schema.json")
 def schema():
     return send_file(join(getcwd(), "docs", "schema.json"))
+
+
+def get_tagged_versions():
+    command_result = run(
+        ["git", "tag", "--list"], check=True, stdin=None, stdout=PIPE, stderr=PIPE
+    )
+    result = command_result.stdout.decode().splitlines()
+    result.sort(reverse=True)
+    return result
