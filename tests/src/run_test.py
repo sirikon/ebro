@@ -101,3 +101,15 @@ class TestRun(EbroTestCase):
             ███ ERROR: task :default returned status code 1
             """,
         )
+
+    def test_required_by_does_not_include_referenced_task_in_plan(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.required_by_not_includes.yaml")
+        self.assertEqual(exit_code, 0)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:b] running
+            B
+            ███ [:default] satisfied
+            """,
+        )

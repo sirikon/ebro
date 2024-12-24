@@ -1,0 +1,10 @@
+tasks:
+  default:
+    requires: [b]
+
+  a:
+    script: echo A
+
+  b:
+    required_by: [a]
+    script: echo B

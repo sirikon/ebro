@@ -3,6 +3,7 @@ tasks:
     requires: [field, chicken]
 
   field:
+    required_by: [barn]
     script: echo Field ready
 
   chicken:
@@ -12,3 +13,6 @@ tasks:
   egg:
     requires: [chicken]
     script: echo Egg ready
+
+  barn:
+    script: echo Barn ready

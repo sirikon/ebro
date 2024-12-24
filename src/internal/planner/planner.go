@@ -2,6 +2,7 @@ package planner
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 
 	"github.com/sirikon/ebro/internal/inventory"
@@ -12,38 +13,40 @@ type Plan []string
 
 func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
 	result := Plan{}
-	tasksToRun := []string{}
-	requirementsIndex := make(map[string][]string)
+	tasksToRun := make(map[string]bool)
+	tasksToRunSlice := []string{}
+	requirementsIndex := make(map[string]map[string]bool)
 
 	addTasksToRun := func(taskNames ...string) {
 		for _, taskName := range taskNames {
-			if i := slices.Index(tasksToRun, taskName); i == -1 {
-				tasksToRun = append(tasksToRun, taskName)
-				if _, ok := requirementsIndex[taskName]; !ok {
-					requirementsIndex[taskName] = []string{}
-				}
+			if _, ok := tasksToRun[taskName]; !ok {
+				tasksToRun[taskName] = true
+				tasksToRunSlice = append(tasksToRunSlice, taskName)
 			}
 		}
 	}
 
-	addRequirements := func(task string, requirements ...string) {
-		for _, requirement := range requirements {
-			if i := slices.Index(requirementsIndex[task], requirement); i == -1 {
-				requirementsIndex[task] = append(requirementsIndex[task], requirement)
-			}
+	addRequirements := func(taskName string, requirementsToAdd ...string) {
+		requirements, ok := requirementsIndex[taskName]
+		if !ok {
+			requirements = make(map[string]bool)
+			requirementsIndex[taskName] = requirements
+		}
+		for _, requirementToAdd := range requirementsToAdd {
+			requirements[requirementToAdd] = true
 		}
 	}
 
 	for _, target := range targets {
-		if _, ok := inv[target]; !ok {
-			return nil, fmt.Errorf("target task %v does not exist", target)
-		}
 		addTasksToRun(target)
 	}
 
-	for i := 0; i < len(tasksToRun); i++ {
-		taskName := tasksToRun[i]
-		task := inv[taskName]
+	for i := 0; i < len(tasksToRunSlice); i++ {
+		taskName := tasksToRunSlice[i]
+		task, ok := inv[taskName]
+		if !ok {
+			return nil, fmt.Errorf("task %v does not exist", taskName)
+		}
 		addTasksToRun(task.Requires...)
 		addRequirements(taskName, task.Requires...)
 		for _, parent := range task.RequiredBy {
@@ -55,35 +58,42 @@ func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
 	for shouldContinue {
 		shouldContinue = false
 		batch := []string{}
-		for name, requires := range requirementsIndex {
+
+		for taskName := range tasksToRun {
+			requires := requirementsIndex[taskName]
 			if len(requires) == 0 {
-				batch = append(batch, name)
+				batch = append(batch, taskName)
 				shouldContinue = true
 			}
 		}
 
 		slices.Sort(batch)
-		for _, name := range batch {
-			delete(requirementsIndex, name)
-			for parent := range requirementsIndex {
-				i := slices.Index(requirementsIndex[parent], name)
-				if i >= 0 {
-					requirementsIndex[parent] = append(requirementsIndex[parent][:i], requirementsIndex[parent][i+1:]...)
-				}
+
+		for _, taskName := range batch {
+			delete(tasksToRun, taskName)
+			delete(requirementsIndex, taskName)
+			for parentTaskName := range requirementsIndex {
+				delete(requirementsIndex[parentTaskName], taskName)
 			}
 		}
 
 		result = append(result, batch...)
 	}
 
-	if len(requirementsIndex) > 0 {
-		detail, err := yaml.Marshal(requirementsIndex)
+	if len(tasksToRun) > 0 {
+		detailObj := make(map[string][]string)
+		for parentTaskName := range tasksToRun {
+			taskNames := slices.Collect(maps.Keys(requirementsIndex[parentTaskName]))
+			slices.Sort(taskNames)
+			detailObj[parentTaskName] = taskNames
+		}
+		detail, err := yaml.Marshal(detailObj)
 		if err != nil {
 			return nil, fmt.Errorf("planning could not complete. error while turning requirement index to yaml: %w", err)
 		}
-		return nil, fmt.Errorf("planning could not complete. " +
-			"there could be a cyclic dependency. " +
-			"here is the list of tasks remaining to be planned and their requirements:\n" + string(detail))
+		return nil, fmt.Errorf("planning could not complete. "+
+			"there could be a cyclic dependency. "+
+			"here is the list of tasks remaining to be planned and their requirements:\n%s", string(detail))
 	}
 
 	return result, nil
