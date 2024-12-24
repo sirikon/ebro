@@ -68,7 +68,7 @@ Again, check it yourself by running `./ebrow -plan`. This plan is deterministic,
 
 Finally, it will execute the plan, running tasks sequentially until the end.
 
-<details>
+<details markdown="1">
 <summary>
 All scripts include <code>set -euo pipefail</code>. <code>script</code> includes <code>set -x</code>.
 </summary>

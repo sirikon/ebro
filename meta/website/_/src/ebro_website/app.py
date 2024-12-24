@@ -8,7 +8,9 @@ from markdown import Markdown
 
 app = Flask(__name__)
 md = Markdown(
-    output_format="html5", extensions=["extra", "meta", "codehilite"], tab_length=2
+    output_format="html5",
+    extensions=["extra", "meta", "codehilite", "md_in_html"],
+    tab_length=2,
 )
 
 

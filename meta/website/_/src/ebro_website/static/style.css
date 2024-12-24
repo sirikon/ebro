@@ -8,6 +8,12 @@ code {
   padding: 0 0.3em;
 }
 
+details {
+  background-color: #ffffe7;
+  overflow: auto;
+  padding: 0 1em;
+}
+
 .x-header,
 .x-menu,
 .x-body {
