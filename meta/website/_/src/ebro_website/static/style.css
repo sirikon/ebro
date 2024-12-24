@@ -1,5 +1,5 @@
 body {
-  background-color: whitesmoke;
+  background-color: #e7e7e7;
   margin: 1em;
 }
 
@@ -9,9 +9,13 @@ code {
 }
 
 details {
-  background-color: #ffffe7;
+  background-color: #f9f6ed;
   overflow: auto;
   padding: 0 1em;
+}
+
+details summary {
+  padding: .5em 0;
 }
 
 .x-header,
@@ -30,18 +34,29 @@ details {
 }
 
 .x-menu-item {
-  padding: 5px 15px;
+  flex-shrink: 0;
+  padding: 6px 16px;
   text-decoration: none;
   color: inherit;
+  border-bottom: 1px solid #c0c0c0;
 }
 .x-menu-item.is-active {
+  padding: 5px 15px;
   background-color: white;
+  border: 1px solid #c0c0c0;
+  border-bottom-width: 0;
+}
+.x-menu-filler {
+  flex-grow: 1;
+  border-bottom: 1px solid #c0c0c0;
 }
 
 .x-body {
   padding: 0px 15px;
   overflow: auto;
   background-color: white;
+  border: 1px solid #c0c0c0;
+  border-top-width: 0;
 }
 
 .codehilite pre {
