@@ -1,8 +1,10 @@
 {% extends "_base.html" %}
 
 {% block body %}
-{% for version in versions %}
-<h2><a href="https://github.com/sirikon/ebro/releases/tag/{{ version.tag }}">{{ version.tag }}</a></h2>
-{{ version.notes|safe }}
-{% endfor %}
+<div class="x-changelog">
+    {% for version in versions %}
+    <h1><a href="https://github.com/sirikon/ebro/releases/tag/{{ version.tag }}">{{ version.tag }}</a></h1>
+    {{ version.notes|safe }}
+    {% endfor %}
+</div>
 {% endblock %}

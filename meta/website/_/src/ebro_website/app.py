@@ -49,6 +49,8 @@ def version():
     items.sort(reverse=True)
     for item in items:
         tag = item.removesuffix(".md")
+        if tag == "HEAD":
+            continue
         with open(join("docs", "changelog", item), "r") as f:
             html = md.convert(f.read())
         versions.append({"tag": tag, "notes": html})
