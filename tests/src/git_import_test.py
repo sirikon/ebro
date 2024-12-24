@@ -17,13 +17,18 @@ class TestGitImport(EbroTestCase):
             f"""
             ███ cloning {repository_url}
             ███ [:apt:pre-config] running
+            + mkdir -p {self.workdir}/.cache/apt/packages
             ███ [:caddy:package-apt-config] running
+            + echo caddy
             ███ [:apt:default] running
+            + echo 'Installing apt packages'
             Installing apt packages
+            + cat {self.workdir}/.cache/apt/packages/caddy.txt
             caddy
             ███ [:caddy:package] satisfied
             ███ [:caddy:default] satisfied
             ███ [:default] running
+            + echo Done!
             Done!
             """,
         )
@@ -44,6 +49,7 @@ class TestGitImport(EbroTestCase):
             ███ [:caddy:package] satisfied
             ███ [:caddy:default] satisfied
             ███ [:default] running
+            + echo Done!
             Done!
             """,
         )

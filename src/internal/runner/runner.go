@@ -34,7 +34,7 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 			if task.When.CheckFails != "" {
 				output := bytes.Buffer{}
 				outputWriter := bufio.NewWriter(&output)
-				status, err := runScriptWithIo(task.When.CheckFails, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
+				status, err := runScriptWithIO(task.When.CheckFails, task.WorkingDirectory, task.Environment, outputWriter, outputWriter, false)
 				if err != nil {
 					return fmt.Errorf("running task %v when.check_fails: %w", taskName, err)
 				}
@@ -48,7 +48,7 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 			if task.When.OutputChanges != "" {
 				output := bytes.Buffer{}
 				outputWriter := bufio.NewWriter(&output)
-				status, err := runScriptWithIo(task.When.OutputChanges, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
+				status, err := runScriptWithIO(task.When.OutputChanges, task.WorkingDirectory, task.Environment, outputWriter, outputWriter, false)
 				if err != nil {
 					return fmt.Errorf("running task %v when.output_changes: %w", taskName, err)
 				}
@@ -101,11 +101,16 @@ func logLine(taskName string, message string) string {
 }
 
 func runScript(script string, workingDirectory string, environment map[string]string) (uint8, error) {
-	return runScriptWithIo(script, workingDirectory, environment, os.Stdout, os.Stdout)
+	return runScriptWithIO(script, workingDirectory, environment, os.Stdout, os.Stdout, true)
 }
 
-func runScriptWithIo(script string, workingDirectory string, environment map[string]string, stdout io.Writer, stderr io.Writer) (uint8, error) {
-	file, err := syntax.NewParser().Parse(strings.NewReader("set -euo pipefail\n"+script), "")
+func runScriptWithIO(script string, workingDirectory string, environment map[string]string, stdout io.Writer, stderr io.Writer, simpleCommandTracing bool) (uint8, error) {
+	script_header := []string{"set -euo pipefail"}
+	if simpleCommandTracing {
+		script_header = append(script_header, "set -x")
+	}
+
+	file, err := syntax.NewParser().Parse(strings.NewReader(strings.Join(script_header, "\n")+"\n"+script), "")
 	if err != nil {
 		return 1, fmt.Errorf("parsing script: %w", err)
 	}

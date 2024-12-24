@@ -39,6 +39,10 @@ B
 
 From now on, tasks that have nothing to do (no `script` nor `requires`) are considered invalid and Ebro's execution will error during the inventory process.
 
+### Task `script`s run with `set -x` by default
+
+From now on, `set -x` is prepended to task `script`s before being executed to enable simple command tracing.
+
 ## Improvements
 
 - Error messages have been adjusted to prevent repeating information and reducing verbosity.
