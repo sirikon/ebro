@@ -60,6 +60,11 @@ details summary {
   border-top-width: 0;
 }
 
+.x-anchorlink {
+  text-decoration: none;
+  color: inherit;
+}
+
 .codehilite pre {
   margin: 1em 0;
   padding: 1em;

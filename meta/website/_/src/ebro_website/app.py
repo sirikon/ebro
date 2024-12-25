@@ -40,7 +40,8 @@ class MyExtension(Extension):
 app = Flask(__name__)
 md = Markdown(
     output_format="html5",
-    extensions=["extra", "meta", "codehilite", "md_in_html", MyExtension()],
+    extensions=["extra", "meta", "codehilite", "md_in_html", "toc", MyExtension()],
+    extension_configs={"toc": {"anchorlink": True, "anchorlink_class": "x-anchorlink"}},
     tab_length=2,
 )
 
