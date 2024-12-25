@@ -6,7 +6,7 @@
 <div class="x-changelog">
     {% for version in versions %}
     <h1>
-        <span>{{ version.tag }}</span>
+        <a class="x-anchorlink" id="{{version.tag}}" href="#{{version.tag}}">{{ version.tag }}</a>
         <a class="x-title-link" href="https://github.com/sirikon/ebro/releases/tag/{{ version.tag }}">[release]</a>
     </h1>
     {{ version.notes|safe }}

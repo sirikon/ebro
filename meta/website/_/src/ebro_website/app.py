@@ -70,6 +70,11 @@ md = Markdown(
     },
     tab_length=2,
 )
+md_changelog = Markdown(
+    output_format="html5",
+    extensions=["extra", "meta", "codehilite", "md_in_html", MyExtension()],
+    tab_length=2,
+)
 
 
 MENU = [
@@ -111,7 +116,7 @@ def version():
     versions = []
     for tag in get_tagged_versions():
         with open(join("docs", "changelog", tag + ".md"), "r") as f:
-            html = md.convert(f.read())
+            html = md_changelog.convert(f.read())
         versions.append({"tag": tag, "notes": html})
     return render_template("changelog.html", versions=versions, active_menu="changelog")
 
