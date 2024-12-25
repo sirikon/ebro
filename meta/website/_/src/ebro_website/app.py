@@ -19,13 +19,6 @@ class MyTreeprocessor(Treeprocessor):
             if link.attrib["href"].endswith(".md"):
                 link.attrib["href"] = link.attrib["href"].removesuffix(".md") + ".html"
 
-        # Remove h1 titles, so we can have those in the documents themselves as
-        # titles when reading the source Markdown content, but are removed in
-        # the website version.
-        els = root.findall(".//h1")
-        for el in els:
-            parent_map[el].remove(el)
-
         # Remove elements that should be explicitly removed from the website
         els = root.findall(".//div[@remove-in-website]")
         for el in els:
