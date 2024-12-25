@@ -23,7 +23,7 @@
                 "additionalProperties": false,
                 "properties": {
                     "from": {
-                        "description": "The path to a directory containing a Ebro.yaml file. Relative paths will be added to the module's working directory to compute the final path.",
+                        "description": "The path to a directory containing an Ebro.yaml file. Relative paths will be added to the module's working directory to compute the final path.\n\n**EXPERIMENTAL**: Ebro supports importing from Git repositories when this field is given a reference in the format `git+https://...`. It should work fine, but it's considered experimental for two reasons:\n\nFirst, it has just been tested against public Git repositories using the http transport.\n\nSecond: Automatically downloading and executing code from the internet is dangerous, and it shouldn't really be used without some sort of integrity checking in place.\n\nUse at your own risk.",
                         "type": "string"
                     },
                     "environment": {
@@ -50,14 +50,14 @@
                         "type": "object"
                     },
                     "requires": {
-                        "description": "List of task names that need to execute before this one does. It is possible to reference tasks from other modules by writing the full path of the task (module and task name) prepended with a colon (`:`).",
+                        "description": "List of task names that need to execute before this one does.\n\nIt is possible to reference tasks from submodules by writing the full path of the task (module and task name) with each name separated with a colon (`:`). Example: `submodule:task`.\n\nIt's also possible to reference tasks by their absolute path by prepending the whole path with another colon (`:`). Example: `:module:submodule:task`.",
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
                     },
                     "required_by": {
-                        "description": "List of task names that require this task to be executed before those. The opposite of `requires`. It is possible to reference tasks from other modules by writing the full path of the task (module and task name) prepended with a colon (`:`).",
+                        "description": "List of task names that require this task to be executed before those. The opposite of `requires`.\n\nIt is possible to reference tasks from submodules by writing the full path of the task (module and task name) with each name separated with a colon (`:`). Example: `submodule:task`.\n\nIt's also possible to reference tasks by their absolute path by prepending the whole path with another colon (`:`). Example: `:module:submodule:task`.",
                         "type": "array",
                         "items": {
                             "type": "string"

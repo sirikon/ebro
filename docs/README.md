@@ -10,7 +10,11 @@ Ebro is distributed as a single binary, including the script interpreter ([mvdan
 
 It's heavily inspired in [go-task/task](https://github.com/go-task/task), but originally built around a personal need for configuring servers, although it's not tied to this use case and remains agnostic.
 
-The format of Ebro.yaml files is defined [here](./ebro-format.md). Here is an example:
+[TOC]
+
+## Getting started
+
+The format of Ebro.yaml files is defined [here](#the-ebroyaml-format). Here is an example:
 
 ```yaml
 tasks:
@@ -136,3 +140,51 @@ this is B
 ```
 
 The `when.output_changes` checker of the `echoer` task detected that running `cat cache/A.txt` and `cat cache/B.txt` produced a different output when compared with the previous execution, hence, the task is executed again.
+
+## CLI
+
+Ebro's command line interface is very straightforward, but has a couple of general rules:
+
+- **Commands** define an specific action. At most, there is one command in a call at most. Absence of a command means the default command of "running". Commands are prefixed with a single hyphen (`-command`).
+- **Flags** depend on the command being executed. Their mere presence can mean a boolean value (`true` or `false`) or be accompanyed with a value. Flags are prefixed with two hyphens (`--flag`).
+- **Targets** are the names of the tasks that we want to run. When no target is specified, the task `default` is assumed.
+
+To know Ebro's available commands with their flags and explanations, run `ebro -help` (or `ebrow -help` if using the workspace script).
+
+```text
+ebro [--flags...] [targets...]
+  # Run everything
+  flags:
+    --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+    --force       Ignore when.* conditionals and dont skip any task. default: false
+  targets:
+    defaults to [default]
+
+
+ebro -inventory [--flags...]
+  # Display complete inventory of tasks with their definitive configuration
+  flags:
+    --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+
+
+ebro -plan [--flags...] [targets...]
+  # Display the execution plan
+  flags:
+    --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+  targets:
+    defaults to [default]
+
+
+ebro -version
+  # Display ebro's version
+
+
+ebro -help
+  # Display this help message
+```
+
+## The `Ebro.yaml` format
+
+This is also available as a [JSON Schema](./schema.json).
+
+[Ebro.yaml format explained]

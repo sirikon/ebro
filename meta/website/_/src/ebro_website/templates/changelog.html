@@ -5,7 +5,10 @@
 {% block body %}
 <div class="x-changelog">
     {% for version in versions %}
-    <h1><a href="https://github.com/sirikon/ebro/releases/tag/{{ version.tag }}">{{ version.tag }}</a></h1>
+    <h1>
+        <span>Ebro {{ version.tag }}</span>
+        <a class="x-title-link" href="https://github.com/sirikon/ebro/releases/tag/{{ version.tag }}">[release]</a>
+    </h1>
     {{ version.notes|safe }}
     {% endfor %}
 </div>

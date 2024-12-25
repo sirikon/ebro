@@ -15,7 +15,7 @@ details {
 }
 
 details summary {
-  padding: .5em 0;
+  padding: 0.5em 0;
 }
 
 .x-header,
@@ -60,9 +60,25 @@ details summary {
   border-top-width: 0;
 }
 
+.x-toc {
+  background-color: #f9f6ed;
+  padding: 0 1em;
+  overflow: auto;
+}
+
+.x-toc-title {
+  display: block;
+  margin: 1em 0;
+  font-weight: bold;
+}
+
 .x-anchorlink {
   text-decoration: none;
   color: inherit;
+}
+
+.x-title-link {
+  font-size: 0.6em;
 }
 
 .codehilite pre {

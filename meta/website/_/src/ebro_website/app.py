@@ -1,4 +1,5 @@
 import json
+import re
 from os import getcwd
 from os.path import join
 from subprocess import run, PIPE
@@ -7,41 +8,72 @@ from flask import Flask, render_template, send_file
 from markdown import Markdown
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
+from markdown.postprocessors import Postprocessor
 
 
-class MyTreeprocessor(Treeprocessor):
+class RemoveElementsProcessor(Treeprocessor):
     def run(self, root):
         parent_map = dict((c, p) for p in root.iter() for c in p)
-
-        # Fix links pointing to .md files. Point to .html instead.
-        links = root.findall(".//a")
-        for link in links:
-            if link.attrib["href"].endswith(".md"):
-                link.attrib["href"] = link.attrib["href"].removesuffix(".md") + ".html"
-
         # Remove elements that should be explicitly removed from the website
         els = root.findall(".//div[@remove-in-website]")
         for el in els:
             parent_map[el].remove(el)
 
 
+class FixLinksProcessor(Treeprocessor):
+    def run(self, root):
+        # Fix links pointing to .md files. Point to .html instead.
+        links = root.findall(".//a")
+        for link in links:
+            if link.attrib["href"].endswith(".md"):
+                link.attrib["href"] = link.attrib["href"].removesuffix(".md") + ".html"
+
+
+class IncludeEbroYamlFormatProcessor(Postprocessor):
+    REPATTERN = r"<p>\[Ebro\.yaml format explained\]</p>"
+
+    def run(self, text):
+        if re.findall(self.REPATTERN, text):
+            with open("docs/schema.json", "r") as f:
+                schema = json.loads(f.read())
+            return re.sub(
+                self.REPATTERN,
+                render_template("_ebro-format.html", schema=schema),
+                text,
+            )
+        return text
+
+
 class MyExtension(Extension):
     def extendMarkdown(self, md):
-        md.treeprocessors.register(MyTreeprocessor(), "mytreeprocessor", -1)
+        md.treeprocessors.register(
+            RemoveElementsProcessor(), "remove-elements", 9999999
+        )
+        md.treeprocessors.register(FixLinksProcessor(), "fix-links", -1)
+        md.postprocessors.register(
+            IncludeEbroYamlFormatProcessor(), "include-ebroyaml", 9999999
+        )
 
 
 app = Flask(__name__)
 md = Markdown(
     output_format="html5",
     extensions=["extra", "meta", "codehilite", "md_in_html", "toc", MyExtension()],
-    extension_configs={"toc": {"anchorlink": True, "anchorlink_class": "x-anchorlink"}},
+    extension_configs={
+        "toc": {
+            "anchorlink": True,
+            "anchorlink_class": "x-anchorlink",
+            "title": "Table of Contents",
+            "toc_class": "x-toc",
+            "title_class": "x-toc-title",
+        }
+    },
     tab_length=2,
 )
 
 
 MENU = [
     {"id": "home", "name": "Home", "url": "/"},
-    {"id": "ebro-format", "name": "<code>Ebro.yaml</code>", "url": "/ebro-format.html"},
     {"id": "install", "name": "Install", "url": "/install.html"},
     {"id": "changelog", "name": "Changelog", "url": "/changelog.html"},
     {"name": "Source Code", "url": "https://github.com/sirikon/ebro"},
