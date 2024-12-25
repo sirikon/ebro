@@ -99,17 +99,6 @@ def index():
     return render_template("index.html", content=html, active_menu="home")
 
 
-@app.get("/ebro-format.html")
-def ebro_format():
-    with open("docs/ebro-format.md", "r") as f:
-        html = md.convert(f.read())
-    with open("docs/schema.json", "r") as f:
-        schema = json.loads(f.read())
-    return render_template(
-        "ebro-format.html", content=html, schema=schema, active_menu="ebro-format"
-    )
-
-
 @app.get("/install.html")
 def install():
     with open("docs/install.md", "r") as f:
