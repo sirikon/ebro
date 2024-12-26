@@ -188,3 +188,25 @@ ebro -help
 This is also available as a [JSON Schema](./schema.json).
 
 [Ebro.yaml format explained]
+
+## Versioning
+
+**NOTE**: Ebro is in version 0.x.x, which means that the API isn't stable and could change at any time.
+
+Ebro follows [SemVer](https://semver.org/), this means that it's important to clarify what the API is in Ebro, or, "the exposed parts that will only break compatibility on major version releases".
+
+Ebro's "API" in SemVer terms is composed of, but not limited to:
+
+- The `Ebro.yaml` specification. The main idea is that an `Ebro.yaml` file that worked on Ebro version `1.X.X` **MUST** work exactly the same on any future version under the `1.X.X` major release. This includes, but is not limited to:
+  - How `Ebro.yaml` is interpreted.
+  - Environment variables added by Ebro during the execution.
+  - How scripts are interpreted and executed.
+  - How task names are processed and referred to.
+  - In which order are tasks executed.
+- The CLI **actions**, meaning how the machine state changes given a set of commands and flags.
+- The CLI **output** (stdout and stderr) of the `-version`, `-plan` and `-inventory` commands. These commands output an structured representation of data. New data could be added in the future, but existing data will remain the same. This doesn't apply to formatting, as it could change as long as it satisfies the output format specification.
+
+Now, there are some things that are **NOT** considered part of the API and can change at any time, including but not limited to:
+
+- The CLI **output** of any other command apart from the ones explicitly mentioned above.
+- Unintended functionality that gets included in Ebro but is considered a bug afterwards. Bugs won't be kept for the sake of API stability and will be removed. If this was the case, a release including a combo of bugfix/breaking change will have proper instructions for updating affected `Ebro.yaml` files.
