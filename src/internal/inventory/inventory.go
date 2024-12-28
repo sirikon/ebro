@@ -2,37 +2,66 @@ package inventory
 
 import (
 	"fmt"
-	"maps"
 	"os"
 	"path"
 	"slices"
 	"strings"
-
-	"mvdan.cc/sh/v3/shell"
 
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/constants"
 )
 
-type Inventory map[string]config.Task
+type Inventory struct {
+	Tasks           map[string]*config.Task
+	taskModuleIndex map[string]config.Module
+}
 
 func MakeInventory(arguments cli.ExecutionArguments) (Inventory, error) {
-	inv := Inventory{}
+	inv := Inventory{Tasks: make(map[string]*config.Task), taskModuleIndex: make(map[string]config.Module)}
 	workingDirectory, err := os.Getwd()
 	if err != nil {
-		return nil, fmt.Errorf("obtaining working directory: %w", err)
+		return inv, fmt.Errorf("obtaining working directory: %w", err)
 	}
 
 	modulePath := path.Join(workingDirectory, *arguments.GetFlagString(cli.FlagFile))
 	err = processModuleFile(inv, modulePath, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
 	if err != nil {
-		return nil, fmt.Errorf("processing module file in %v: %w", modulePath, err)
+		return inv, fmt.Errorf("processing module file in %v: %w", modulePath, err)
 	}
 
-	for _, task := range inv {
+	for _, task := range inv.Tasks {
 		NormalizeTaskNames(inv, task.Requires)
 		NormalizeTaskNames(inv, task.RequiredBy)
+		NormalizeTaskNames(inv, task.Extends)
+	}
+
+	inheritanceOrder, err := resolveInheritanceOrder(inv)
+	if err != nil {
+		return inv, fmt.Errorf("resolving inheritance order in module file %v: %w", modulePath, err)
+	}
+
+	for _, taskName := range inheritanceOrder {
+		task := inv.Tasks[taskName]
+		envsToMerge := [](map[string]string){task.Environment}
+		parentTasks := slices.Clone(task.Extends)
+		slices.Reverse(parentTasks)
+		for _, parentTaskName := range parentTasks {
+			parentTask := inv.Tasks[parentTaskName]
+			applyInheritance(task, parentTask)
+			envsToMerge = append(envsToMerge, parentTask.Environment)
+		}
+		envsToMerge = append(envsToMerge, inv.taskModuleIndex[taskName].Environment)
+		task.Environment, err = expandMergeEnvs(envsToMerge...)
+		if err != nil {
+			return inv, fmt.Errorf("expanding task %v environment: %w", taskName, err)
+		}
+	}
+
+	for taskName, task := range inv.Tasks {
+		if task.Abstract {
+			delete(inv.Tasks, taskName)
+		}
 	}
 
 	return inv, nil
@@ -40,13 +69,18 @@ func MakeInventory(arguments cli.ExecutionArguments) (Inventory, error) {
 
 func NormalizeTaskNames(inv Inventory, taskNames []string) {
 	for i, taskName := range taskNames {
-		defaultedTaskName := taskName + ":default"
-		_, taskExists := inv[taskName]
-		_, defaultedTaskExists := inv[defaultedTaskName]
-		if !taskExists && defaultedTaskExists {
-			taskNames[i] = defaultedTaskName
-		}
+		taskNames[i] = normalizeTaskName(inv, taskName)
 	}
+}
+
+func normalizeTaskName(inv Inventory, taskName string) string {
+	defaultedTaskName := taskName + ":default"
+	_, taskExists := inv.Tasks[taskName]
+	_, defaultedTaskExists := inv.Tasks[defaultedTaskName]
+	if !taskExists && defaultedTaskExists {
+		return defaultedTaskName
+	}
+	return taskName
 }
 
 func processModuleFile(inv Inventory, modulePath string, moduleNameTrail []string, environment map[string]string) error {
@@ -87,17 +121,12 @@ func processModule(inv Inventory, module config.Module, moduleNameTrail []string
 
 	for taskName, task := range module.Tasks {
 		taskAbsoluteName := taskPrefix + taskName
-		if _, ok := inv[taskAbsoluteName]; ok {
+		if _, ok := inv.Tasks[taskAbsoluteName]; ok {
 			return fmt.Errorf("task %v (defined as %v) is already present in the inventory", taskAbsoluteName, taskName)
 		}
 
 		if err := task.Validate(); err != nil {
 			return fmt.Errorf("task %v failed validation: %w", taskName, err)
-		}
-
-		task.Environment, err = expandMergeEnvs(task.Environment, module.Environment)
-		if err != nil {
-			return fmt.Errorf("expanding task %v environment: %w", taskName, err)
 		}
 
 		for i, t := range task.Requires {
@@ -106,6 +135,9 @@ func processModule(inv Inventory, module config.Module, moduleNameTrail []string
 		for i, t := range task.RequiredBy {
 			task.RequiredBy[i] = makeTaskNameAbsolute(t)
 		}
+		for i, t := range task.Extends {
+			task.Extends[i] = makeTaskNameAbsolute(t)
+		}
 
 		if task.WorkingDirectory == "" {
 			task.WorkingDirectory = module.WorkingDirectory
@@ -113,7 +145,8 @@ func processModule(inv Inventory, module config.Module, moduleNameTrail []string
 			task.WorkingDirectory = path.Join(module.WorkingDirectory, task.WorkingDirectory)
 		}
 
-		inv[taskAbsoluteName] = task
+		inv.Tasks[taskAbsoluteName] = &task
+		inv.taskModuleIndex[taskAbsoluteName] = module
 	}
 
 	for importName, importObj := range module.Imports {
@@ -151,41 +184,4 @@ func processModule(inv Inventory, module config.Module, moduleNameTrail []string
 	}
 
 	return nil
-}
-
-func expandMergeEnvs(envs ...map[string]string) (map[string]string, error) {
-	result := map[string]string{}
-	for i := (len(envs) - 1); i >= 0; i-- {
-		parentEnv := maps.Clone(result)
-		env := envs[i]
-		// We want to iterate through keys in a repeatable and predictable way.
-		// The order in which we process each key SHOULD NOT BE IMPORTANT, but
-		// in the scenario of a bug in here, we want the behavior to be
-		// consistent.
-		//
-		// That's why we're sorting the keys and iterating over them
-		// instead of `range`ing the map directly.
-		envKeys := slices.Collect(maps.Keys(env))
-		slices.Sort(envKeys)
-		for _, key := range envKeys {
-			if i == len(envs) {
-				result[key] = env[key]
-			}
-			expandedValue, err := expandString(env[key], parentEnv)
-			if err != nil {
-				return nil, fmt.Errorf("expanding %v: %w", env[key], err)
-			}
-			result[key] = expandedValue
-		}
-	}
-	return result, nil
-}
-
-func expandString(s string, env map[string]string) (string, error) {
-	return shell.Expand(s, func(s string) string {
-		if val, ok := env[s]; ok {
-			return val
-		}
-		return os.Getenv(s)
-	})
 }

@@ -1,18 +1,19 @@
-{% macro properties(d) %}
+{% macro properties(d, trail) %}
 <ul>
     {% for property in d %}
     <li>
-        <code><b>{{property}}</b></code> (<code>{{d[property].type}}</code>)
+        <code><b><a class="x-anchorlink" id="the-ebroyaml-format__{{trail}}{{property}}" href="#the-ebroyaml-format__{{trail}}{{property}}">{{property}}</a></b></code>
+        (<code>{{d[property].type}}</code>)
         {{d[property].description|markdown|safe}}
         {% if d[property].type == 'object' and d[property].properties %}
-        {{- properties(d[property].properties) -}}
+        {{- properties(d[property].properties, trail + property + '.') -}}
         {% endif %}
         {% if d[property].type == 'object' and d[property].additionalProperties %}
         <ul>
             <li>
                 <code>*</code> (<code>string</code>)
                 {{d[property].additionalProperties.description|markdown|safe}}
-                {{- properties(d[property].additionalProperties.properties) -}}
+                {{- properties(d[property].additionalProperties.properties, trail + property + '.') -}}
             </li>
         </ul>
         {% endif %}
@@ -22,4 +23,4 @@
 {% endmacro %}
 
 <p>The contents of the <code>Ebro.yaml</code> represent a <b>module</b>, which has the following properties:</p>
-{{- properties(schema.properties) -}}
+{{- properties(schema.properties, '') -}}

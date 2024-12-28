@@ -141,6 +141,35 @@ this is B
 
 The `when.output_changes` checker of the `echoer` task detected that running `cat cache/A.txt` and `cat cache/B.txt` produced a different output when compared with the previous execution, hence, the task is executed again.
 
+## Task inheritance
+
+Ebro has a system of task inheritance. Tasks can extend other tasks, merging the parent properties with their own. Check the merging strategy in the [schema documentation](#the-ebroyaml-format__tasks.extends).
+
+Here's an example `Ebro.yaml` file and what happens when running `ebro` on it:
+
+```yaml
+tasks:
+  default:
+    script: echo 'Hello World'
+
+  parent:
+    abstract: true
+    environment:
+      FOO: "foo"
+    required_by: [default]
+
+  child:
+    extends: [parent]
+    script: echo $FOO
+```
+
+```
+███ [:child] running
+foo
+███ [:default] running
+Hello World
+```
+
 ## CLI
 
 Ebro's command line interface is very straightforward, but has a couple of general rules:

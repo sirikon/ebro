@@ -18,6 +18,10 @@ details summary {
   padding: 0.5em 0;
 }
 
+ul {
+  margin: 1em 0;
+}
+
 .x-header,
 .x-menu,
 .x-body {

@@ -1,0 +1,64 @@
+tasks:
+  default:
+    script: echo Hello
+
+  a:
+    abstract: true
+    environment:
+      FOO: "It's FOO"
+      BAR: "It's BAR"
+    requires: [c]
+    required_by: [default]
+    script: echo $FOO
+    when:
+      check_fails: exit 1
+  b:
+    extends: [a]
+    requires: [d]
+    required_by: [default]
+    script: echo $BAR
+    when:
+      check_fails: exit 2
+      output_changes: echo test
+
+  c:
+    script: echo "I'm C"
+
+  d:
+    script: echo "I'm D"
+
+  y:
+    script: echo y
+    environment:
+      A: "1"
+      B: "2"
+    when:
+      check_fails: exit 1
+      output_changes: echo test2
+
+  z:
+    script: echo z
+    environment:
+      B: "22"
+      C: "3"
+    extends: [y]
+
+  multi-a:
+    abstract: true
+    script: echo multi-a
+    environment:
+      A: "1"
+      B: "2"
+      D: "4"
+
+  multi-b:
+    abstract: true
+    script: echo multi-b
+    environment:
+      B: "22"
+      C: "3"
+
+  multi-c:
+    extends: [multi-a, multi-b]
+    environment:
+      D: "44"

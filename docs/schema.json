@@ -45,8 +45,19 @@
                         "description": "The working directory for the task. Defaults to the module working directory. Relative paths are valid and will be added to the default value to compute the final value.",
                         "type": "string"
                     },
+                    "abstract": {
+                        "description": "When true, flags the task as abstract. An abstract task is a task that cannot be executed directly and its only purpose is to be extended by other tasks by using the `extends` property.",
+                        "type": "boolean"
+                    },
+                    "extends": {
+                        "description": "References another task and extends it, which effectively means merging its properties with the properties of the referenced task. Here's the merging strategy for each property:\n\n- `working_directory`: Untouched\n- `abstract`: Untouched\n- `environment`: Merged with child task values taking precedence over parent task values.\n- `requires`: Merged and deduped.\n- `required_by`: Merged and deduped.\n- `script`: If present, child task value takes precedence over parent task value.\n- `quiet`: Untouched\n- `when.check_fails`: If present, child task value takes precedence over parent task value.\n- `when.output_changes`: If present, child task value takes precedence over parent task value.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
                     "environment": {
-                        "description": "Additional environment variables available the task. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (module or Ebro's execution environment), but **not** from the same environment object.",
+                        "description": "Additional environment variables available the task. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (task referenced in `extends`, module or Ebro's execution environment), but **not** from the same environment object.",
                         "type": "object"
                     },
                     "requires": {
@@ -64,8 +75,12 @@
                         }
                     },
                     "script": {
-                        "description": "Bash script of the task",
+                        "description": "Bash script of the task.",
                         "type": "string"
+                    },
+                    "quiet": {
+                        "description": "When true, flags the task as quiet. Quiet tasks are task that, visually and logging-wise, look almost the same as skipped tasks. This effectively means that their output will be hidden by default and only shown if the task fails. Also, their log line for \"running\" will be tinted green instead of yellow.",
+                        "type": "boolean"
                     },
                     "when": {
                         "description": "Configure ways in which the task could be skipped. These are computed as an OR, meaning: One of them triggering is enough to trigger the task execution.",

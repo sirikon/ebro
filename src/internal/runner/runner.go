@@ -20,7 +20,10 @@ import (
 
 func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 	for _, taskName := range plan {
-		task := inv[taskName]
+		task, ok := inv.Tasks[taskName]
+		if !ok {
+			return fmt.Errorf("task %v does not exist", taskName)
+		}
 
 		if task.Script == "" {
 			logger.Info(logLine(taskName, "satisfied"))
@@ -72,8 +75,21 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 			continue
 		}
 
-		logger.Notice(logLine(taskName, "running"))
-		status, err := runScript(task.Script, task.WorkingDirectory, task.Environment)
+		var err error
+		var status uint8
+		if task.Quiet {
+			logger.Info(logLine(taskName, "running"))
+			output := bytes.Buffer{}
+			outputWriter := bufio.NewWriter(&output)
+			status, err = runScriptWithIO(task.Script, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
+			outputWriter.Flush()
+			if err != nil || status != 0 {
+				fmt.Print(output.String())
+			}
+		} else {
+			logger.Notice(logLine(taskName, "running"))
+			status, err = runScript(task.Script, task.WorkingDirectory, task.Environment)
+		}
 
 		var final_err error
 
