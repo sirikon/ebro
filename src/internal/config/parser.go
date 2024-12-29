@@ -3,11 +3,10 @@ package config
 import (
 	"fmt"
 	"os"
-	"path"
+
+	"github.com/sirikon/ebro/internal/config/sources"
 
 	"gopkg.in/yaml.v3"
-
-	"github.com/sirikon/ebro/internal/config/remote"
 )
 
 func ParseModule(modulePath string) (Module, error) {
@@ -27,19 +26,19 @@ func ParseModule(modulePath string) (Module, error) {
 }
 
 func ImportModule(base string, from string) (string, error) {
-	parsedGitImport, err := remote.ParseGitImport(from)
-	if err != nil {
-		return "", fmt.Errorf("parsing possible git import: %w", err)
-	}
-
-	if parsedGitImport != nil {
-		err := remote.CloneGitImport(parsedGitImport)
+	for _, source := range sources.Sources {
+		match, err := source.Match(from)
 		if err != nil {
-			return "", fmt.Errorf("cloning git import: %w", err)
+			return "", fmt.Errorf("matching source: %w", err)
 		}
-
-		return path.Join(parsedGitImport.Path, parsedGitImport.Subpath), nil
+		if match {
+			module_path, err := source.Resolve(base, from)
+			if err != nil {
+				return "", fmt.Errorf("resolving source: %w", err)
+			}
+			return module_path, nil
+		}
 	}
 
-	return path.Join(base, from), nil
+	return "", fmt.Errorf("no source matched")
 }
