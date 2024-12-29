@@ -48,6 +48,7 @@ class TestInheritance(EbroTestCase):
                     D: "44"
                     EBRO_ROOT: {self.workdir}
                 script: echo multi-b
+                quiet: true
             :y:
                 working_directory: {self.workdir}
                 environment:
@@ -55,6 +56,7 @@ class TestInheritance(EbroTestCase):
                     B: "2"
                     EBRO_ROOT: {self.workdir}
                 script: echo y
+                quiet: true
                 when:
                     check_fails: exit 1
                     output_changes: echo test2
@@ -66,6 +68,7 @@ class TestInheritance(EbroTestCase):
                     C: "3"
                     EBRO_ROOT: {self.workdir}
                 script: echo z
+                quiet: false
                 when:
                     check_fails: exit 1
                     output_changes: echo test2

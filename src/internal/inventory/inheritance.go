@@ -40,6 +40,9 @@ func applyInheritance(childTask *config.Task, parentTask *config.Task) {
 	if childTask.Script == "" {
 		childTask.Script = parentTask.Script
 	}
+	if childTask.Quiet == nil {
+		childTask.Quiet = parentTask.Quiet
+	}
 	if parentTask.When != nil {
 		if childTask.When == nil {
 			when := config.When{}

@@ -18,7 +18,7 @@ type Task struct {
 	Requires         []string          `yaml:"requires,omitempty"`
 	RequiredBy       []string          `yaml:"required_by,omitempty"`
 	Script           string            `yaml:"script,omitempty"`
-	Quiet            bool              `yaml:"quiet,omitempty"`
+	Quiet            *bool             `yaml:"quiet,omitempty"`
 	When             *When             `yaml:"when,omitempty"`
 }
 

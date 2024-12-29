@@ -50,7 +50,7 @@
                         "type": "boolean"
                     },
                     "extends": {
-                        "description": "References another task and extends it, which effectively means merging its properties with the properties of the referenced task. Here's the merging strategy for each property:\n\n- `working_directory`: Untouched\n- `abstract`: Untouched\n- `environment`: Merged with child task values taking precedence over parent task values.\n- `requires`: Merged and deduped.\n- `required_by`: Merged and deduped.\n- `script`: If present, child task value takes precedence over parent task value.\n- `quiet`: Untouched\n- `when.check_fails`: If present, child task value takes precedence over parent task value.\n- `when.output_changes`: If present, child task value takes precedence over parent task value.",
+                        "description": "References another task and extends it, which effectively means merging its properties with the properties of the referenced task. Here's the merging strategy for each property:\n\n- `working_directory`: Untouched.\n- `abstract`: Untouched.\n- `environment`: Merged with child task values taking precedence over parent task values.\n- `requires`: Merged and deduped.\n- `required_by`: Merged and deduped.\n- `script`: If present, child task value takes precedence over parent task value.\n- `quiet`: If present, child task value takes precedence over parent task value.\n- `when.check_fails`: If present, child task value takes precedence over parent task value.\n- `when.output_changes`: If present, child task value takes precedence over parent task value.",
                         "type": "array",
                         "items": {
                             "type": "string"

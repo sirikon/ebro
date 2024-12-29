@@ -77,7 +77,7 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 
 		var err error
 		var status uint8
-		if task.Quiet {
+		if task.Quiet != nil && *task.Quiet {
 			logger.Info(logLine(taskName, "running"))
 			output := bytes.Buffer{}
 			outputWriter := bufio.NewWriter(&output)

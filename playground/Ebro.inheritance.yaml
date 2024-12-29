@@ -29,6 +29,7 @@ tasks:
 
   y:
     script: echo y
+    quiet: true
     environment:
       A: "1"
       B: "2"
@@ -38,6 +39,7 @@ tasks:
 
   z:
     script: echo z
+    quiet: false
     environment:
       B: "22"
       C: "3"
@@ -46,6 +48,7 @@ tasks:
   multi-a:
     abstract: true
     script: echo multi-a
+    quiet: true
     environment:
       A: "1"
       B: "2"
