@@ -5,7 +5,7 @@ import (
 
 	"github.com/sirikon/ebro/internal/dag"
 	"github.com/sirikon/ebro/internal/inventory"
-	"github.com/sirikon/ebro/utils"
+	"github.com/sirikon/ebro/internal/utils"
 
 	"gopkg.in/yaml.v3"
 )

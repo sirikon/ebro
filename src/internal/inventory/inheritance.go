@@ -7,7 +7,7 @@ import (
 
 	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/dag"
-	"github.com/sirikon/ebro/utils"
+	"github.com/sirikon/ebro/internal/utils"
 
 	"gopkg.in/yaml.v3"
 )

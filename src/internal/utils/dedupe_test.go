@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestWorksWithSimpleScenario(t *testing.T) {
+func TestDedupeWorksWithSimpleScenario(t *testing.T) {
 	data := []string{"a", "b", "c", "b", "d"}
 	expectedResult := []string{"a", "b", "c", "d"}
 	result := Dedupe(data)

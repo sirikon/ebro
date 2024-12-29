@@ -4,7 +4,7 @@ import (
 	"maps"
 	"slices"
 
-	"github.com/sirikon/ebro/utils"
+	"github.com/sirikon/ebro/internal/utils"
 )
 
 type Dag struct {
