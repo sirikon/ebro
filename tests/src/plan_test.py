@@ -57,3 +57,13 @@ class TestPlan(EbroTestCase):
                 - :chicken
             """,
         )
+
+    def test_plan_for_wrong_references(self):
+        exit_code, stdout = self.ebro("-plan", "--file", "Ebro.wrong_references.yaml")
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            """
+            ███ ERROR: checking references in 'requires' for task :default: referenced task :nonexistent does not exist
+            """,
+        )

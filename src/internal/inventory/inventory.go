@@ -36,6 +36,21 @@ func MakeInventory(arguments cli.ExecutionArguments) (Inventory, error) {
 		NormalizeTaskNames(inv, task.Extends)
 	}
 
+	for taskName, task := range inv.Tasks {
+		err := validateReferences(inv, task.Requires...)
+		if err != nil {
+			return inv, fmt.Errorf("checking references in 'requires' for task %v: %w", taskName, err)
+		}
+		err = validateReferences(inv, task.RequiredBy...)
+		if err != nil {
+			return inv, fmt.Errorf("checking references in 'required_by' for task %v: %w", taskName, err)
+		}
+		err = validateReferences(inv, task.Extends...)
+		if err != nil {
+			return inv, fmt.Errorf("checking references in 'extends' for task %v: %w", taskName, err)
+		}
+	}
+
 	inheritanceOrder, err := resolveInheritanceOrder(inv)
 	if err != nil {
 		return inv, fmt.Errorf("resolving inheritance order in module file %v: %w", modulePath, err)
@@ -183,5 +198,14 @@ func processModule(inv Inventory, module config.Module, moduleNameTrail []string
 		}
 	}
 
+	return nil
+}
+
+func validateReferences(inv Inventory, taskNames ...string) error {
+	for _, taskName := range taskNames {
+		if _, ok := inv.Tasks[taskName]; !ok {
+			return fmt.Errorf("referenced task %v does not exist", taskName)
+		}
+	}
 	return nil
 }
