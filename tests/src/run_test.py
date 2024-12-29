@@ -3,6 +3,16 @@ from utils.common import EbroTestCase
 
 class TestRun(EbroTestCase):
 
+    def test_unknown_tasks_are_handled_properly(self):
+        exit_code, stdout = self.ebro("invent")
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ ERROR: task :invent does not exist
+            """,
+        )
+
     def test_execution_is_correct(self):
         exit_code, stdout = self.ebro()
         self.assertEqual(exit_code, 0)

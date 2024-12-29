@@ -20,7 +20,10 @@ func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
 
 	for i := 0; i < tasksToRun.Length(); i++ {
 		taskName := tasksToRun.Get(i)
-		task := inv.Tasks[taskName]
+		task, ok := inv.Tasks[taskName]
+		if !ok {
+			return nil, fmt.Errorf("task %v does not exist", taskName)
+		}
 		tasksToRun.Add(task.Requires...)
 		taskDag.Link(taskName, task.Requires...)
 		for _, requiredByTaskName := range task.RequiredBy {
