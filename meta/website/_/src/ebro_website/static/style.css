@@ -1,6 +1,17 @@
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/static/NotoSans.ttf");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/static/JetBrainsMono.ttf");
+}
+
 body {
-  background-color: #e7e7e7;
+  background-color: #edf9f6;
   margin: 1em;
+  font-family: "Noto Sans", sans-serif;
 }
 
 code {
@@ -8,71 +19,86 @@ code {
   padding: 0 0.3em;
 }
 
+code,
+pre {
+  font-family: "JetBrains Mono";
+}
+
 details {
   background-color: #f9f6ed;
   overflow: auto;
-  padding: 0 1em;
+  padding: 0 1.1em;
 }
 
 details summary {
   padding: 0.5em 0;
 }
 
-ul {
-  margin: 1em 0;
-}
-
 .x-header,
 .x-menu,
 .x-body {
-  padding: 0 15px;
+  padding: 0 1.1rem;
   display: block;
   margin: auto;
   max-width: 800px;
   box-sizing: border-box;
 }
 
+.x-header {
+  padding-left: 1rem;
+}
+
+.x-header h1 {
+  margin: 0.3em 0;
+}
+
 .x-menu {
   padding: 0;
   display: flex;
   overflow: auto;
+  margin-bottom: 1.1rem;
 }
 
 .x-menu-item {
   flex-shrink: 0;
-  padding: 6px 16px;
+  padding: 0.5rem 1.1rem;
   text-decoration: none;
   color: inherit;
-  border-bottom: 1px solid #c0c0c0;
+  border-radius: 5px;
 }
 .x-menu-item.is-active {
-  padding: 5px 15px;
   background-color: white;
-  border: 1px solid #c0c0c0;
-  border-bottom-width: 0;
 }
 .x-menu-filler {
   flex-grow: 1;
-  border-bottom: 1px solid #c0c0c0;
 }
 
 .x-body {
-  padding: 0px 15px;
   overflow: auto;
   background-color: white;
-  border: 1px solid #c0c0c0;
-  border-top-width: 0;
+  border-radius: 10px;
+  box-shadow: rgba(157, 157, 157, 0.2) 0px 8px 24px;
+}
+
+.x-body h1,
+.x-body h2,
+.x-body h3,
+.x-body h4,
+.x-body h5,
+.x-body h6 {
+  margin: 0.6em 0;
 }
 
 .x-toc {
   background-color: #f9f6ed;
+  border-radius: 5px;
   padding: 0 1em;
   overflow: auto;
 }
 
 .x-toc-title {
   display: block;
-  margin: 1em 0;
+  margin: 0.6em 0;
   font-weight: bold;
 }
 
@@ -83,6 +109,26 @@ ul {
 
 .x-title-link {
   font-size: 0.6em;
+}
+
+.x-ebro-format ul {
+  margin: 1em 0;
+}
+
+.x-changelog h1 {
+  background-color: #edf0f9;
+  margin: 1.1rem 0;
+  padding: 0.6rem 1rem;
+  line-height: 1;
+  border-radius: 5px;
+}
+
+.x-changelog-content {
+  margin: 0 1rem 2rem 1rem;
+}
+
+.codehilite {
+  border-radius: 5px;
 }
 
 .codehilite pre {

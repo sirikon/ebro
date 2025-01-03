@@ -4,12 +4,14 @@
 
 {% block body %}
 <div class="x-changelog">
-    {% for version in versions %}
-    <h1>
-        <a class="x-anchorlink" id="{{version.tag}}" href="#{{version.tag}}">{{ version.tag }}</a>
-        <a class="x-title-link" href="https://github.com/sirikon/ebro/releases/tag/{{ version.tag }}">[release]</a>
-    </h1>
+  {% for version in versions %}
+  <h1>
+    <a class="x-anchorlink" id="{{version.tag}}" href="#{{version.tag}}">{{ version.tag }}</a>
+    <a class="x-title-link" href="https://github.com/sirikon/ebro/releases/tag/{{ version.tag }}">[release]</a>
+  </h1>
+  <div class="x-changelog-content">
     {{ version.notes|safe }}
-    {% endfor %}
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}
