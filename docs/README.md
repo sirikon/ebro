@@ -95,7 +95,7 @@ More on Bash's documentation: [The Set Builtin](https://www.gnu.org/software/bas
 
 </details>
 
-During the first execution it will execute everything, with no skips, which sould output something like this:
+During the first execution it will execute everything, with no skips, which should output something like this:
 
 ```
 ███ [:cache_dir] running
@@ -147,7 +147,7 @@ The `Ebro.yaml` format supports importing tasks from other `Ebro.yaml` files by 
 
 ```yaml
 # Ebro.yaml
-import:
+imports:
   something:
     from: ./something
 ```
@@ -198,6 +198,8 @@ tasks:
     extends: [parent]
     script: echo $FOO
 ```
+
+Now, running `ebro default child` has this output:
 
 ```
 ███ [:child] running

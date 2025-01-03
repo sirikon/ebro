@@ -29,7 +29,7 @@ var CommandRun = &Command{
 
 var CommandInventory = &Command{
 	Name:           "inventory",
-	Description:    "Display complete inventory of tasks with their definitive configuration",
+	Description:    "Display complete inventory of tasks with their definitive configuration in YAML format",
 	Flags:          []*Flag{FlagFile},
 	AcceptsTargets: false,
 }
@@ -43,7 +43,7 @@ var CommandPlan = &Command{
 
 var CommandVersion = &Command{
 	Name:        "version",
-	Description: "Display ebro's version",
+	Description: "Display ebro's version information in YAML format",
 }
 
 var CommandHelp = &Command{
