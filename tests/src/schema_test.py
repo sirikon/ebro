@@ -19,6 +19,8 @@ class TestSchema(unittest.TestCase):
         )
 
         for file in files:
+            if file.endswith("/Ebro.unknown_properties.yaml"):
+                continue
             with open(file) as f:
                 content = yaml.load(f, yaml.Loader)
             with self.subTest(file):

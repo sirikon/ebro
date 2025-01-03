@@ -17,7 +17,7 @@ func ParseModule(modulePath string) (Module, error) {
 		return module, fmt.Errorf("reading module file: %w", err)
 	}
 
-	err = yaml.Unmarshal(body, &module)
+	err = yaml.UnmarshalWithOptions(body, &module, yaml.DisallowUnknownField())
 	if err != nil {
 		return module, fmt.Errorf("unmarshalling module file: %w", err)
 	}

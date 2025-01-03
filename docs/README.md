@@ -143,17 +143,17 @@ The `when.output_changes` checker of the `echoer` task detected that running `ca
 
 ## Importing tasks
 
-The `Ebro.yaml` format supports importing tasks from other `Ebro.yaml` files by defining the [`imports.*.from` parameter](#the-ebroyaml-format__imports.from). It works like this:
+The `Ebro.yaml` file supports importing tasks from other `Ebro.yaml` files by defining the [`imports.*.from` parameter](#the-ebroyaml-format__imports.from). It works like this:
 
 ```yaml
 # Ebro.yaml
 imports:
   something:
-    from: ./something
+    from: ./somewhere # a directory containing an `Ebro.yaml` file.
 ```
 
 ```yaml
-# something/Ebro.yaml
+# somewhere/Ebro.yaml
 tasks:
   default:
     script: echo 'something'
@@ -175,7 +175,9 @@ And running `ebro something:else` has this output:
 something else
 ```
 
-Targeting a module by its name is equivalent to calling the module's `default` task. `something` translates to `something:default`.
+It's important to note that the contents of an `Ebro.yaml` file are considered a **module**. When we import another `Ebro.yaml` file, we're creating a new module that hangs from the **root module** and has an explicitly-given name. In this case, `something`.
+
+Targeting a module by its name is equivalent to targeting the module's `default` task. As `something` is a module, it translates to `something:default`.
 
 ## Task inheritance
 
