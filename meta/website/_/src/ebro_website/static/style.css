@@ -9,7 +9,7 @@
 }
 
 body {
-  background-color: #edf9f6;
+  background-color: #efefef;
   margin: 1em;
   font-family: "Noto Sans", sans-serif;
 }
@@ -40,12 +40,12 @@ details summary {
   padding: 0 1.1rem;
   display: block;
   margin: auto;
-  max-width: 800px;
+  max-width: 900px;
   box-sizing: border-box;
 }
 
 .x-header {
-  padding-left: 1rem;
+  padding-left: 0;
 }
 
 .x-header h1 {
@@ -64,7 +64,6 @@ details summary {
   padding: 0.5rem 1.1rem;
   text-decoration: none;
   color: inherit;
-  border-radius: 5px;
 }
 .x-menu-item.is-active {
   background-color: white;
@@ -76,8 +75,6 @@ details summary {
 .x-body {
   overflow: auto;
   background-color: white;
-  border-radius: 10px;
-  box-shadow: rgba(157, 157, 157, 0.2) 0px 8px 24px;
 }
 
 .x-body h1,
@@ -91,7 +88,6 @@ details summary {
 
 .x-toc {
   background-color: #f9f6ed;
-  border-radius: 5px;
   padding: 0 1em;
   overflow: auto;
 }
@@ -120,15 +116,10 @@ details summary {
   margin: 1.1rem 0;
   padding: 0.6rem 1rem;
   line-height: 1;
-  border-radius: 5px;
 }
 
 .x-changelog-content {
   margin: 0 1rem 2rem 1rem;
-}
-
-.codehilite {
-  border-radius: 5px;
 }
 
 .codehilite pre {
