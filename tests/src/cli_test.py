@@ -19,7 +19,7 @@ class TestCli(EbroTestCase):
 
 
   ebro -inventory [--flags...]
-    # Display complete inventory of tasks with their definitive configuration
+    # Display complete inventory of tasks with their definitive configuration in YAML format
     flags:
       --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
 
@@ -33,7 +33,7 @@ class TestCli(EbroTestCase):
 
 
   ebro -version
-    # Display ebro's version
+    # Display ebro's version information in YAML format
 
 
   ebro -help
