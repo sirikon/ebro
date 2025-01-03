@@ -80,10 +80,7 @@ Again, check it yourself by running `./ebrow -plan`. This plan is deterministic,
 
 Finally, it will execute the plan, running tasks sequentially until the end.
 
-<details markdown="1">
-<summary>
-All scripts include <code>set -euo pipefail</code>.
-</summary>
+<div class="x-tip" markdown="1">
 
 Before running any Bash script in `script`, `when.output_changes` or `when.check_fails`, Ebro will prepend to the script the lines `set -euo pipefail` to ensure sane defaults:
 
@@ -93,7 +90,7 @@ Before running any Bash script in `script`, `when.output_changes` or `when.check
 
 More on Bash's documentation: [The Set Builtin](https://www.gnu.org/software/bash/manual/bash.html#The-Set-Builtin).
 
-</details>
+</div>
 
 During the first execution it will execute everything, with no skips, which should output something like this:
 

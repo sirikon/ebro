@@ -12,14 +12,13 @@
 <body>
 
   <div class="x-header">
-    <h1>Ebro</h1>
+    <h1><a href="/">Ebro</a></h1>
   </div>
   <div class="x-menu">
     {% for menu_item in MENU %}
     <a class="x-menu-item {% if menu_item.id and active_menu == menu_item.id %}is-active{% endif %}"
       href="{{ menu_item.url }}">{{menu_item.name|safe}}</a>
     {% endfor %}
-    <div class="x-menu-filler"></div>
   </div>
   <div class="x-body">
     {% block body %}{% endblock %}
