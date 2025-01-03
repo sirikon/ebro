@@ -4,7 +4,7 @@
 
 </div>
 
-Ebro is a task runner. Tasks are defined inside YAML files, scripted with Bash, and configured with a name, requirements, when to skip execution, and other details.
+Ebro is a task runner. Tasks are defined inside YAML files, scripted with Bash, and configured with a name, requirements, when to skip execution, and other details. Tasks can also be [imported from other files](#importing-tasks) or [extend other tasks](#task-inheritance).
 
 Ebro is distributed as a single binary, including the script interpreter ([mvdan/sh](https://github.com/mvdan/sh)).
 
@@ -140,6 +140,42 @@ this is B
 ```
 
 The `when.output_changes` checker of the `echoer` task detected that running `cat cache/A.txt` and `cat cache/B.txt` produced a different output when compared with the previous execution, hence, the task is executed again.
+
+## Importing tasks
+
+The `Ebro.yaml` format supports importing tasks from other `Ebro.yaml` files by defining the [`imports.*.from` parameter](#the-ebroyaml-format__imports.from). It works like this:
+
+```yaml
+# Ebro.yaml
+import:
+  something:
+    from: ./something
+```
+
+```yaml
+# something/Ebro.yaml
+tasks:
+  default:
+    script: echo 'something'
+  else:
+    script: echo 'something else'
+```
+
+Now, running `ebro something` has this output:
+
+```text
+███ [:something:default] running
+something
+```
+
+And running `ebro something:else` has this output:
+
+```text
+███ [:something:else] running
+something else
+```
+
+Targeting a module by its name is equivalent to calling the module's `default` task. `something` translates to `something:default`.
 
 ## Task inheritance
 
