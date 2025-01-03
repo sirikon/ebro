@@ -107,6 +107,13 @@ class TestInventory(EbroTestCase):
                 environment:
                     EBRO_ROOT: {self.workdir}
                 script: echo "Tractor is here"
+            :ignored:
+                working_directory: {self.workdir}
+                environment:
+                    EBRO_ROOT: {self.workdir}
+                required_by:
+                    - :default
+                script: echo 'I should be ignored'
             """,
         )
 
