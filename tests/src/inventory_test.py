@@ -14,8 +14,8 @@ class TestInventory(EbroTestCase):
                 environment:
                     EBRO_ROOT: {self.workdir}
                 script: |
-                    echo 'Installing apt packages'
-                    cat "${{EBRO_ROOT}}/.cache/apt/packages/"*
+                  echo 'Installing apt packages'
+                  cat "${{EBRO_ROOT}}/.cache/apt/packages/"*
                 when:
                     output_changes: cat "${{EBRO_ROOT}}/.cache/apt/packages/"*
             :apt:pre-config:
@@ -58,7 +58,7 @@ class TestInventory(EbroTestCase):
                     - :docker:default
                     - :caddy:default
                 script: |
-                    echo "Done!"
+                  echo "Done!"
             :docker:default:
                 working_directory: {self.workdir}/docker
                 environment:

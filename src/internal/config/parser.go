@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirikon/ebro/internal/config/sources"
 
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
 )
 
 func ParseModule(modulePath string) (Module, error) {

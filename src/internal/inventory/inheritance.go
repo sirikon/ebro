@@ -9,7 +9,7 @@ import (
 	"github.com/sirikon/ebro/internal/dag"
 	"github.com/sirikon/ebro/internal/utils"
 
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
 )
 
 func resolveInheritanceOrder(inv Inventory) ([]string, error) {
@@ -21,7 +21,7 @@ func resolveInheritanceOrder(inv Inventory) ([]string, error) {
 
 	result, remains := inheritanceDag.Resolve(slices.Collect(maps.Keys(inv.Tasks)))
 	if remains != nil {
-		remainsData, err := yaml.Marshal(remains)
+		remainsData, err := yaml.MarshalWithOptions(remains, yaml.Indent(4), yaml.IndentSequence(true))
 		if err != nil {
 			return nil, fmt.Errorf("inheritance order resolution could not complete. error while turning dependency index to yaml: %w", err)
 		}

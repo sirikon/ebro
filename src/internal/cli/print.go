@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/goccy/go-yaml"
 	"github.com/sirikon/ebro/internal/constants"
-	"gopkg.in/yaml.v3"
 )
 
 type versionData struct {
@@ -28,7 +28,7 @@ func PrintVersion() {
 		Commit:  constants.GetCommit(),
 		Date:    tm.UTC(),
 	}
-	bytes, err := yaml.Marshal(data)
+	bytes, err := yaml.MarshalWithOptions(data, yaml.Indent(4), yaml.IndentSequence(true))
 	if err != nil {
 		ExitWithError(err)
 	}

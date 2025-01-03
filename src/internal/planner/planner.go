@@ -7,7 +7,7 @@ import (
 	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/utils"
 
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
 )
 
 type Plan []string
@@ -33,7 +33,7 @@ func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
 
 	result, remains := taskDag.Resolve(targets)
 	if remains != nil {
-		remainsData, err := yaml.Marshal(remains)
+		remainsData, err := yaml.MarshalWithOptions(remains, yaml.Indent(4), yaml.IndentSequence(true))
 		if err != nil {
 			return nil, fmt.Errorf("planning could not complete. error while turning requirement index to yaml: %w", err)
 		}

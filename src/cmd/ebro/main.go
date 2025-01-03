@@ -5,8 +5,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
-	"gopkg.in/yaml.v3"
 
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/inventory"
@@ -33,7 +33,7 @@ func main() {
 	}
 
 	if arguments.Command == cli.CommandInventory {
-		bytes, err := yaml.Marshal(inv.Tasks)
+		bytes, err := yaml.MarshalWithOptions(inv.Tasks, yaml.Indent(4), yaml.IndentSequence(true))
 		if err != nil {
 			cli.ExitWithError(err)
 		}
