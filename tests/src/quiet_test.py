@@ -10,17 +10,17 @@ class TestQuiet(EbroTestCase):
             stdout,
             f"""
             :fails:
-                working_directory: {self.workdir}
-                environment:
-                    EBRO_ROOT: {self.workdir}
-                script: echo 'oh no' && exit 1
-                quiet: true
+              working_directory: {self.workdir}
+              environment:
+                EBRO_ROOT: {self.workdir}
+              script: echo 'oh no' && exit 1
+              quiet: true
             :works:
-                working_directory: {self.workdir}
-                environment:
-                    EBRO_ROOT: {self.workdir}
-                script: echo hello
-                quiet: true
+              working_directory: {self.workdir}
+              environment:
+                EBRO_ROOT: {self.workdir}
+              script: echo hello
+              quiet: true
             """,
         )
 

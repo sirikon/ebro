@@ -33,7 +33,7 @@ func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
 
 	result, remains := taskDag.Resolve(targets)
 	if remains != nil {
-		remainsData, err := yaml.MarshalWithOptions(remains, yaml.Indent(4), yaml.IndentSequence(true))
+		remainsData, err := yaml.Marshal(remains)
 		if err != nil {
 			return nil, fmt.Errorf("planning could not complete. error while turning requirement index to yaml: %w", err)
 		}

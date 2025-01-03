@@ -10,68 +10,68 @@ class TestInheritance(EbroTestCase):
             stdout,
             f"""
             :b:
-                working_directory: {self.workdir}
-                environment:
-                    BAR: It's BAR
-                    EBRO_ROOT: {self.workdir}
-                    FOO: It's FOO
-                requires:
-                    - :d
-                    - :c
-                required_by:
-                    - :default
-                script: echo $BAR
-                when:
-                    check_fails: exit 2
-                    output_changes: echo test
+              working_directory: {self.workdir}
+              environment:
+                BAR: It's BAR
+                EBRO_ROOT: {self.workdir}
+                FOO: It's FOO
+              requires:
+              - :d
+              - :c
+              required_by:
+              - :default
+              script: echo $BAR
+              when:
+                check_fails: exit 2
+                output_changes: echo test
             :c:
-                working_directory: {self.workdir}
-                environment:
-                    EBRO_ROOT: {self.workdir}
-                script: echo "I'm C"
+              working_directory: {self.workdir}
+              environment:
+                EBRO_ROOT: {self.workdir}
+              script: echo "I'm C"
             :d:
-                working_directory: {self.workdir}
-                environment:
-                    EBRO_ROOT: {self.workdir}
-                script: echo "I'm D"
+              working_directory: {self.workdir}
+              environment:
+                EBRO_ROOT: {self.workdir}
+              script: echo "I'm D"
             :default:
-                working_directory: {self.workdir}
-                environment:
-                    EBRO_ROOT: {self.workdir}
-                script: echo Hello
+              working_directory: {self.workdir}
+              environment:
+                EBRO_ROOT: {self.workdir}
+              script: echo Hello
             :multi-c:
-                working_directory: {self.workdir}
-                environment:
-                    A: "1"
-                    B: "22"
-                    C: "3"
-                    D: "44"
-                    EBRO_ROOT: {self.workdir}
-                script: echo multi-b
-                quiet: true
+              working_directory: {self.workdir}
+              environment:
+                A: "1"
+                B: "22"
+                C: "3"
+                D: "44"
+                EBRO_ROOT: {self.workdir}
+              script: echo multi-b
+              quiet: true
             :y:
-                working_directory: {self.workdir}
-                environment:
-                    A: "1"
-                    B: "2"
-                    EBRO_ROOT: {self.workdir}
-                script: echo y
-                quiet: true
-                when:
-                    check_fails: exit 1
-                    output_changes: echo test2
+              working_directory: {self.workdir}
+              environment:
+                A: "1"
+                B: "2"
+                EBRO_ROOT: {self.workdir}
+              script: echo y
+              quiet: true
+              when:
+                check_fails: exit 1
+                output_changes: echo test2
             :z:
-                working_directory: {self.workdir}
-                environment:
-                    A: "1"
-                    B: "22"
-                    C: "3"
-                    EBRO_ROOT: {self.workdir}
-                script: echo z
-                quiet: false
-                when:
-                    check_fails: exit 1
-                    output_changes: echo test2
+              working_directory: {self.workdir}
+              environment:
+                A: "1"
+                B: "22"
+                C: "3"
+                EBRO_ROOT: {self.workdir}
+              script: echo z
+              quiet: false
+              when:
+                check_fails: exit 1
+                output_changes: echo test2
             """,
         )
 

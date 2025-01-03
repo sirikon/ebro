@@ -33,7 +33,7 @@ func main() {
 	}
 
 	if arguments.Command == cli.CommandInventory {
-		bytes, err := yaml.MarshalWithOptions(inv.Tasks, yaml.Indent(4), yaml.IndentSequence(true))
+		bytes, err := yaml.Marshal(inv.Tasks)
 		if err != nil {
 			cli.ExitWithError(err)
 		}

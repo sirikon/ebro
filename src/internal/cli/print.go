@@ -28,7 +28,7 @@ func PrintVersion() {
 		Commit:  constants.GetCommit(),
 		Date:    tm.UTC(),
 	}
-	bytes, err := yaml.MarshalWithOptions(data, yaml.Indent(4), yaml.IndentSequence(true))
+	bytes, err := yaml.Marshal(data)
 	if err != nil {
 		ExitWithError(err)
 	}
