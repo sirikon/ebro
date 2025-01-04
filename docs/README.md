@@ -281,7 +281,7 @@ Ebro's "API" in SemVer terms is composed of, but not limited to:
   - How task names are processed and referred to.
   - In which order are tasks executed.
 - The CLI **actions**, meaning how the machine state changes given a set of commands and flags.
-- The CLI **output** (stdout and stderr) of the `-version`, `-plan` and `-inventory` commands. These commands output an structured representation of data. New data could be added in the future, but existing data will remain the same. This doesn't apply to formatting, as it could change as long as it satisfies the output format specification.
+- The CLI **output** (stdout and stderr) of the `-version`, `-plan`, `-inventory` and `-list` commands. These commands output an structured representation of data. New data could be added in the future, but existing data will remain the same. This doesn't apply to formatting, as it could change as long as it satisfies the output format specification.
 
 Now, there are some things that are **NOT** considered part of the API and can change at any time, including but not limited to:
 
