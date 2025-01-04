@@ -4,22 +4,25 @@ from utils.common import EbroTestCase
 class TestPlan(EbroTestCase):
 
     def test_default_plan_is_correct(self):
-        exit_code, stdout = self.ebro("-plan")
-        self.assertEqual(exit_code, 0)
-        self.assertStdout(
-            stdout,
-            """
-            :apt:pre-config
-            :caddy:package-apt-config
-            :docker:package-apt-config
-            :apt:default
-            :caddy:package
-            :docker:package
-            :caddy:default
-            :docker:default
-            :default
-            """,
-        )
+        commands = ["-plan", "-p"]
+        for command in commands:
+            with self.subTest(command):
+                exit_code, stdout = self.ebro(command)
+                self.assertEqual(exit_code, 0)
+                self.assertStdout(
+                    stdout,
+                    """
+                    :apt:pre-config
+                    :caddy:package-apt-config
+                    :docker:package-apt-config
+                    :apt:default
+                    :caddy:package
+                    :docker:package
+                    :caddy:default
+                    :docker:default
+                    :default
+                    """,
+                )
 
     def test_plan_for_different_task_is_correct(self):
         exit_code, stdout = self.ebro("-plan", "farm:chicken")

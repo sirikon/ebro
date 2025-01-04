@@ -53,6 +53,9 @@ func printCommands() {
 			fmt.Print(" [" + color.MagentaString("targets") + "...]")
 		}
 		fmt.Println()
+		if command.ShortName != "" {
+			fmt.Println("    " + color.New(color.Italic, color.FgHiBlack).Sprint("or") + " -" + color.GreenString(command.ShortName))
+		}
 		fmt.Print(color.HiBlackString("    # "))
 		fmt.Print(command.Description)
 		fmt.Println()

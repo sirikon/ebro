@@ -29,6 +29,7 @@ var CommandRun = &Command{
 
 var CommandInventory = &Command{
 	Name:           "inventory",
+	ShortName:      "i",
 	Description:    "Display complete inventory of tasks with their definitive configuration in YAML format",
 	Flags:          []*Flag{FlagFile},
 	AcceptsTargets: false,
@@ -36,6 +37,7 @@ var CommandInventory = &Command{
 
 var CommandList = &Command{
 	Name:           "list",
+	ShortName:      "l",
 	Description:    "Display only the names of all the tasks in the inventory",
 	Flags:          []*Flag{FlagFile},
 	AcceptsTargets: false,
@@ -43,6 +45,7 @@ var CommandList = &Command{
 
 var CommandPlan = &Command{
 	Name:           "plan",
+	ShortName:      "p",
 	Description:    "Display the execution plan",
 	Flags:          []*Flag{FlagFile},
 	AcceptsTargets: true,
@@ -50,11 +53,13 @@ var CommandPlan = &Command{
 
 var CommandVersion = &Command{
 	Name:        "version",
+	ShortName:   "v",
 	Description: "Display ebro's version information in YAML format",
 }
 
 var CommandHelp = &Command{
 	Name:        "help",
+	ShortName:   "h",
 	Description: "Display this help message",
 }
 

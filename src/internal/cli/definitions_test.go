@@ -42,3 +42,28 @@ func TestFlagDefaultValuesHaveCorrectType(t *testing.T) {
 		}
 	}
 }
+
+func TestThereAreNoCommandOrFlagNameCollisions(t *testing.T) {
+	commandNames := map[string]bool{}
+	for _, command := range commands {
+		if _, ok := commandNames[command.Name]; ok {
+			t.Fatalf("Command name '%v' is repeated", command.Name)
+		}
+		commandNames[command.Name] = true
+
+		if command.Name != "" {
+			if _, ok := commandNames[command.ShortName]; ok {
+				t.Fatalf("Command name '%v' is repeated", command.ShortName)
+			}
+			commandNames[command.ShortName] = true
+		}
+
+		flagNames := map[string]bool{}
+		for _, flag := range command.Flags {
+			if _, ok := flagNames[flag.Name]; ok {
+				t.Fatalf("Flag name '%v' is repeated", flag.Name)
+			}
+			flagNames[flag.Name] = true
+		}
+	}
+}

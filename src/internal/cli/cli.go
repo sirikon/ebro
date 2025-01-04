@@ -30,7 +30,7 @@ func Parse() ExecutionArguments {
 	if matches := commandRe.FindStringSubmatch(args[0]); matches != nil {
 		args = args[1:]
 		receivedName := matches[1]
-		i := slices.IndexFunc(commands, func(c *Command) bool { return c.Name == receivedName })
+		i := slices.IndexFunc(commands, func(c *Command) bool { return c.Name == receivedName || c.ShortName == receivedName })
 		if i == -1 {
 			ExitWithError(errors.New("unknown command: " + receivedName))
 		}

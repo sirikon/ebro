@@ -19,6 +19,7 @@ type FlagValue struct {
 
 type Command struct {
 	Name           string
+	ShortName      string
 	Description    string
 	Flags          []*Flag
 	AcceptsTargets bool
