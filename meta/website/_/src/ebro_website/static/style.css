@@ -168,11 +168,16 @@ code {
 
 /* Codehilite */
 
-.codehilite pre {
+.codehilite {
   margin: var(--text-paragraph-spacing) 0;
-  padding: var(--text-paragraph-spacing);
+  display: flex;
   overflow-y: hidden;
   overflow-x: auto;
+}
+
+.codehilite pre {
+  margin: 0;
+  padding: var(--text-paragraph-spacing);
 }
 
 .codehilite code {
