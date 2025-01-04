@@ -136,6 +136,10 @@ code {
   margin: var(--text-paragraph-spacing) 0;
 }
 
+.x-body li > ul {
+  margin: 0;
+}
+
 /* ToC */
 
 .x-toc {
@@ -162,6 +166,11 @@ code {
 .x-changelog-content {
   margin: 0 var(--text-paragraph-spacing)
     calc(var(--text-paragraph-spacing) * 2) var(--text-paragraph-spacing);
+}
+
+/* Ebro Format */
+.x-ebro-format li > ul {
+  margin: var(--text-paragraph-spacing) 0;
 }
 
 /* Tip */

@@ -14,7 +14,7 @@ It's heavily inspired in [go-task/task](https://github.com/go-task/task), but or
 
 ## Getting started
 
-The format of Ebro.yaml files is defined [here](#the-ebroyaml-format). Here is an example:
+The format of `Ebro.yaml` files is defined [here](#the-ebroyaml-format). Here is an example:
 
 ```yaml
 tasks:
@@ -198,7 +198,7 @@ tasks:
     script: echo $FOO
 ```
 
-Now, running `ebro default child` has this output:
+Now, running `ebro default child` (targeting both `default` and `child` tasks) has this output:
 
 ```
 ███ [:child] running
@@ -207,11 +207,29 @@ foo
 Hello World
 ```
 
+We can see how the `child` task looks after the merging strategy is applied with `ebro -inventory`. It inherited `parent`'s `required_by` and `FOO` environment variable, but kept its own `script`.
+
+```yaml
+:child:
+  working_directory: /workdir
+  environment:
+    EBRO_ROOT: /workdir
+    FOO: foo
+  required_by:
+  - :default
+  script: echo $FOO
+:default:
+  working_directory: /workdir
+  environment:
+    EBRO_ROOT: /workdir
+  script: echo 'Hello World'
+```
+
 ## CLI
 
 Ebro's command line interface is very straightforward, but has a couple of general rules:
 
-- **Commands** define an specific action. At most, there is one command in a call. Absence of a command means the default command of "running". Commands are prefixed with a single hyphen (`-command`).
+- **Commands** define an specific action. At most, there is one command in a call. Absence of a command means the default command of _running_. Commands are prefixed with a single hyphen (`-command`).
 - **Flags** depend on the command being executed. Their mere presence can mean a boolean value (`true` or `false`) or be accompanyed with a value. Flags are prefixed with two hyphens (`--flag`).
 - **Targets** are the names of the tasks that we want to run. When no target is specified, the task `default` is assumed.
 
@@ -278,18 +296,19 @@ _Anything MAY change at any time. The public API SHOULD NOT be considered stable
 
 Ebro follows [SemVer](https://semver.org/), this means that it's important to clarify what the API is in Ebro, or, "the exposed parts that will only break compatibility on major version releases".
 
-Ebro's "API" in SemVer terms is composed of, but not limited to:
+Ebro's API in SemVer terms is composed of, but not limited to:
 
-- The `Ebro.yaml` specification. The main idea is that an `Ebro.yaml` file that worked on Ebro version `1.X.X` **MUST** work exactly the same on any future version under the `1.X.X` major release. This includes, but is not limited to:
+- The `Ebro.yaml` specification. The main idea is that an `Ebro.yaml` file that worked on Ebro version `1.x.x` **MUST** work exactly the same on any future version under the `1.x.x` major release. This includes, but is not limited to:
   - How `Ebro.yaml` is interpreted.
   - Environment variables added by Ebro during the execution.
+    - **New** environment variables prefixed with `EBRO_` **COULD** be added, and this would not be considered a breaking change.
   - How scripts are interpreted and executed.
   - How task names are processed and referred to.
   - In which order are tasks executed.
-- The CLI **actions**, meaning how the machine state changes given a set of commands and flags.
-- The CLI **output** (stdout and stderr) of the `-version`, `-plan`, `-inventory` and `-list` commands. These commands output an structured representation of data. New data could be added in the future, but existing data will remain the same. This doesn't apply to formatting, as it could change as long as it satisfies the output format specification.
+- The CLI **actions**, meaning how the machine state changes given an `Ebro.yaml` file and a set of commands and flags.
+  - How the internals of the `.ebro` directory operate **IS NOT** part of the API, and this could change at any time without being considered a breaking change.
+- The CLI **stdout output** (**NOT** stderr) of the `-version`, `-plan`, `-inventory` and `-list` commands. These commands output a structured representation of data. New data could be added in the future, but existing data will remain the same. This doesn't apply to formatting, as it could change as long as it satisfies the output format specification.
+  - The CLI stdout and stderr output of any other command apart from the ones explicitly mentioned above are **NOT** considered part of the API and could change at any time without it being considered a breaking change.
 
-Now, there are some things that are **NOT** considered part of the API and can change at any time, including but not limited to:
 
-- The CLI **output** of any other command apart from the ones explicitly mentioned above.
-- Unintended functionality that gets included in Ebro but is considered a bug afterwards. Bugs won't be kept for the sake of API stability and will be removed. If this was the case, a release including a combo of bugfix/breaking change will have proper instructions for updating affected `Ebro.yaml` files.
+Unintended functionality that gets included in Ebro but is considered a bug afterwards will **NOT** be considered part of the API. **Bugs won't be kept for the sake of API stability and will be removed**. If this was the case, a release including a bugfix that is also a breaking change will have proper instructions for updating any affected `Ebro.yaml` file.
