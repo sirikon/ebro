@@ -211,11 +211,11 @@ Hello World
 
 Ebro's command line interface is very straightforward, but has a couple of general rules:
 
-- **Commands** define an specific action. At most, there is one command in a call at most. Absence of a command means the default command of "running". Commands are prefixed with a single hyphen (`-command`).
+- **Commands** define an specific action. At most, there is one command in a call. Absence of a command means the default command of "running". Commands are prefixed with a single hyphen (`-command`).
 - **Flags** depend on the command being executed. Their mere presence can mean a boolean value (`true` or `false`) or be accompanyed with a value. Flags are prefixed with two hyphens (`--flag`).
 - **Targets** are the names of the tasks that we want to run. When no target is specified, the task `default` is assumed.
 
-To know Ebro's available commands with their flags and explanations, run `ebro -help` (or `ebrow -help` if using the workspace script).
+To know Ebro's available commands with their flags and explanations, run `ebro -help` (or `./ebrow -help` if using the workspace script).
 
 ```text
 ebro [--flags...] [targets...]
@@ -268,7 +268,13 @@ This is also available as a [JSON Schema](./schema.json).
 
 ## Versioning
 
-**NOTE**: Ebro is in version 0.x.x, which means that the API isn't stable and could change at any time.
+<div class="x-tip is-warning" markdown="1">
+
+⚠️ Ebro is in version **0.x.x**, which means that the API isn't stable and could change at any time. This is covered in [SemVer's 4th spec item](https://semver.org/#spec-item-4):
+
+_Anything MAY change at any time. The public API SHOULD NOT be considered stable._
+
+</div>
 
 Ebro follows [SemVer](https://semver.org/), this means that it's important to clarify what the API is in Ebro, or, "the exposed parts that will only break compatibility on major version releases".
 

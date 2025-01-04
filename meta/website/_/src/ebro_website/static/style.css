@@ -152,6 +152,9 @@ code {
   padding: 0 var(--text-paragraph-spacing);
   overflow: auto;
 }
+.x-tip.is-warning {
+  border: 3px dashed #ffa13d;
+}
 
 /* Anchor Link */
 
