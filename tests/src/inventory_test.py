@@ -117,6 +117,28 @@ class TestInventory(EbroTestCase):
             """,
         )
 
+    def test_list_is_correct(self):
+        exit_code, stdout = self.ebro("-list")
+        self.assertEqual(exit_code, 0)
+        self.assertStdout(
+            stdout,
+            f"""
+            :apt:default
+            :apt:pre-config
+            :caddy:default
+            :caddy:package
+            :caddy:package-apt-config
+            :default
+            :docker:default
+            :docker:package
+            :docker:package-apt-config
+            :farm:chicken
+            :farm:egg
+            :farm:tractor:default
+            :ignored
+            """,
+        )
+
     def test_inventory_with_absolute_workdir_is_correct(self):
         exit_code, stdout = self.ebro("-inventory", "--file", "Ebro.workdirs.yaml")
         self.assertEqual(exit_code, 0)

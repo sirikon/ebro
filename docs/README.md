@@ -228,7 +228,13 @@ ebro [--flags...] [targets...]
 
 
 ebro -inventory [--flags...]
-  # Display complete inventory of tasks with their definitive configuration
+  # Display complete inventory of tasks with their definitive configuration in YAML format
+  flags:
+    --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+
+
+ebro -list [--flags...]
+  # Display only the names of all the tasks in the inventory
   flags:
     --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
 
@@ -242,7 +248,7 @@ ebro -plan [--flags...] [targets...]
 
 
 ebro -version
-  # Display ebro's version
+  # Display ebro's version information in YAML format
 
 
 ebro -help

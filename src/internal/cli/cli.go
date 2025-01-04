@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"regexp"
 	"slices"
+	"strings"
 
 	"github.com/sirikon/ebro/internal/constants"
 	"github.com/sirikon/ebro/internal/logger"
@@ -70,7 +71,11 @@ func Parse() ExecutionArguments {
 	if len(args) > 0 {
 		result.Targets = []string{}
 		for _, arg := range args {
-			result.Targets = append(result.Targets, ":"+arg)
+			target := arg
+			if !strings.HasPrefix(target, ":") {
+				target = ":" + target
+			}
+			result.Targets = append(result.Targets, target)
 		}
 	}
 

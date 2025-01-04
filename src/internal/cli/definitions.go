@@ -34,6 +34,13 @@ var CommandInventory = &Command{
 	AcceptsTargets: false,
 }
 
+var CommandList = &Command{
+	Name:           "list",
+	Description:    "Display only the names of all the tasks in the inventory",
+	Flags:          []*Flag{FlagFile},
+	AcceptsTargets: false,
+}
+
 var CommandPlan = &Command{
 	Name:           "plan",
 	Description:    "Display the execution plan",
@@ -51,4 +58,4 @@ var CommandHelp = &Command{
 	Description: "Display this help message",
 }
 
-var commands = []*Command{CommandRun, CommandInventory, CommandPlan, CommandVersion, CommandHelp}
+var commands = []*Command{CommandRun, CommandInventory, CommandList, CommandPlan, CommandVersion, CommandHelp}
