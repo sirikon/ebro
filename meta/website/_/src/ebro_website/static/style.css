@@ -103,7 +103,6 @@ code {
 
 .x-body {
   padding: 0 var(--text-padding);
-  overflow: auto;
   background-color: var(--background-color);
 }
 
