@@ -1,10 +1,11 @@
 /* Variables */
 
 :root {
-  --text-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
-    Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-  --code-font: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-    Liberation Mono, monospace;
+  --text-font: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui,
+    helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial,
+    sans-serif;
+  --code-font: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Monaco,
+    Liberation Mono, Lucida Console, monospace;
   --body-vertical-margin: 1rem;
   --content-max-width: 900px;
   --title-font-size: 2rem;
