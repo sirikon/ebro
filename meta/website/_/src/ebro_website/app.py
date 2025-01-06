@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import json
 import re
 from os import getcwd
@@ -9,6 +10,8 @@ from markdown import Markdown
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
 from markdown.postprocessors import Postprocessor
+
+NOW = int(datetime.now(timezone.utc).timestamp())
 
 
 class RemoveElementsProcessor(Treeprocessor):
@@ -88,6 +91,7 @@ MENU = [
 @app.context_processor
 def global_variables():
     return {
+        "NOW": NOW,
         "MENU": MENU,
     }
 
