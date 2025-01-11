@@ -6,10 +6,10 @@ tasks:
     script: echo "Running"
     when:
       output_changes: echo hello
-      check_fails: exit 0
+      check_fails: echo 'this should not be seen' && exit 0
 
   always_fails:
     script: echo "Running"
     when:
       output_changes: echo hello
-      check_fails: exit 1
+      check_fails: echo 'this should not be seen' && exit 1

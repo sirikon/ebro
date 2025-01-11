@@ -1,0 +1,6 @@
+environment:
+  MESSAGE: "$(pwd)"
+
+tasks:
+  default:
+    script: echo $MESSAGE

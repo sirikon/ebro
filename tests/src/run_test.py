@@ -149,3 +149,13 @@ class TestRun(EbroTestCase):
             ███ [:default] satisfied
             """,
         )
+
+    def test_cmd_exec_in_env_is_not_allowed(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.fail_on_env_cmd.yaml")
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ ERROR: processing module file in {self.workdir}/Ebro.fail_on_env_cmd.yaml: processing module: expanding module environment: expanding $(pwd): unexpected command substitution at 1:1
+            """,
+        )

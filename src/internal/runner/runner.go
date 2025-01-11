@@ -41,9 +41,11 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 				if err != nil {
 					return fmt.Errorf("running task %v when.check_fails: %w", taskName, err)
 				}
-				outputWriter.Flush()
+				err = outputWriter.Flush()
+				if err != nil {
+					return fmt.Errorf("running task %v when.check_fails: flushing writer: %w", taskName, err)
+				}
 				if status > 0 {
-					fmt.Print(output.String())
 					skip = false
 				}
 			}
@@ -55,7 +57,10 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 				if err != nil {
 					return fmt.Errorf("running task %v when.output_changes: %w", taskName, err)
 				}
-				outputWriter.Flush()
+				err = outputWriter.Flush()
+				if err != nil {
+					return fmt.Errorf("running task %v when.check_fails: flushing writer: %w", taskName, err)
+				}
 				if status > 0 {
 					return fmt.Errorf("task %v when.output_changes returned status code %v. here is the output:\n%v", taskName, status, output.String())
 				}
