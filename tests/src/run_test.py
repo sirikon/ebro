@@ -150,6 +150,21 @@ class TestRun(EbroTestCase):
             """,
         )
 
+    def test_env_interpolation_works_with_external_env_vars(self):
+        exit_code, stdout = self.ebro(
+            "--file",
+            "Ebro.env.yaml",
+            env=dict(EXTERNAL_MESSAGE="This is the external message"),
+        )
+        self.assertEqual(exit_code, 0)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:default] running
+            This is the external message
+            """,
+        )
+
     def test_cmd_exec_in_env_is_not_allowed(self):
         exit_code, stdout = self.ebro("--file", "Ebro.fail_on_env_cmd.yaml")
         self.assertEqual(exit_code, 1)
