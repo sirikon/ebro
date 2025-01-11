@@ -4,4 +4,4 @@
 
 ## Miscellanea
 
-- Now the output of failing `check_fails` executions isn't printed to stdout.
+- Now the output `check_fails` executions is never printed to stdout.
