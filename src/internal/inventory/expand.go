@@ -24,9 +24,6 @@ func expandMergeEnvs(envs ...map[string]string) (map[string]string, error) {
 		envKeys := slices.Collect(maps.Keys(env))
 		slices.Sort(envKeys)
 		for _, key := range envKeys {
-			if i == len(envs) {
-				result[key] = env[key]
-			}
 			expandedValue, err := expandString(env[key], parentEnv)
 			if err != nil {
 				return nil, fmt.Errorf("expanding %v: %w", env[key], err)

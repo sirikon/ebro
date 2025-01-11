@@ -12,6 +12,17 @@ tasks:
     working_directory: other/relative
     script: echo "Hello from the other relative side!"
 
+  abstract:
+    abstract: true
+    working_directory: abstract
+    environment:
+      ABSTRACT_WORKING_DIRECTORY: "${EBRO_TASK_WORKING_DIRECTORY}"
+
+  child:
+    extends: [abstract]
+    working_directory: child
+    script: echo $ABSTRACT_WORKING_DIRECTORY
+
 modules:
   submodule:
     working_directory: submodule

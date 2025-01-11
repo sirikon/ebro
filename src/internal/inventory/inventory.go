@@ -58,7 +58,10 @@ func MakeInventory(arguments cli.ExecutionArguments) (Inventory, error) {
 
 	for _, taskName := range inheritanceOrder {
 		task := inv.Tasks[taskName]
-		envsToMerge := [](map[string]string){task.Environment}
+		envsToMerge := [](map[string]string){
+			task.Environment,
+			map[string]string{"EBRO_TASK_WORKING_DIRECTORY": task.WorkingDirectory},
+		}
 		parentTasks := slices.Clone(task.Extends)
 		slices.Reverse(parentTasks)
 		for _, parentTaskName := range parentTasks {

@@ -14,6 +14,7 @@ class TestInheritance(EbroTestCase):
               environment:
                 BAR: It's BAR
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                 FOO: It's FOO
               requires:
               - :d
@@ -28,16 +29,19 @@ class TestInheritance(EbroTestCase):
               working_directory: {self.workdir}
               environment:
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo "I'm C"
             :d:
               working_directory: {self.workdir}
               environment:
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo "I'm D"
             :default:
               working_directory: {self.workdir}
               environment:
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo Hello
             :multi-c:
               working_directory: {self.workdir}
@@ -47,6 +51,7 @@ class TestInheritance(EbroTestCase):
                 C: "3"
                 D: "44"
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo multi-b
               quiet: true
             :y:
@@ -55,6 +60,7 @@ class TestInheritance(EbroTestCase):
                 A: "1"
                 B: "2"
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo y
               quiet: true
               when:
@@ -67,6 +73,7 @@ class TestInheritance(EbroTestCase):
                 B: "22"
                 C: "3"
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo z
               quiet: false
               when:
