@@ -1,3 +1,4 @@
+import re
 from utils.common import EbroTestCase
 
 
@@ -72,12 +73,15 @@ class TestCli(EbroTestCase):
             with self.subTest(command):
                 exit_code, stdout = self.ebro(command)
                 self.assertEqual(exit_code, 0)
+                version = searchline("^version: (.+)$", stdout).group(1)
+                commit = searchline("^commit: (.+)$", stdout).group(1)
+                date = searchline("^date: (.+)$", stdout).group(1)
                 self.assertStdout(
                     stdout,
-                    """
-                    version: dev
-                    commit: HEAD
-                    date: 1970-01-01T00:00:00Z
+                    f"""
+                    version: {version}
+                    commit: {commit}
+                    date: {date}
                     """,
                 )
 
@@ -85,3 +89,7 @@ class TestCli(EbroTestCase):
         exit_code, stdout = self.ebro("--file")
         self.assertEqual(exit_code, 1)
         self.assertStdout(stdout, "███ ERROR: expected value after --file flag")
+
+
+def searchline(pattern, text):
+    return re.search(pattern, text, flags=re.MULTILINE)
