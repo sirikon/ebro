@@ -113,9 +113,9 @@ func processModule(inv Inventory, module *config.Module, moduleTrail []string, e
 			task.WorkingDirectory = path.Join(module.WorkingDirectory, task.WorkingDirectory)
 		}
 
-		taskReference := config.MakeTaskReference(append(moduleTrail, taskName))
-		inv.Tasks[taskReference.PathString()] = task
-		inv.taskModuleIndex[taskReference.PathString()] = module
+		taskId := config.TaskId{ModuleTrail: moduleTrail, TaskName: taskName}
+		inv.Tasks[taskId.String()] = task
+		inv.taskModuleIndex[taskId.String()] = module
 	}
 
 	alreadyProcessedModules := make(map[string]bool)

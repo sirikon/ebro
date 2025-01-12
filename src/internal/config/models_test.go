@@ -32,7 +32,7 @@ func TestModuleGetTaskWorks(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		result := module.GetTask(taskReference)
+		_, result := module.GetTask(taskReference)
 		if result != testCase.expected {
 			t.Fatalf("Not the same object: \n%v\n%v", testCase.expected, result)
 		}

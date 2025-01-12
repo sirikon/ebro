@@ -6,18 +6,22 @@ import (
 	"strings"
 )
 
+type TaskId struct {
+	ModuleTrail []string
+	TaskName    string
+}
+
+func (tid TaskId) String() string {
+	chunks := []string{""}
+	chunks = append(chunks, tid.ModuleTrail...)
+	chunks = append(chunks, tid.TaskName)
+	return strings.Join(chunks, ":")
+}
+
 type TaskReference struct {
 	Path       []string
 	IsRelative bool
 	IsOptional bool
-}
-
-func MakeTaskReference(path []string) TaskReference {
-	return TaskReference{
-		Path:       path,
-		IsRelative: false,
-		IsOptional: false,
-	}
 }
 
 func ParseTaskReference(text string) (TaskReference, error) {
@@ -79,4 +83,43 @@ func (tp TaskReference) String() string {
 		chunks = append(chunks, "?")
 	}
 	return strings.Join(chunks, "")
+}
+
+func (m *Module) GetTask(taskReference TaskReference) (*TaskId, *Task) {
+	if taskReference.IsRelative {
+		panic("cannot call getTask with a relative taskPath")
+	}
+
+	moduleTrail := []string{}
+	currentModule := m
+	for i, part := range taskReference.Path {
+		if i >= (len(taskReference.Path) - 1) {
+			module, ok := currentModule.Modules[part]
+			if ok {
+				if task, ok := module.Tasks["default"]; ok {
+					return &TaskId{
+						ModuleTrail: append(moduleTrail, part),
+						TaskName:    "default",
+					}, task
+				}
+			} else {
+				if task, ok := currentModule.Tasks[part]; ok {
+					return &TaskId{
+						ModuleTrail: moduleTrail,
+						TaskName:    part,
+					}, task
+				}
+			}
+		} else {
+			module, ok := currentModule.Modules[part]
+			if ok {
+				moduleTrail = append(moduleTrail, part)
+				currentModule = module
+			} else {
+				return nil, nil
+			}
+		}
+	}
+
+	return nil, nil
 }

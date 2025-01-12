@@ -29,34 +29,3 @@ type Import struct {
 	From        string            `yaml:"from,omitempty"`
 	Environment map[string]string `yaml:"environment,omitempty"`
 }
-
-func (m *Module) GetTask(taskReference TaskReference) *Task {
-	if taskReference.IsRelative {
-		panic("cannot call getTask with a relative taskPath")
-	}
-
-	currentModule := m
-	for i, part := range taskReference.Path {
-		if i >= (len(taskReference.Path) - 1) {
-			module, ok := currentModule.Modules[part]
-			if ok {
-				if task, ok := module.Tasks["default"]; ok {
-					return task
-				}
-			} else {
-				if task, ok := currentModule.Tasks[part]; ok {
-					return task
-				}
-			}
-		} else {
-			module, ok := currentModule.Modules[part]
-			if ok {
-				currentModule = module
-			} else {
-				return nil
-			}
-		}
-	}
-
-	return nil
-}

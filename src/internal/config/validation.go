@@ -2,6 +2,9 @@ package config
 
 import (
 	"fmt"
+	"maps"
+	"slices"
+	"strings"
 )
 
 type rootModuleValidationContext struct {
@@ -16,14 +19,22 @@ func ValidateRootModule(module *Module) error {
 }
 
 func (ctx *rootModuleValidationContext) validateModule(module *Module, moduleTrail []string) error {
-	for taskName, task := range module.Tasks {
+	taskNames := slices.Collect(maps.Keys(module.Tasks))
+	slices.Sort(taskNames)
+
+	for _, taskName := range taskNames {
+		task := module.Tasks[taskName]
 		err := ctx.validateTask(task, moduleTrail)
 		if err != nil {
 			return fmt.Errorf("validating task %v: %w", taskName, err)
 		}
 	}
 
-	for moduleName, module := range module.Modules {
+	moduleNames := slices.Collect(maps.Keys(module.Modules))
+	slices.Sort(moduleNames)
+
+	for _, moduleName := range moduleNames {
+		module := module.Modules[moduleName]
 		err := ctx.validateModule(module, append(moduleTrail, moduleName))
 		if err != nil {
 			return fmt.Errorf("validating module %v: %w", moduleName, err)
@@ -44,9 +55,12 @@ func (ctx *rootModuleValidationContext) validateTask(task *Task, moduleTrail []s
 			return fmt.Errorf("parsing reference %v in requires: %w", taskReferenceString, err)
 		}
 
-		requitedTask := ctx.rootModule.GetTask(taskReference.Absolute(moduleTrail))
-		if requitedTask == nil && !taskReference.IsOptional {
-			return fmt.Errorf("required task %v does not exist", taskReference.PathString())
+		err = ctx.checkReferenceChain(taskReference.Absolute(moduleTrail), []string{})
+		if err != nil {
+			if _, ok := err.(TaskNotFoundError); ok && taskReference.IsOptional {
+				continue
+			}
+			return fmt.Errorf("checking reference chain: %w", err)
 		}
 	}
 
@@ -58,9 +72,64 @@ func (ctx *rootModuleValidationContext) validateTask(task *Task, moduleTrail []s
 	}
 
 	for _, taskReferenceString := range task.Extends {
-		_, err := ParseTaskReference(taskReferenceString)
+		taskReference, err := ParseTaskReference(taskReferenceString)
 		if err != nil {
 			return fmt.Errorf("parsing reference %v in extends: %w", taskReferenceString, err)
+		}
+
+		err = ctx.checkReferenceChain(taskReference.Absolute(moduleTrail), []string{})
+		if err != nil {
+			if _, ok := err.(TaskNotFoundError); ok && taskReference.IsOptional {
+				continue
+			}
+			return fmt.Errorf("checking reference chain: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func (ctx *rootModuleValidationContext) checkReferenceChain(taskReference TaskReference, idTrail []string) error {
+	taskId, task := ctx.rootModule.GetTask(taskReference)
+	if taskId == nil {
+		return NewTaskNotFoundError(taskReference)
+	}
+
+	if slices.Contains(idTrail, taskId.String()) {
+		return fmt.Errorf("cyclic reference detected:\n%v", strings.Join(append(idTrail, taskId.String()), " -> "))
+	}
+	newIdTrail := append(idTrail, taskId.String())
+
+	for _, taskReferenceString := range task.Requires {
+		taskReference, err := ParseTaskReference(taskReferenceString)
+		if err != nil {
+			return fmt.Errorf("parsing task reference %v: %w", taskReferenceString, err)
+		}
+
+		if err = ctx.checkReferenceChain(taskReference.Absolute(taskId.ModuleTrail), newIdTrail); err != nil {
+			return err
+		}
+	}
+
+	for _, taskReferenceString := range task.RequiredBy {
+		taskReference, err := ParseTaskReference(taskReferenceString)
+		if err != nil {
+			return fmt.Errorf("parsing task reference %v: %w", taskReferenceString, err)
+		}
+
+		if err = ctx.checkReferenceChain(taskReference.Absolute(taskId.ModuleTrail), newIdTrail); err != nil {
+			return err
+		}
+	}
+
+	for _, taskReferenceString := range task.Extends {
+		taskReference, err := ParseTaskReference(taskReferenceString)
+		if err != nil {
+			return fmt.Errorf("parsing task reference %v: %w", taskReferenceString, err)
+		}
+
+		if err = ctx.checkReferenceChain(taskReference.Absolute(taskId.ModuleTrail), newIdTrail); err != nil {
+			return err
 		}
 	}
 
