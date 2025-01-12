@@ -12,40 +12,60 @@ import (
 )
 
 func ParseModule(modulePath string) (*Module, error) {
-	module := Module{}
+	module := &Module{}
 
 	body, err := os.ReadFile(modulePath)
 	if err != nil {
 		return nil, fmt.Errorf("reading module file: %w", err)
 	}
 
-	err = yaml.UnmarshalWithOptions(body, &module, yaml.DisallowUnknownField())
+	err = yaml.UnmarshalWithOptions(body, module, yaml.DisallowUnknownField())
 	if err != nil {
 		return nil, fmt.Errorf("unmarshalling module file: %w", err)
 	}
 
+	processModule(module, path.Dir(modulePath))
+
+	return module, nil
+}
+
+func processModule(module *Module, workingDirectory string) error {
+	if module.Modules == nil {
+		module.Modules = make(map[string]*Module)
+	}
+
+	if module.WorkingDirectory == "" {
+		module.WorkingDirectory = workingDirectory
+	} else if !path.IsAbs(module.WorkingDirectory) {
+		module.WorkingDirectory = path.Join(workingDirectory, module.WorkingDirectory)
+	}
+
 	for importName, importObj := range module.Imports {
 		if _, ok := module.Modules[importName]; ok {
-			return nil, fmt.Errorf("cannot process import %v because there is already a module called %v", importName, importName)
+			return fmt.Errorf("cannot process import %v because there is already a module called %v", importName, importName)
 		}
 
-		importPath, err := SourceModule(path.Dir(modulePath), importObj.From)
+		importPath, err := sourceModule(module.WorkingDirectory, importObj.From)
 		if err != nil {
-			return nil, fmt.Errorf("parsing import.from %v: %w", importObj.From, err)
+			return fmt.Errorf("parsing import.from %v: %w", importObj.From, err)
 		}
 
 		submodule, err := ParseModule(path.Join(importPath, constants.DefaultFile))
 		if err != nil {
-			return nil, fmt.Errorf("parsing import %v: %w", importName, err)
+			return fmt.Errorf("parsing import %v: %w", importName, err)
 		}
 
 		module.Modules[importName] = submodule
 	}
 
-	return &module, nil
+	for _, submodule := range module.Modules {
+		processModule(submodule, module.WorkingDirectory)
+	}
+
+	return nil
 }
 
-func SourceModule(base string, from string) (string, error) {
+func sourceModule(base string, from string) (string, error) {
 	for _, source := range sources.Sources {
 		match, err := source.Match(from)
 		if err != nil {

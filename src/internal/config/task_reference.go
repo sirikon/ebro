@@ -64,14 +64,16 @@ func (tp TaskReference) Absolute(parentPath []string) TaskReference {
 }
 
 func (tp TaskReference) PathString() string {
-	return strings.Join(tp.Path, ":")
-}
-
-func (tp TaskReference) String() string {
 	chunks := []string{}
 	if !tp.IsRelative {
 		chunks = append(chunks, ":")
 	}
+	chunks = append(chunks, strings.Join(tp.Path, ":"))
+	return strings.Join(chunks, "")
+}
+
+func (tp TaskReference) String() string {
+	chunks := []string{}
 	chunks = append(chunks, tp.PathString())
 	if tp.IsOptional {
 		chunks = append(chunks, "?")

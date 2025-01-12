@@ -217,7 +217,7 @@ class TestInventory(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: processing module file in {self.workdir}/Ebro.fail_when_nothing_to_do.yaml: processing module: task default failed validation: task has nothing to do (no requires, script, extends nor abstract)
+            ███ ERROR: validating task default: task has nothing to do (no requires, script, extends nor abstract)
             """,
         )
 
@@ -229,7 +229,7 @@ class TestInventory(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: processing module file in {self.workdir}/Ebro.unknown_properties.yaml: parsing module: unmarshalling module file: [1:1] unknown field "import"
+            ███ ERROR: unmarshalling module file: [1:1] unknown field "import"
             >  1 | import:
                    ^
                2 |   apt:

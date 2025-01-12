@@ -12,7 +12,7 @@ func ValidateRootModule(module *Module) error {
 	ctx := rootModuleValidationContext{
 		rootModule: module,
 	}
-	return ctx.validateModule(ctx.rootModule)
+	return ctx.validateModule(ctx.rootModule, []string{})
 }
 
 func (ctx *rootModuleValidationContext) validateModule(module *Module, moduleTrail []string) error {

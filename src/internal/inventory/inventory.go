@@ -93,12 +93,6 @@ func processModule(inv Inventory, module *config.Module, moduleTrail []string, e
 	}
 	module.Environment = moduleEnvironment
 
-	if module.WorkingDirectory == "" {
-		module.WorkingDirectory = workingDirectory
-	} else if !path.IsAbs(module.WorkingDirectory) {
-		module.WorkingDirectory = path.Join(workingDirectory, module.WorkingDirectory)
-	}
-
 	for taskName, task := range module.Tasks {
 		for i, t := range task.Requires {
 			ref, _ := config.ParseTaskReference(t)
@@ -124,27 +118,13 @@ func processModule(inv Inventory, module *config.Module, moduleTrail []string, e
 		inv.taskModuleIndex[taskReference.PathString()] = module
 	}
 
-	// for importName, importObj := range module.Imports {
-	// 	importEnvironment, err := expandMergeEnvs(importObj.Environment, module.Environment)
-	// 	if err != nil {
-	// 		return fmt.Errorf("expanding import %v environment: %w", importName, err)
-	// 	}
-
-	// 	expandedFrom, err := expandString(importObj.From, module.Environment)
-	// 	if err != nil {
-	// 		return fmt.Errorf("expanding import from %v: %w", importObj.From, err)
-	// 	}
-
-	// 	importModulePath, err := config.SourceModule(workingDirectory, expandedFrom)
-	// 	if err != nil {
-	// 		return fmt.Errorf("parsing import %v: %w", expandedFrom, err)
-	// 	}
-
-	// 	err = processModuleFile(inv, path.Join(importModulePath, constants.DefaultFile), append(moduleNameTrail, importName), importEnvironment)
-	// 	if err != nil {
-	// 		return fmt.Errorf("processing import %v: %w", importName, err)
-	// 	}
-	// }
+	for importName, importObj := range module.Imports {
+		mergedEnv, err := expandMergeEnvs(module.Modules[importName].Environment, importObj.Environment, module.Environment)
+		if err != nil {
+			return fmt.Errorf("expanding import %v environment: %w", importName, err)
+		}
+		module.Modules[importName].Environment = mergedEnv
+	}
 
 	for submoduleName, submodule := range module.Modules {
 		submoduleEnvironment, err := expandMergeEnvs(submodule.Environment, module.Environment)

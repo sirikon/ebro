@@ -171,6 +171,6 @@ class TestRun(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: processing module file in {self.workdir}/Ebro.fail_on_env_cmd.yaml: processing module: expanding module environment: expanding $(pwd): unexpected command substitution at 1:1
+            ███ ERROR: processing module: expanding module environment: expanding $(pwd): unexpected command substitution at 1:1
             """,
         )

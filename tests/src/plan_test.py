@@ -67,6 +67,6 @@ class TestPlan(EbroTestCase):
         self.assertStdout(
             stdout,
             """
-            ███ ERROR: checking references in 'requires' for task :default: referenced task :nonexistent does not exist
+            ███ ERROR: validating task default: required task nonexistent does not exist
             """,
         )
