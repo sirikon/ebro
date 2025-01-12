@@ -5,7 +5,6 @@ import (
 	"os"
 	"path"
 	"slices"
-	"strings"
 
 	"github.com/sirikon/ebro/internal/config"
 )
@@ -35,21 +34,6 @@ func MakeInventory(module *config.Module) (Inventory, error) {
 		NormalizeTaskNames(inv, task.Requires)
 		NormalizeTaskNames(inv, task.RequiredBy)
 		NormalizeTaskNames(inv, task.Extends)
-	}
-
-	for taskName, task := range inv.Tasks {
-		err := validateReferences(inv, task.Requires...)
-		if err != nil {
-			return inv, fmt.Errorf("checking references in 'requires' for task %v: %w", taskName, err)
-		}
-		err = validateReferences(inv, task.RequiredBy...)
-		if err != nil {
-			return inv, fmt.Errorf("checking references in 'required_by' for task %v: %w", taskName, err)
-		}
-		err = validateReferences(inv, task.Extends...)
-		if err != nil {
-			return inv, fmt.Errorf("checking references in 'extends' for task %v: %w", taskName, err)
-		}
 	}
 
 	inheritanceOrder, err := resolveInheritanceOrder(inv)
@@ -102,15 +86,7 @@ func normalizeTaskName(inv Inventory, taskName string) string {
 	return taskName
 }
 
-func processModule(inv Inventory, module *config.Module, moduleNameTrail []string, environment map[string]string, workingDirectory string) error {
-	taskPrefix := ":" + strings.Join(append(moduleNameTrail, ""), ":")
-	makeTaskNameAbsolute := func(taskName string) string {
-		if !strings.HasPrefix(taskName, ":") {
-			return taskPrefix + taskName
-		}
-		return taskName
-	}
-
+func processModule(inv Inventory, module *config.Module, moduleTrail []string, environment map[string]string, workingDirectory string) error {
 	moduleEnvironment, err := expandMergeEnvs(module.Environment, environment)
 	if err != nil {
 		return fmt.Errorf("expanding module environment: %w", err)
@@ -124,19 +100,17 @@ func processModule(inv Inventory, module *config.Module, moduleNameTrail []strin
 	}
 
 	for taskName, task := range module.Tasks {
-		taskAbsoluteName := taskPrefix + taskName
-		if _, ok := inv.Tasks[taskAbsoluteName]; ok {
-			return fmt.Errorf("task %v (defined as %v) is already present in the inventory", taskAbsoluteName, taskName)
-		}
-
 		for i, t := range task.Requires {
-			task.Requires[i] = makeTaskNameAbsolute(t)
+			ref, _ := config.ParseTaskReference(t)
+			task.Requires[i] = ref.Absolute(moduleTrail).String()
 		}
 		for i, t := range task.RequiredBy {
-			task.RequiredBy[i] = makeTaskNameAbsolute(t)
+			ref, _ := config.ParseTaskReference(t)
+			task.RequiredBy[i] = ref.Absolute(moduleTrail).String()
 		}
 		for i, t := range task.Extends {
-			task.Extends[i] = makeTaskNameAbsolute(t)
+			ref, _ := config.ParseTaskReference(t)
+			task.Extends[i] = ref.Absolute(moduleTrail).String()
 		}
 
 		if task.WorkingDirectory == "" {
@@ -145,8 +119,9 @@ func processModule(inv Inventory, module *config.Module, moduleNameTrail []strin
 			task.WorkingDirectory = path.Join(module.WorkingDirectory, task.WorkingDirectory)
 		}
 
-		inv.Tasks[taskAbsoluteName] = task
-		inv.taskModuleIndex[taskAbsoluteName] = module
+		taskReference := config.MakeTaskReference(append(moduleTrail, taskName))
+		inv.Tasks[taskReference.PathString()] = task
+		inv.taskModuleIndex[taskReference.PathString()] = module
 	}
 
 	// for importName, importObj := range module.Imports {
@@ -177,20 +152,11 @@ func processModule(inv Inventory, module *config.Module, moduleNameTrail []strin
 			return fmt.Errorf("expanding module %v environment: %w", submoduleName, err)
 		}
 
-		err = processModule(inv, submodule, append(moduleNameTrail, submoduleName), submoduleEnvironment, module.WorkingDirectory)
+		err = processModule(inv, submodule, append(moduleTrail, submoduleName), submoduleEnvironment, module.WorkingDirectory)
 		if err != nil {
 			return fmt.Errorf("processing module %v: %w", submoduleName, err)
 		}
 	}
 
-	return nil
-}
-
-func validateReferences(inv Inventory, taskNames ...string) error {
-	for _, taskName := range taskNames {
-		if _, ok := inv.Tasks[taskName]; !ok {
-			return fmt.Errorf("referenced task %v does not exist", taskName)
-		}
-	}
 	return nil
 }

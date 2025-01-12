@@ -36,8 +36,8 @@ func (m *Module) GetTask(taskReference TaskReference) *Task {
 	}
 
 	currentModule := m
-	for i, part := range taskReference.Parts {
-		if i >= (len(taskReference.Parts) - 1) {
+	for i, part := range taskReference.Path {
+		if i >= (len(taskReference.Path) - 1) {
 			module, ok := currentModule.Modules[part]
 			if ok {
 				if task, ok := module.Tasks["default"]; ok {

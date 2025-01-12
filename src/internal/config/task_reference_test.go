@@ -43,22 +43,22 @@ func TestParseTaskReferenceWorks(t *testing.T) {
 		expected TaskReference
 	}{
 		{"default", TaskReference{
-			Parts:      []string{"default"},
+			Path:       []string{"default"},
 			IsRelative: true,
 			IsOptional: false,
 		}},
 		{"docker:bin", TaskReference{
-			Parts:      []string{"docker", "bin"},
+			Path:       []string{"docker", "bin"},
 			IsRelative: true,
 			IsOptional: false,
 		}},
 		{"docker:package:default?", TaskReference{
-			Parts:      []string{"docker", "package", "default"},
+			Path:       []string{"docker", "package", "default"},
 			IsRelative: true,
 			IsOptional: true,
 		}},
 		{":docker:package?", TaskReference{
-			Parts:      []string{"docker", "package"},
+			Path:       []string{"docker", "package"},
 			IsRelative: false,
 			IsOptional: true,
 		}},
@@ -78,40 +78,40 @@ func TestParseTaskReferenceWorks(t *testing.T) {
 func TesTaskReferenceAbsoluteWorks(t *testing.T) {
 	testCases := []struct {
 		TaskReference TaskReference
-		parts         []string
+		path          []string
 		expected      TaskReference
 	}{
 		{TaskReference{
-			Parts:      []string{"default"},
+			Path:       []string{"default"},
 			IsRelative: true,
 			IsOptional: true,
 		}, []string{}, TaskReference{
-			Parts:      []string{"default"},
+			Path:       []string{"default"},
 			IsRelative: false,
 			IsOptional: true,
 		}},
 		{TaskReference{
-			Parts:      []string{"default"},
+			Path:       []string{"default"},
 			IsRelative: true,
 			IsOptional: true,
 		}, []string{"docker"}, TaskReference{
-			Parts:      []string{"docker", "default"},
+			Path:       []string{"docker", "default"},
 			IsRelative: false,
 			IsOptional: true,
 		}},
 		{TaskReference{
-			Parts:      []string{"default"},
+			Path:       []string{"default"},
 			IsRelative: false,
 			IsOptional: true,
 		}, []string{"docker"}, TaskReference{
-			Parts:      []string{"default"},
+			Path:       []string{"default"},
 			IsRelative: false,
 			IsOptional: true,
 		}},
 	}
 
 	for _, testCase := range testCases {
-		result := testCase.TaskReference.Absolute(testCase.parts)
+		result := testCase.TaskReference.Absolute(testCase.path)
 		if !reflect.DeepEqual(testCase.expected, result) {
 			t.Fatalf("Not deeply equal: \n%v\n%v", testCase.expected, result)
 		}

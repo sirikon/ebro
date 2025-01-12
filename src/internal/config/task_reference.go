@@ -7,14 +7,22 @@ import (
 )
 
 type TaskReference struct {
-	Parts      []string
+	Path       []string
 	IsRelative bool
 	IsOptional bool
 }
 
+func MakeTaskReference(path []string) TaskReference {
+	return TaskReference{
+		Path:       path,
+		IsRelative: false,
+		IsOptional: false,
+	}
+}
+
 func ParseTaskReference(text string) (TaskReference, error) {
 	result := TaskReference{
-		Parts:      []string{},
+		Path:       []string{},
 		IsRelative: true,
 		IsOptional: false,
 	}
@@ -38,25 +46,25 @@ func ParseTaskReference(text string) (TaskReference, error) {
 		result.IsOptional = true
 	}
 
-	result.Parts = strings.Split(text, ":")
+	result.Path = strings.Split(text, ":")
 
 	return result, nil
 }
 
-func (tp TaskReference) Absolute(parts []string) TaskReference {
+func (tp TaskReference) Absolute(parentPath []string) TaskReference {
 	if !tp.IsRelative {
 		return tp
 	}
 
 	return TaskReference{
-		Parts:      append(parts, tp.Parts...),
+		Path:       append(parentPath, tp.Path...),
 		IsRelative: false,
 		IsOptional: tp.IsOptional,
 	}
 }
 
-func (tp TaskReference) PartsString() string {
-	return strings.Join(tp.Parts, ":")
+func (tp TaskReference) PathString() string {
+	return strings.Join(tp.Path, ":")
 }
 
 func (tp TaskReference) String() string {
@@ -64,7 +72,7 @@ func (tp TaskReference) String() string {
 	if !tp.IsRelative {
 		chunks = append(chunks, ":")
 	}
-	chunks = append(chunks, tp.PartsString())
+	chunks = append(chunks, tp.PathString())
 	if tp.IsOptional {
 		chunks = append(chunks, "?")
 	}

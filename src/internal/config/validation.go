@@ -15,15 +15,15 @@ func ValidateRootModule(module *Module) error {
 	return ctx.validateModule(ctx.rootModule)
 }
 
-func (ctx *rootModuleValidationContext) validateModule(module *Module) error {
+func (ctx *rootModuleValidationContext) validateModule(module *Module, moduleTrail []string) error {
 	for taskName, task := range module.Tasks {
-		err := ctx.validateTask(task)
+		err := ctx.validateTask(task, moduleTrail)
 		if err != nil {
 			return fmt.Errorf("validating task %v: %w", taskName, err)
 		}
 	}
 	for moduleName, module := range module.Modules {
-		err := ctx.validateModule(module)
+		err := ctx.validateModule(module, append(moduleTrail, moduleName))
 		if err != nil {
 			return fmt.Errorf("validating module %v: %w", moduleName, err)
 		}
@@ -31,7 +31,7 @@ func (ctx *rootModuleValidationContext) validateModule(module *Module) error {
 	return nil
 }
 
-func (ctx *rootModuleValidationContext) validateTask(task *Task) error {
+func (ctx *rootModuleValidationContext) validateTask(task *Task, moduleTrail []string) error {
 	if len(task.Requires) == 0 && task.Script == "" && len(task.Extends) == 0 && !task.Abstract {
 		return fmt.Errorf("task has nothing to do (no requires, script, extends nor abstract)")
 	}
@@ -42,9 +42,9 @@ func (ctx *rootModuleValidationContext) validateTask(task *Task) error {
 			return fmt.Errorf("parsing reference %v in requires: %w", taskReferenceString, err)
 		}
 
-		requitedTask := ctx.rootModule.GetTask(taskReference)
+		requitedTask := ctx.rootModule.GetTask(taskReference.Absolute(moduleTrail))
 		if requitedTask == nil && !taskReference.IsOptional {
-			return fmt.Errorf("required task %v does not exist", taskReference.PartsString())
+			return fmt.Errorf("required task %v does not exist", taskReference.PathString())
 		}
 	}
 
