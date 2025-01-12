@@ -51,8 +51,13 @@ class TestPlan(EbroTestCase):
         self.assertStdout(
             stdout,
             """
-            ███ ERROR: validating task chicken: checking reference chain: cyclic reference detected:
-            :egg -> :chicken -> :egg
+            ███ ERROR: planning could not complete. there could be a cyclic dependency. here is the list of tasks remaining to be planned and their requirements:
+            :chicken:
+            - :egg
+            :default:
+            - :chicken
+            :egg:
+            - :chicken
             """,
         )
 
@@ -62,6 +67,6 @@ class TestPlan(EbroTestCase):
         self.assertStdout(
             stdout,
             """
-            ███ ERROR: validating task default: checking reference chain: task :nonexistent does not exist
+            ███ ERROR: validating task default: checking reference chain: task :nonexistent: task not found
             """,
         )

@@ -10,39 +10,47 @@ import (
 )
 
 type Inventory struct {
-	Tasks           map[string]*config.Task
+	Tasks map[string]*config.Task
+}
+
+type InventoryContext struct {
+	inv             Inventory
+	rootModule      *config.Module
 	taskModuleIndex map[string]*config.Module
 }
 
 func MakeInventory(module *config.Module) (Inventory, error) {
-	inv := Inventory{
-		Tasks:           make(map[string]*config.Task),
+	ctx := InventoryContext{
+		inv: Inventory{
+			Tasks: make(map[string]*config.Task),
+		},
+		rootModule:      module,
 		taskModuleIndex: make(map[string]*config.Module),
 	}
 
 	workingDirectory, err := os.Getwd()
 	if err != nil {
-		return inv, fmt.Errorf("obtaining working directory: %w", err)
+		return ctx.inv, fmt.Errorf("obtaining working directory: %w", err)
 	}
 
-	err = processModule(inv, module, []string{}, map[string]string{"EBRO_ROOT": workingDirectory}, workingDirectory)
+	err = ctx.processModule(module, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
 	if err != nil {
-		return inv, fmt.Errorf("processing module: %w", err)
+		return ctx.inv, fmt.Errorf("processing module: %w", err)
 	}
 
-	for _, task := range inv.Tasks {
-		NormalizeTaskNames(inv, task.Requires)
-		NormalizeTaskNames(inv, task.RequiredBy)
-		NormalizeTaskNames(inv, task.Extends)
+	for _, task := range ctx.inv.Tasks {
+		NormalizeTaskNames(ctx.inv, task.Requires)
+		NormalizeTaskNames(ctx.inv, task.RequiredBy)
+		NormalizeTaskNames(ctx.inv, task.Extends)
 	}
 
-	inheritanceOrder, err := resolveInheritanceOrder(inv)
+	inheritanceOrder, err := resolveInheritanceOrder(ctx.inv)
 	if err != nil {
-		return inv, fmt.Errorf("resolving inheritance order: %w", err)
+		return ctx.inv, fmt.Errorf("resolving inheritance order: %w", err)
 	}
 
 	for _, taskName := range inheritanceOrder {
-		task := inv.Tasks[taskName]
+		task := ctx.inv.Tasks[taskName]
 		envsToMerge := [](map[string]string){
 			task.Environment,
 			map[string]string{"EBRO_TASK_WORKING_DIRECTORY": task.WorkingDirectory},
@@ -50,43 +58,27 @@ func MakeInventory(module *config.Module) (Inventory, error) {
 		parentTasks := slices.Clone(task.Extends)
 		slices.Reverse(parentTasks)
 		for _, parentTaskName := range parentTasks {
-			parentTask := inv.Tasks[parentTaskName]
+			parentTask := ctx.inv.Tasks[parentTaskName]
 			applyInheritance(task, parentTask)
 			envsToMerge = append(envsToMerge, parentTask.Environment)
 		}
-		envsToMerge = append(envsToMerge, inv.taskModuleIndex[taskName].Environment)
+		envsToMerge = append(envsToMerge, ctx.taskModuleIndex[taskName].Environment)
 		task.Environment, err = expandMergeEnvs(envsToMerge...)
 		if err != nil {
-			return inv, fmt.Errorf("expanding task %v environment: %w", taskName, err)
+			return ctx.inv, fmt.Errorf("expanding task %v environment: %w", taskName, err)
 		}
 	}
 
-	for taskName, task := range inv.Tasks {
+	for taskName, task := range ctx.inv.Tasks {
 		if task.Abstract {
-			delete(inv.Tasks, taskName)
+			delete(ctx.inv.Tasks, taskName)
 		}
 	}
 
-	return inv, nil
+	return ctx.inv, nil
 }
 
-func NormalizeTaskNames(inv Inventory, taskNames []string) {
-	for i, taskName := range taskNames {
-		taskNames[i] = normalizeTaskName(inv, taskName)
-	}
-}
-
-func normalizeTaskName(inv Inventory, taskName string) string {
-	defaultedTaskName := taskName + ":default"
-	_, taskExists := inv.Tasks[taskName]
-	_, defaultedTaskExists := inv.Tasks[defaultedTaskName]
-	if !taskExists && defaultedTaskExists {
-		return defaultedTaskName
-	}
-	return taskName
-}
-
-func processModule(inv Inventory, module *config.Module, moduleTrail []string, environment map[string]string, workingDirectory string) error {
+func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []string, environment map[string]string) error {
 	moduleEnvironment, err := expandMergeEnvs(module.Environment, environment)
 	if err != nil {
 		return fmt.Errorf("expanding module environment: %w", err)
@@ -94,18 +86,9 @@ func processModule(inv Inventory, module *config.Module, moduleTrail []string, e
 	module.Environment = moduleEnvironment
 
 	for taskName, task := range module.Tasks {
-		for i, t := range task.Requires {
-			ref, _ := config.ParseTaskReference(t)
-			task.Requires[i] = ref.Absolute(moduleTrail).String()
-		}
-		for i, t := range task.RequiredBy {
-			ref, _ := config.ParseTaskReference(t)
-			task.RequiredBy[i] = ref.Absolute(moduleTrail).String()
-		}
-		for i, t := range task.Extends {
-			ref, _ := config.ParseTaskReference(t)
-			task.Extends[i] = ref.Absolute(moduleTrail).String()
-		}
+		task.Requires = ctx.resolveRefs(task.Requires, moduleTrail)
+		task.RequiredBy = ctx.resolveRefs(task.RequiredBy, moduleTrail)
+		task.Extends = ctx.resolveRefs(task.Extends, moduleTrail)
 
 		if task.WorkingDirectory == "" {
 			task.WorkingDirectory = module.WorkingDirectory
@@ -114,8 +97,8 @@ func processModule(inv Inventory, module *config.Module, moduleTrail []string, e
 		}
 
 		taskId := config.TaskId{ModuleTrail: moduleTrail, TaskName: taskName}
-		inv.Tasks[taskId.String()] = task
-		inv.taskModuleIndex[taskId.String()] = module
+		ctx.inv.Tasks[taskId.String()] = task
+		ctx.taskModuleIndex[taskId.String()] = module
 	}
 
 	alreadyProcessedModules := make(map[string]bool)
@@ -138,11 +121,39 @@ func processModule(inv Inventory, module *config.Module, moduleTrail []string, e
 			}
 		}
 
-		err = processModule(inv, submodule, append(moduleTrail, submoduleName), submodule.Environment, module.WorkingDirectory)
+		err = ctx.processModule(submodule, append(moduleTrail, submoduleName), submodule.Environment)
 		if err != nil {
 			return fmt.Errorf("processing module %v: %w", submoduleName, err)
 		}
 	}
 
 	return nil
+}
+
+func NormalizeTaskNames(inv Inventory, taskNames []string) {
+	for i, taskName := range taskNames {
+		taskNames[i] = normalizeTaskName(inv, taskName)
+	}
+}
+
+func normalizeTaskName(inv Inventory, taskName string) string {
+	defaultedTaskName := taskName + ":default"
+	_, taskExists := inv.Tasks[taskName]
+	_, defaultedTaskExists := inv.Tasks[defaultedTaskName]
+	if !taskExists && defaultedTaskExists {
+		return defaultedTaskName
+	}
+	return taskName
+}
+
+func (ctx *InventoryContext) resolveRefs(s []string, moduleTrail []string) []string {
+	result := []string{}
+	for _, taskReferenceString := range s {
+		ref, _ := config.ParseTaskReference(taskReferenceString)
+		taskId, _ := ctx.rootModule.GetTask(ref.Absolute(moduleTrail))
+		if taskId != nil {
+			result = append(result, taskId.String())
+		}
+	}
+	return result
 }

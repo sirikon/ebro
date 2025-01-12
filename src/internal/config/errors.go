@@ -1,15 +1,12 @@
 package config
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
-type TaskNotFoundError struct {
-	TaskReference TaskReference
-}
+var ErrTaskNotFound = errors.New("task not found")
 
-func (e TaskNotFoundError) Error() string {
-	return fmt.Sprintf("task %v does not exist", e.TaskReference.PathString())
-}
-
-func NewTaskNotFoundError(taskReference TaskReference) TaskNotFoundError {
-	return TaskNotFoundError{TaskReference: taskReference}
+func WrapErrTaskNotFound(taskReference TaskReference) error {
+	return fmt.Errorf("task %v: %w", taskReference.String(), ErrTaskNotFound)
 }

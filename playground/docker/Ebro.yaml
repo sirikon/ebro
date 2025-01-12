@@ -1,13 +1,12 @@
 environment:
   DOCKER_APT_VERSION: "${DOCKER_VERSION:-1.0.0}-1-apt"
-  # DOCKER_APK_VERSION: "${DOCKER_VERSION:-1.0.0}-1-apk"
 
 tasks:
   default:
     requires: [package]
 
   package:
-    requires: [package-apt-config]
+    requires: ["package-apt-config?", "package-apk-config?"]
 
   package-apt-config:
     requires: [":apt:pre-config"]
@@ -17,10 +16,10 @@ tasks:
       check_fails: test -f "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
       output_changes: echo "docker==${DOCKER_APT_VERSION}"
 
-  # package-apk-config:
-  #   requires: [":apk:pre-config"]
-  #   required_by: [":apk"]
-  #   script: echo "docker==${DOCKER_APK_VERSION}" > "${EBRO_ROOT}/.cache/apk/packages/docker.txt"
-  #   when:
-  #     check_fails: test -f "${EBRO_ROOT}/.cache/apk/packages/docker.txt"
-  #     output_changes: echo "docker==${DOCKER_APK_VERSION}"
+  package-apk-config:
+    requires: [":apk:pre-config"]
+    required_by: [":apk"]
+    script: echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apk/packages/docker.txt"
+    when:
+      check_fails: test -f "${EBRO_ROOT}/.cache/apk/packages/docker.txt"
+      output_changes: echo "docker==${DOCKER_APT_VERSION}"
