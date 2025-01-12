@@ -6,7 +6,7 @@ tasks:
     requires: [package]
 
   package:
-    requires: [":apt", package-apt-config]
+    requires: [package-apt-config]
 
   package-apt-config:
     requires: [":apt:pre-config"]

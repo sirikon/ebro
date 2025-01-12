@@ -10,7 +10,7 @@ imports:
 
 tasks:
   default:
-    requires: [docker, caddy]
+    requires: [apt, docker, caddy]
     script: |
       echo "Done!"
 

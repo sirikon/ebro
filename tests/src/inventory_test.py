@@ -43,7 +43,6 @@ class TestInventory(EbroTestCase):
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/caddy
                       requires:
-                      - :apt:default
                       - :caddy:package-apt-config
                     :caddy:package-apt-config:
                       working_directory: {self.workdir}/caddy
@@ -64,6 +63,7 @@ class TestInventory(EbroTestCase):
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                       requires:
+                      - :apt:default
                       - :docker:default
                       - :caddy:default
                       script: |
@@ -85,7 +85,6 @@ class TestInventory(EbroTestCase):
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker
                       requires:
-                      - :apt:default
                       - :docker:package-apt-config
                     :docker:package-apt-config:
                       working_directory: {self.workdir}/docker
