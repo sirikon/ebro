@@ -45,6 +45,13 @@
             "description": "The working directory for the task. Defaults to the module working directory. Relative paths are valid and will be added to the default value to compute the final value.",
             "type": "string"
           },
+          "if_tasks_exist": {
+            "description": "References other tasks. If any of the referenced tasks don't exist, this task will not exist either.\n\nThe task is purged before the inventory phase.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "abstract": {
             "description": "When `true`, flags the task as abstract. An abstract task is a task that cannot be executed directly and its only purpose is to be extended by other tasks by using the `extends` property.",
             "type": "boolean"

@@ -6,9 +6,10 @@ tasks:
     requires: [package]
 
   package:
-    requires: ["package-apt-config?"]
+    requires: ["package-apt-config?", "package-apk-config?"]
 
   package-apt-config:
+    if_tasks_exist: [":apt"]
     requires: [":apt:pre-config"]
     required_by: [":apt"]
     script: echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
@@ -17,6 +18,7 @@ tasks:
       output_changes: echo "docker==${DOCKER_APT_VERSION}"
 
   package-apk-config:
+    if_tasks_exist: [":apk"]
     requires: [":apk:pre-config"]
     required_by: [":apk"]
     script: echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apk/packages/docker.txt"

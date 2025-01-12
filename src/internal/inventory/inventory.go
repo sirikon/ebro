@@ -15,6 +15,7 @@ type Inventory struct {
 
 type InventoryContext struct {
 	inv             Inventory
+	rootModule      *config.Module
 	taskModuleIndex map[string]*config.Module
 }
 
@@ -23,6 +24,7 @@ func MakeInventory(module *config.Module) (Inventory, error) {
 		inv: Inventory{
 			Tasks: make(map[string]*config.Task),
 		},
+		rootModule:      module,
 		taskModuleIndex: make(map[string]*config.Module),
 	}
 
@@ -84,9 +86,18 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 	module.Environment = moduleEnvironment
 
 	for taskName, task := range module.Tasks {
-		task.Requires = ctx.resolveRefs(task.Requires, moduleTrail)
-		task.RequiredBy = ctx.resolveRefs(task.RequiredBy, moduleTrail)
-		task.Extends = ctx.resolveRefs(task.Extends, moduleTrail)
+		task.Requires, err = ctx.resolveRefs(task.Requires, moduleTrail)
+		if err != nil {
+			return err
+		}
+		task.RequiredBy, err = ctx.resolveRefs(task.RequiredBy, moduleTrail)
+		if err != nil {
+			return err
+		}
+		task.Extends, err = ctx.resolveRefs(task.Extends, moduleTrail)
+		if err != nil {
+			return err
+		}
 
 		if task.WorkingDirectory == "" {
 			task.WorkingDirectory = module.WorkingDirectory
@@ -144,11 +155,16 @@ func normalizeTaskName(inv Inventory, taskName string) string {
 	return taskName
 }
 
-func (ctx *InventoryContext) resolveRefs(s []string, moduleTrail []string) []string {
+func (ctx *InventoryContext) resolveRefs(s []string, moduleTrail []string) ([]string, error) {
 	result := []string{}
 	for _, taskReferenceString := range s {
 		ref, _ := config.ParseTaskReference(taskReferenceString)
-		result = append(result, ref.Absolute(moduleTrail).String())
+		taskId, _ := ctx.rootModule.GetTask(ref.Absolute(moduleTrail))
+		if taskId != nil {
+			result = append(result, taskId.String())
+		} else if !ref.IsOptional {
+			return nil, fmt.Errorf("referenced task %v does not exist", ref.String())
+		}
 	}
-	return result
+	return result, nil
 }

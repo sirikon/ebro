@@ -10,6 +10,7 @@ type Module struct {
 
 type Task struct {
 	WorkingDirectory string            `yaml:"working_directory,omitempty"`
+	IfTasksExist     []string          `yaml:"if_tasks_exist,omitempty"`
 	Abstract         bool              `yaml:"abstract,omitempty"`
 	Extends          []string          `yaml:"extends,omitempty"`
 	Environment      map[string]string `yaml:"environment,omitempty"`

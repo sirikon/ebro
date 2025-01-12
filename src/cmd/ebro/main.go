@@ -39,6 +39,7 @@ func main() {
 	if err != nil {
 		cli.ExitWithError(err)
 	}
+	config.PurgeModule(rootModule)
 
 	inv, err := inventory.MakeInventory(rootModule)
 	if err != nil {
