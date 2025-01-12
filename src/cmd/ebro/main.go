@@ -30,13 +30,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	workingDirectory, err := os.Getwd()
-	if err != nil {
-		cli.ExitWithError(err)
-	}
-
-	modulePath := path.Join(workingDirectory, *arguments.GetFlagString(cli.FlagFile))
-	rootModule, err := config.ParseModule(modulePath)
+	rootModule, err := config.ParseModule(rootModulePath(arguments))
 	if err != nil {
 		cli.ExitWithError(err)
 	}
@@ -106,4 +100,16 @@ func lock() error {
 		return fmt.Errorf("obtaining lock for process: %w", err)
 	}
 	return nil
+}
+
+func rootModulePath(arguments cli.ExecutionArguments) string {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		cli.ExitWithError(err)
+	}
+	filePath := *arguments.GetFlagString(cli.FlagFile)
+	if !path.IsAbs(filePath) {
+		filePath = path.Join(workingDirectory, filePath)
+	}
+	return filePath
 }

@@ -118,21 +118,27 @@ func processModule(inv Inventory, module *config.Module, moduleTrail []string, e
 		inv.taskModuleIndex[taskReference.PathString()] = module
 	}
 
+	alreadyProcessedModules := make(map[string]bool)
+
 	for importName, importObj := range module.Imports {
 		mergedEnv, err := expandMergeEnvs(module.Modules[importName].Environment, importObj.Environment, module.Environment)
 		if err != nil {
 			return fmt.Errorf("expanding import %v environment: %w", importName, err)
 		}
+		alreadyProcessedModules[importName] = true
 		module.Modules[importName].Environment = mergedEnv
 	}
 
 	for submoduleName, submodule := range module.Modules {
-		submoduleEnvironment, err := expandMergeEnvs(submodule.Environment, module.Environment)
-		if err != nil {
-			return fmt.Errorf("expanding module %v environment: %w", submoduleName, err)
+		if !alreadyProcessedModules[submoduleName] {
+			submoduleEnvironment, err := expandMergeEnvs(submodule.Environment, module.Environment)
+			submodule.Environment = submoduleEnvironment
+			if err != nil {
+				return fmt.Errorf("expanding module %v environment: %w", submoduleName, err)
+			}
 		}
 
-		err = processModule(inv, submodule, append(moduleTrail, submoduleName), submoduleEnvironment, module.WorkingDirectory)
+		err = processModule(inv, submodule, append(moduleTrail, submoduleName), submodule.Environment, module.WorkingDirectory)
 		if err != nil {
 			return fmt.Errorf("processing module %v: %w", submoduleName, err)
 		}
