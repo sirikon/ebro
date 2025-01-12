@@ -13,47 +13,20 @@ import (
 
 type Plan []string
 
-func MakePlan(inv inventory.Inventory, unrunnableTasks map[string]error, targets []string) (Plan, error) {
+func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
 	tasksToRun := utils.NewSet[string]()
 	taskDag := dag.NewDag()
 
 	tasksToRun.Add(targets...)
 
-	checkTaskCanRun := func(taskReferenceString string) (bool, error) {
-		ref, _ := config.ParseTaskReference(taskReferenceString)
-		if err := unrunnableTasks[ref.PathString()]; err != nil {
-			if !ref.IsOptional {
-				return false, fmt.Errorf("task %v cannot run: %w", taskReferenceString, err)
-			}
-			return false, nil
-		}
-		return true, nil
-	}
-
 	for i := 0; i < tasksToRun.Length(); i++ {
 		taskName := tasksToRun.Get(i)
-		canRun, err := checkTaskCanRun(taskName)
-		if err != nil {
-			return nil, err
-		}
-		if !canRun {
-			continue
-		}
-
 		task, ok := inv.Tasks[taskName]
 		if !ok {
 			return nil, fmt.Errorf("task %v does not exist", taskName)
 		}
 
 		for _, taskReferenceString := range task.Requires {
-			canRun, err := checkTaskCanRun(taskReferenceString)
-			if err != nil {
-				return nil, err
-			}
-			if !canRun {
-				continue
-			}
-
 			ref, _ := config.ParseTaskReference(taskReferenceString)
 			tasksToRun.Add(ref.PathString())
 			taskDag.Link(taskName, ref.PathString())

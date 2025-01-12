@@ -18,7 +18,7 @@ type InventoryContext struct {
 	taskModuleIndex map[string]*config.Module
 }
 
-func MakeInventory(module *config.Module, unrunnableTasks map[string]error) (Inventory, error) {
+func MakeInventory(module *config.Module) (Inventory, error) {
 	ctx := InventoryContext{
 		inv: Inventory{
 			Tasks: make(map[string]*config.Task),
@@ -42,7 +42,7 @@ func MakeInventory(module *config.Module, unrunnableTasks map[string]error) (Inv
 		NormalizeTaskNames(ctx.inv, task.Extends)
 	}
 
-	inheritanceOrder, err := resolveInheritanceOrder(ctx.inv, unrunnableTasks)
+	inheritanceOrder, err := resolveInheritanceOrder(ctx.inv)
 	if err != nil {
 		return ctx.inv, fmt.Errorf("resolving inheritance order: %w", err)
 	}

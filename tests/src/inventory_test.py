@@ -86,7 +86,6 @@ class TestInventory(EbroTestCase):
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker
                       requires:
                       - :docker:package-apt-config?
-                      - :docker:package-apk-config?
                     :docker:package-apk-config:
                       working_directory: {self.workdir}/docker
                       environment:

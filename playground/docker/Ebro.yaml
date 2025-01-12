@@ -6,7 +6,7 @@ tasks:
     requires: [package]
 
   package:
-    requires: ["package-apt-config?", "package-apk-config?"]
+    requires: ["package-apt-config?"]
 
   package-apt-config:
     requires: [":apt:pre-config"]
@@ -17,7 +17,6 @@ tasks:
       output_changes: echo "docker==${DOCKER_APT_VERSION}"
 
   package-apk-config:
-    extends: [":apk:config?"]
     requires: [":apk:pre-config"]
     required_by: [":apk"]
     script: echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apk/packages/docker.txt"
