@@ -1,7 +1,7 @@
 package sources
 
 import (
-	"github.com/sirikon/ebro/internal/config/sources/git"
+	// "github.com/sirikon/ebro/internal/config/sources/git"
 	"github.com/sirikon/ebro/internal/config/sources/local"
 )
 
@@ -10,4 +10,7 @@ type Source interface {
 	Resolve(base string, from string) (string, error)
 }
 
-var Sources = []Source{git.GitSource{}, local.LocalSource{}}
+var Sources = []Source{
+	// git.GitSource{},
+	local.LocalSource{},
+}

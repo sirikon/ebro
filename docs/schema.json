@@ -23,7 +23,7 @@
         "additionalProperties": false,
         "properties": {
           "from": {
-            "description": "The path to a directory containing an Ebro.yaml file. Relative paths will be added to the module's working directory to compute the final path.\n\n**EXPERIMENTAL**: Ebro supports importing from Git repositories when this field is given a reference in the format `git+https://...`. It should work fine, but it's considered experimental for two reasons:\n\nFirst, it has only been tested against public Git repositories using the http transport.\n\nSecond: Automatically downloading and executing code from the internet is dangerous, and it shouldn't really be used without some sort of integrity checking in place.\n\nUse at your own risk.",
+            "description": "The path to a directory containing an Ebro.yaml file. Relative paths will be added to the module's working directory to compute the final path.",
             "type": "string"
           },
           "environment": {

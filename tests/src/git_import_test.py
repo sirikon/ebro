@@ -1,7 +1,8 @@
 from os import environ
 from utils.common import EbroTestCase, fake_git_server
+from unittest import skip
 
-
+@skip("git import implementation is paused")
 class TestGitImport(EbroTestCase):
 
     @fake_git_server
