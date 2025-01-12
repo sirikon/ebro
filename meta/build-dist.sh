@@ -20,6 +20,7 @@ function main {
   GOOS=darwin GOARCH=arm64 build "Darwin__arm64"
   sed -i -E "/^ +# gen:EBRO_SUMS/d" "out/dist/${EBRO_VERSION}/ebrow"
 
+  echo "$EBRO_VERSION" >out/dist/VERSION
   if [ -n "$EBRO_RELEASE" ]; then
     echo "$EBRO_RELEASE" >out/dist/RELEASE
     echo "$EBRO_COMMIT" >out/dist/RELEASE_COMMIT

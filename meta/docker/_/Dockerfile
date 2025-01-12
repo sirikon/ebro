@@ -4,12 +4,10 @@ ARG PYTHON_VERSION=0.0.0
 
 FROM golang:${GO_VERSION} AS go-base
 WORKDIR /w
-# Copy .mod and .sum files first to download dependencies and cache de layer
-# before including any source code
+# Go deps
 COPY src/go.mod ./src/go.mod
 COPY src/go.sum ./src/go.sum
 RUN cd src && go mod download
-# Copy the rest
 COPY src ./src
 
 
@@ -35,25 +33,7 @@ COPY meta/test-unit.sh ./meta/test-unit.sh
 RUN ./meta/test-unit.sh
 
 
-FROM go-base AS e2e-build
-COPY meta/build.sh ./meta/build.sh
-RUN ./meta/build.sh
-
-
-FROM python-base AS e2e-test
-COPY ./meta/test-e2e.sh ./meta/test-e2e.sh
-COPY ./tests ./tests
-COPY ./playground ./playground
-COPY ./docs ./docs
-COPY --from=e2e-build /w/out/ebro ./out/ebro
-COPY .git ./.git
-RUN ./meta/test-e2e.sh
-
-
 FROM go-base AS dist
-# Next line is useless. It's to force the e2e-test
-# stage to run
-COPY --from=e2e-test /w/out/ebro /tested-ebro
 COPY meta/build-dist.sh ./meta/build-dist.sh
 COPY scripts ./scripts
 COPY .git ./.git

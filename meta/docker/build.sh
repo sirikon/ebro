@@ -2,9 +2,9 @@
 set -euo pipefail
 
 TARGET="${1:-all}" # dist, website, all
-GO_VERSION="$(grep go <.tool-versions | sed -E 's/^go (.*)$/\1/g')"
-PYTHON_VERSION="$(grep python <.tool-versions | sed -E 's/^python (.*)$/\1/g')"
-POETRY_VERSION="$(grep poetry <.tool-versions | sed -E 's/^poetry (.*)$/\1/g')"
+GO_VERSION="$(./meta/tool-version.sh go)"
+PYTHON_VERSION="$(./meta/tool-version.sh python)"
+POETRY_VERSION="$(./meta/tool-version.sh poetry)"
 TAG="ebro-build:$(head -c 512 </dev/urandom | base64 | tr -d '[A-Z]+/' | head -c 8)"
 
 rm -rf out
