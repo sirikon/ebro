@@ -3,7 +3,6 @@ package planner
 import (
 	"fmt"
 
-	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/dag"
 	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/utils"
@@ -25,16 +24,10 @@ func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
 		if !ok {
 			return nil, fmt.Errorf("task %v does not exist", taskName)
 		}
-
-		for _, taskReferenceString := range task.Requires {
-			ref, _ := config.ParseTaskReference(taskReferenceString)
-			tasksToRun.Add(ref.PathString())
-			taskDag.Link(taskName, ref.PathString())
-		}
-
-		for _, taskReferenceString := range task.RequiredBy {
-			ref, _ := config.ParseTaskReference(taskReferenceString)
-			taskDag.Link(ref.PathString(), taskName)
+		tasksToRun.Add(task.Requires...)
+		taskDag.Link(taskName, task.Requires...)
+		for _, requiredByTaskName := range task.RequiredBy {
+			taskDag.Link(requiredByTaskName, taskName)
 		}
 	}
 
