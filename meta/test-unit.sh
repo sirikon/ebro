@@ -2,10 +2,11 @@
 set -euo pipefail
 
 function main {
-  ./meta/test-unit.sh
-  log "Building ebro for e2e tests"
-  ./meta/build.sh
-  ./meta/test-e2e.sh
+  log "Running unit tests"
+  (
+    cd src
+    go test ./...
+  )
 }
 
 function log {

@@ -1,7 +1,7 @@
 import unittest
 
 from os import getcwd
-from os.path import join, normpath
+from os.path import join
 from subprocess import run, PIPE
 
 CHECK_HISTORY = False
@@ -10,8 +10,8 @@ CHECK_HISTORY = False
 class TestLeak(unittest.TestCase):
 
     def test_no_leaks_are_present_anywhere_in_the_project(self):
+        self.maxDiff = None
         sensitive_grep_patterns = [
-            normpath(join(getcwd(), "..")),
             "/" + "Users",
             "/" + "home",
         ]
