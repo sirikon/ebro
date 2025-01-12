@@ -22,12 +22,14 @@ func (ctx *rootModuleValidationContext) validateModule(module *Module, moduleTra
 			return fmt.Errorf("validating task %v: %w", taskName, err)
 		}
 	}
+
 	for moduleName, module := range module.Modules {
 		err := ctx.validateModule(module, append(moduleTrail, moduleName))
 		if err != nil {
 			return fmt.Errorf("validating module %v: %w", moduleName, err)
 		}
 	}
+
 	return nil
 }
 

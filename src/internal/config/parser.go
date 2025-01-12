@@ -30,10 +30,6 @@ func ParseModule(modulePath string) (*Module, error) {
 }
 
 func processModule(module *Module, workingDirectory string) error {
-	if module.Modules == nil {
-		module.Modules = make(map[string]*Module)
-	}
-
 	if module.WorkingDirectory == "" {
 		module.WorkingDirectory = workingDirectory
 	} else if !path.IsAbs(module.WorkingDirectory) {
@@ -55,6 +51,9 @@ func processModule(module *Module, workingDirectory string) error {
 			return fmt.Errorf("parsing import %v: %w", importName, err)
 		}
 
+		if module.Modules == nil {
+			module.Modules = make(map[string]*Module)
+		}
 		module.Modules[importName] = submodule
 	}
 
