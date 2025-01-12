@@ -31,7 +31,7 @@ func ParseModule(modulePath string) (*Module, error) {
 
 		importPath, err := SourceModule(path.Dir(modulePath), importObj.From)
 		if err != nil {
-			return nil, fmt.Errorf("parsing import %v: %w", importObj.From, err)
+			return nil, fmt.Errorf("parsing import.from %v: %w", importObj.From, err)
 		}
 
 		submodule, err := ParseModule(path.Join(importPath, constants.DefaultFile))

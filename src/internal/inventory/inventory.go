@@ -7,7 +7,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/constants"
 )
@@ -17,17 +16,20 @@ type Inventory struct {
 	taskModuleIndex map[string]*config.Module
 }
 
-func MakeInventory(arguments cli.ExecutionArguments) (Inventory, error) {
-	inv := Inventory{Tasks: make(map[string]*config.Task), taskModuleIndex: make(map[string]*config.Module)}
+func MakeInventory(module *config.Module) (Inventory, error) {
+	inv := Inventory{
+		Tasks:           make(map[string]*config.Task),
+		taskModuleIndex: make(map[string]*config.Module),
+	}
+
 	workingDirectory, err := os.Getwd()
 	if err != nil {
 		return inv, fmt.Errorf("obtaining working directory: %w", err)
 	}
 
-	modulePath := path.Join(workingDirectory, *arguments.GetFlagString(cli.FlagFile))
-	err = processModuleFile(inv, modulePath, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
+	err = processModule(inv, module, []string{}, map[string]string{"EBRO_ROOT": workingDirectory}, workingDirectory)
 	if err != nil {
-		return inv, fmt.Errorf("processing module file in %v: %w", modulePath, err)
+		return inv, fmt.Errorf("processing module: %w", err)
 	}
 
 	for _, task := range inv.Tasks {
@@ -99,21 +101,6 @@ func normalizeTaskName(inv Inventory, taskName string) string {
 		return defaultedTaskName
 	}
 	return taskName
-}
-
-func processModuleFile(inv Inventory, modulePath string, moduleNameTrail []string, environment map[string]string) error {
-	workingDirectory := path.Dir(modulePath)
-	module, err := config.ParseModule(modulePath)
-	if err != nil {
-		return fmt.Errorf("parsing module: %w", err)
-	}
-
-	err = processModule(inv, module, moduleNameTrail, environment, workingDirectory)
-	if err != nil {
-		return fmt.Errorf("processing module: %w", err)
-	}
-
-	return nil
 }
 
 func processModule(inv Inventory, module *config.Module, moduleNameTrail []string, environment map[string]string, workingDirectory string) error {

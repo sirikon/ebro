@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/flock"
 
 	"github.com/sirikon/ebro/internal/cli"
+	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/runner"
@@ -27,6 +28,22 @@ func main() {
 	if arguments.Command == cli.CommandVersion {
 		cli.PrintVersion()
 		os.Exit(0)
+	}
+
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		cli.ExitWithError(err)
+	}
+
+	modulePath := path.Join(workingDirectory, *arguments.GetFlagString(cli.FlagFile))
+	rootModule, err := config.ParseModule(modulePath)
+	if err != nil {
+		cli.ExitWithError(err)
+	}
+
+	err = config.ValidateRootModule(rootModule)
+	if err != nil {
+		cli.ExitWithError(err)
 	}
 
 	inv, err := inventory.MakeInventory(arguments)

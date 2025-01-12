@@ -4,13 +4,6 @@ import (
 	"fmt"
 )
 
-func (t Task) Validate() error {
-	if len(t.Requires) == 0 && t.Script == "" && len(t.Extends) == 0 && !t.Abstract {
-		return fmt.Errorf("task has nothing to do (no requires, script, extends nor abstract)")
-	}
-	return nil
-}
-
 type rootModuleValidationContext struct {
 	rootModule *Module
 }
