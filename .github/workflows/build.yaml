@@ -23,7 +23,7 @@ jobs:
           poetry-version: ${{ steps.poetry-version.outputs.POETRY_VERSION }}
       - name: Test E2E
         run: |
-          cp ./out/dist/$(cat ./out/dist/VERSION)/ebro-Linux__x86_64 ./out/ebro
+          cp "./out/dist/$(cat ./out/dist/VERSION)/ebro-$(uname -s)__$(uname -m)" ./out/ebro
           ./meta/test-e2e.sh
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
