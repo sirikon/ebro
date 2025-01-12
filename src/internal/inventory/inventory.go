@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/sirikon/ebro/internal/config"
-	"github.com/sirikon/ebro/internal/constants"
 )
 
 type Inventory struct {
@@ -55,7 +54,7 @@ func MakeInventory(module *config.Module) (Inventory, error) {
 
 	inheritanceOrder, err := resolveInheritanceOrder(inv)
 	if err != nil {
-		return inv, fmt.Errorf("resolving inheritance order in module file %v: %w", modulePath, err)
+		return inv, fmt.Errorf("resolving inheritance order: %w", err)
 	}
 
 	for _, taskName := range inheritanceOrder {
@@ -130,10 +129,6 @@ func processModule(inv Inventory, module *config.Module, moduleNameTrail []strin
 			return fmt.Errorf("task %v (defined as %v) is already present in the inventory", taskAbsoluteName, taskName)
 		}
 
-		if err := task.Validate(); err != nil {
-			return fmt.Errorf("task %v failed validation: %w", taskName, err)
-		}
-
 		for i, t := range task.Requires {
 			task.Requires[i] = makeTaskNameAbsolute(t)
 		}
@@ -154,27 +149,27 @@ func processModule(inv Inventory, module *config.Module, moduleNameTrail []strin
 		inv.taskModuleIndex[taskAbsoluteName] = module
 	}
 
-	for importName, importObj := range module.Imports {
-		importEnvironment, err := expandMergeEnvs(importObj.Environment, module.Environment)
-		if err != nil {
-			return fmt.Errorf("expanding import %v environment: %w", importName, err)
-		}
+	// for importName, importObj := range module.Imports {
+	// 	importEnvironment, err := expandMergeEnvs(importObj.Environment, module.Environment)
+	// 	if err != nil {
+	// 		return fmt.Errorf("expanding import %v environment: %w", importName, err)
+	// 	}
 
-		expandedFrom, err := expandString(importObj.From, module.Environment)
-		if err != nil {
-			return fmt.Errorf("expanding import from %v: %w", importObj.From, err)
-		}
+	// 	expandedFrom, err := expandString(importObj.From, module.Environment)
+	// 	if err != nil {
+	// 		return fmt.Errorf("expanding import from %v: %w", importObj.From, err)
+	// 	}
 
-		importModulePath, err := config.SourceModule(workingDirectory, expandedFrom)
-		if err != nil {
-			return fmt.Errorf("parsing import %v: %w", expandedFrom, err)
-		}
+	// 	importModulePath, err := config.SourceModule(workingDirectory, expandedFrom)
+	// 	if err != nil {
+	// 		return fmt.Errorf("parsing import %v: %w", expandedFrom, err)
+	// 	}
 
-		err = processModuleFile(inv, path.Join(importModulePath, constants.DefaultFile), append(moduleNameTrail, importName), importEnvironment)
-		if err != nil {
-			return fmt.Errorf("processing import %v: %w", importName, err)
-		}
-	}
+	// 	err = processModuleFile(inv, path.Join(importModulePath, constants.DefaultFile), append(moduleNameTrail, importName), importEnvironment)
+	// 	if err != nil {
+	// 		return fmt.Errorf("processing import %v: %w", importName, err)
+	// 	}
+	// }
 
 	for submoduleName, submodule := range module.Modules {
 		submoduleEnvironment, err := expandMergeEnvs(submodule.Environment, module.Environment)

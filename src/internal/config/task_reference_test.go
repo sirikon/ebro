@@ -5,6 +5,38 @@ import (
 	"testing"
 )
 
+func TestParseTaskReferenceChecksRegex(t *testing.T) {
+	testCases := []struct {
+		input       string
+		should_work bool
+	}{
+		{"default", true},
+		{"docker:bin", true},
+		{"docker:package:default?", true},
+		{":docker:package?", true},
+		{"", false},
+		{":", false},
+		{"::docker", false},
+		{"docker??", false},
+		{"docker!", false},
+		{"DOCKER.thing", true},
+		{":DOCKER.thing:other.thing?", true},
+	}
+
+	for _, testCase := range testCases {
+		_, err := ParseTaskReference(testCase.input)
+		if testCase.should_work {
+			if err != nil {
+				t.Fatal(err)
+			}
+		} else {
+			if err == nil || err.Error() != "task reference is invalid" {
+				t.Fatal(err)
+			}
+		}
+	}
+}
+
 func TestParseTaskReferenceWorks(t *testing.T) {
 	testCases := []struct {
 		input    string

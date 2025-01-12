@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -15,6 +17,15 @@ func ParseTaskReference(text string) (TaskReference, error) {
 		Parts:      []string{},
 		IsRelative: true,
 		IsOptional: false,
+	}
+
+	re, err := regexp.Compile(`^:?[a-zA-Z0-9-_\.]+(:[a-zA-Z0-9-_\.]+)*\??$`)
+	if !re.MatchString(text) {
+		return result, fmt.Errorf("task reference is invalid")
+	}
+
+	if err != nil {
+		panic(err)
 	}
 
 	if strings.HasPrefix(text, ":") {
@@ -46,4 +57,16 @@ func (tp TaskReference) Absolute(parts []string) TaskReference {
 
 func (tp TaskReference) PartsString() string {
 	return strings.Join(tp.Parts, ":")
+}
+
+func (tp TaskReference) String() string {
+	chunks := []string{}
+	if !tp.IsRelative {
+		chunks = append(chunks, ":")
+	}
+	chunks = append(chunks, tp.PartsString())
+	if tp.IsOptional {
+		chunks = append(chunks, "?")
+	}
+	return strings.Join(chunks, "")
 }

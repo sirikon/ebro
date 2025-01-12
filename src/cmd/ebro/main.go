@@ -46,7 +46,7 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	inv, err := inventory.MakeInventory(arguments)
+	inv, err := inventory.MakeInventory(rootModule)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
