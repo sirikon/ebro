@@ -11,6 +11,19 @@ RUN cd src && go mod download
 COPY src ./src
 
 
+FROM go-base AS unit-test
+COPY meta/test-unit.sh ./meta/test-unit.sh
+RUN ./meta/test-unit.sh
+
+
+FROM go-base AS dist
+COPY meta/build-dist.sh ./meta/build-dist.sh
+COPY scripts ./scripts
+COPY .git ./.git
+RUN ./meta/build-dist.sh
+RUN mv ./out /out
+
+
 FROM python:${PYTHON_VERSION} AS python-base
 WORKDIR /w
 # Poetry
@@ -26,19 +39,6 @@ COPY ./meta/python/_/poetry.lock ./meta/python/_/poetry.lock
 COPY ./meta/python/ensure-venv.sh ./meta/python/ensure-venv.sh
 COPY ./meta/python/poetry.sh ./meta/python/poetry.sh
 RUN ./meta/python/poetry.sh install
-
-
-FROM go-base AS unit-test
-COPY meta/test-unit.sh ./meta/test-unit.sh
-RUN ./meta/test-unit.sh
-
-
-FROM go-base AS dist
-COPY meta/build-dist.sh ./meta/build-dist.sh
-COPY scripts ./scripts
-COPY .git ./.git
-RUN ./meta/build-dist.sh
-RUN mv ./out /out
 
 
 FROM python-base AS website
