@@ -38,12 +38,6 @@ func MakeInventory(module *config.Module) (Inventory, error) {
 		return ctx.inv, fmt.Errorf("processing module: %w", err)
 	}
 
-	for _, task := range ctx.inv.Tasks {
-		NormalizeTaskNames(ctx.inv, task.Requires)
-		NormalizeTaskNames(ctx.inv, task.RequiredBy)
-		NormalizeTaskNames(ctx.inv, task.Extends)
-	}
-
 	inheritanceOrder, err := resolveInheritanceOrder(ctx.inv)
 	if err != nil {
 		return ctx.inv, fmt.Errorf("resolving inheritance order: %w", err)
