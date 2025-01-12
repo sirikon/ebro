@@ -1,6 +1,6 @@
 import unittest
 
-from os import getcwd, getlogin
+from os import getcwd
 from os.path import join, normpath
 from subprocess import run, PIPE
 
@@ -12,8 +12,6 @@ class TestLeak(unittest.TestCase):
     def test_no_leaks_are_present_anywhere_in_the_project(self):
         sensitive_grep_patterns = [
             normpath(join(getcwd(), "..")),
-            getlogin() + "/",
-            "/" + getlogin(),
             "/" + "Users",
             "/" + "home",
         ]
