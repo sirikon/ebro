@@ -43,3 +43,7 @@ func (tp TaskReference) Absolute(parts []string) TaskReference {
 		IsOptional: tp.IsOptional,
 	}
 }
+
+func (tp TaskReference) PartsString() string {
+	return strings.Join(tp.Parts, ":")
+}

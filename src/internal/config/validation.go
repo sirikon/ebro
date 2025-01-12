@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"strings"
 )
 
 func (t Task) Validate() error {
@@ -13,22 +12,62 @@ func (t Task) Validate() error {
 }
 
 type rootModuleValidationContext struct {
-	rootModule     Module
-	validatedTasks map[string]bool
+	rootModule Module
 }
 
 func ValidateRootModule(module Module) error {
-	ctx := rootModuleValidationContext{rootModule: module, validatedTasks: make(map[string]bool)}
-	return ctx.run()
+	ctx := rootModuleValidationContext{
+		rootModule: module,
+	}
+	return ctx.validateModule(ctx.rootModule)
 }
 
-func (ctx *rootModuleValidationContext) run() error {
+func (ctx *rootModuleValidationContext) validateModule(module Module) error {
+	for taskName, task := range module.Tasks {
+		err := ctx.validateTask(task)
+		if err != nil {
+			return fmt.Errorf("validating task %v: %w", taskName, err)
+		}
+	}
+	for moduleName, module := range module.Modules {
+		err := ctx.validateModule(module)
+		if err != nil {
+			return fmt.Errorf("validating module %v: %w", moduleName, err)
+		}
+	}
 	return nil
 }
 
-func (ctx *rootModuleValidationContext) validateTask(taskReference TaskReference) error {
-	if ctx.validatedTasks[strings.Join(taskReference.Parts, ":")] {
-		return nil
+func (ctx *rootModuleValidationContext) validateTask(task *Task) error {
+	if len(task.Requires) == 0 && task.Script == "" && len(task.Extends) == 0 && !task.Abstract {
+		return fmt.Errorf("task has nothing to do (no requires, script, extends nor abstract)")
 	}
+
+	for _, taskReferenceString := range task.Requires {
+		taskReference, err := ParseTaskReference(taskReferenceString)
+		if err != nil {
+			return fmt.Errorf("parsing reference %v in requires: %w", taskReferenceString, err)
+		}
+
+		requitedTask := ctx.rootModule.GetTask(taskReference)
+		if requitedTask == nil && !taskReference.IsOptional {
+			return fmt.Errorf("required task %v does not exist", taskReference.PartsString())
+		}
+	}
+
+	for _, taskReferenceString := range task.RequiredBy {
+		_, err := ParseTaskReference(taskReferenceString)
+		if err != nil {
+			return fmt.Errorf("parsing reference %v in required_by: %w", taskReferenceString, err)
+		}
+	}
+
+	for _, taskReferenceString := range task.Extends {
+		_, err := ParseTaskReference(taskReferenceString)
+		if err != nil {
+			return fmt.Errorf("parsing reference %v in extends: %w", taskReferenceString, err)
+		}
+	}
+
 	return nil
 }
