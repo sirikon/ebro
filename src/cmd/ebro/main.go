@@ -40,7 +40,9 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	inv, err := inventory.MakeInventory(rootModule)
+	unrunnableTasks := config.GetUnrunnableTasks(rootModule)
+
+	inv, err := inventory.MakeInventory(rootModule, unrunnableTasks)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
@@ -64,7 +66,7 @@ func main() {
 	}
 
 	inventory.NormalizeTaskNames(inv, arguments.Targets)
-	plan, err := planner.MakePlan(inv, arguments.Targets)
+	plan, err := planner.MakePlan(inv, unrunnableTasks, arguments.Targets)
 	if err != nil {
 		cli.ExitWithError(err)
 	}

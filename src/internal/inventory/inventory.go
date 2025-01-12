@@ -15,16 +15,14 @@ type Inventory struct {
 
 type InventoryContext struct {
 	inv             Inventory
-	rootModule      *config.Module
 	taskModuleIndex map[string]*config.Module
 }
 
-func MakeInventory(module *config.Module) (Inventory, error) {
+func MakeInventory(module *config.Module, unrunnableTasks map[string]error) (Inventory, error) {
 	ctx := InventoryContext{
 		inv: Inventory{
 			Tasks: make(map[string]*config.Task),
 		},
-		rootModule:      module,
 		taskModuleIndex: make(map[string]*config.Module),
 	}
 
@@ -44,7 +42,7 @@ func MakeInventory(module *config.Module) (Inventory, error) {
 		NormalizeTaskNames(ctx.inv, task.Extends)
 	}
 
-	inheritanceOrder, err := resolveInheritanceOrder(ctx.inv)
+	inheritanceOrder, err := resolveInheritanceOrder(ctx.inv, unrunnableTasks)
 	if err != nil {
 		return ctx.inv, fmt.Errorf("resolving inheritance order: %w", err)
 	}
@@ -150,10 +148,7 @@ func (ctx *InventoryContext) resolveRefs(s []string, moduleTrail []string) []str
 	result := []string{}
 	for _, taskReferenceString := range s {
 		ref, _ := config.ParseTaskReference(taskReferenceString)
-		taskId, _ := ctx.rootModule.GetTask(ref.Absolute(moduleTrail))
-		if taskId != nil {
-			result = append(result, taskId.String())
-		}
+		result = append(result, ref.Absolute(moduleTrail).String())
 	}
 	return result
 }

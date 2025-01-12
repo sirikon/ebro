@@ -85,7 +85,23 @@ class TestInventory(EbroTestCase):
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker
                       requires:
-                      - :docker:package-apt-config
+                      - :docker:package-apt-config?
+                      - :docker:package-apk-config?
+                    :docker:package-apk-config:
+                      working_directory: {self.workdir}/docker
+                      environment:
+                        DOCKER_APT_VERSION: 2.0.0-1-apt
+                        DOCKER_VERSION: 2.0.0
+                        EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker
+                      requires:
+                      - :apk:pre-config
+                      required_by:
+                      - :apk
+                      script: echo "docker==${{DOCKER_APT_VERSION}}" > "${{EBRO_ROOT}}/.cache/apk/packages/docker.txt"
+                      when:
+                        check_fails: test -f "${{EBRO_ROOT}}/.cache/apk/packages/docker.txt"
+                        output_changes: echo "docker==${{DOCKER_APT_VERSION}}"
                     :docker:package-apt-config:
                       working_directory: {self.workdir}/docker
                       environment:
@@ -149,6 +165,7 @@ class TestInventory(EbroTestCase):
                     :default
                     :docker:default
                     :docker:package
+                    :docker:package-apk-config
                     :docker:package-apt-config
                     :farm:chicken
                     :farm:egg
