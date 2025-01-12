@@ -1,112 +1,112 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://ebro.sirikon.me/schema.json",
-    "title": "Ebro.yaml",
-    "description": "Ebro.yaml file definition",
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
-        "working_directory": {
-            "description": "The default working directory for all the tasks inside the module. Defaults to the parent module working directory or the current working directory if it is the root module. Relative paths are valid and will be added to the default value to compute the final value.",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ebro.sirikon.me/schema.json",
+  "title": "Ebro.yaml",
+  "description": "Ebro.yaml file definition",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "working_directory": {
+      "description": "The default working directory for all the tasks inside the module. Defaults to the parent module working directory or the current working directory if it is the root module. Relative paths are valid and will be added to the default value to compute the final value.",
+      "type": "string"
+    },
+    "environment": {
+      "description": "Additional environment variables available for all the tasks inside the module. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (parent module or Ebro's execution environment), but **not** from the same environment object.",
+      "type": "object"
+    },
+    "imports": {
+      "description": "Other modules can be imported.",
+      "type": "object",
+      "additionalProperties": {
+        "description": "Each key in the object will be the module's name when imported.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "description": "The path to a directory containing an Ebro.yaml file. Relative paths will be added to the module's working directory to compute the final path.\n\n**EXPERIMENTAL**: Ebro supports importing from Git repositories when this field is given a reference in the format `git+https://...`. It should work fine, but it's considered experimental for two reasons:\n\nFirst, it has only been tested against public Git repositories using the http transport.\n\nSecond: Automatically downloading and executing code from the internet is dangerous, and it shouldn't really be used without some sort of integrity checking in place.\n\nUse at your own risk.",
             "type": "string"
-        },
-        "environment": {
-            "description": "Additional environment variables available for all the tasks inside the module. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (parent module or Ebro's execution environment), but **not** from the same environment object.",
+          },
+          "environment": {
+            "description": "Additional environment variables available for all the tasks inside the imported module. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (current module or Ebro's execution environment), but **not** from the same environment object.",
             "type": "object"
-        },
-        "imports": {
-            "description": "Other modules can be imported.",
-            "type": "object",
-            "additionalProperties": {
-                "description": "Each key in the object will be the module's name when imported.",
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                    "from": {
-                        "description": "The path to a directory containing an Ebro.yaml file. Relative paths will be added to the module's working directory to compute the final path.\n\n**EXPERIMENTAL**: Ebro supports importing from Git repositories when this field is given a reference in the format `git+https://...`. It should work fine, but it's considered experimental for two reasons:\n\nFirst, it has only been tested against public Git repositories using the http transport.\n\nSecond: Automatically downloading and executing code from the internet is dangerous, and it shouldn't really be used without some sort of integrity checking in place.\n\nUse at your own risk.",
-                        "type": "string"
-                    },
-                    "environment": {
-                        "description": "Additional environment variables available for all the tasks inside the imported module. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (current module or Ebro's execution environment), but **not** from the same environment object.",
-                        "type": "object"
-                    }
-                }
-            }
-        },
-        "tasks": {
-            "description": "Collection of tasks defined in the module.",
-            "type": "object",
-            "additionalProperties": {
-                "description": "Each key in the object will be the task's name.",
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                    "working_directory": {
-                        "description": "The working directory for the task. Defaults to the module working directory. Relative paths are valid and will be added to the default value to compute the final value.",
-                        "type": "string"
-                    },
-                    "abstract": {
-                        "description": "When `true`, flags the task as abstract. An abstract task is a task that cannot be executed directly and its only purpose is to be extended by other tasks by using the `extends` property.",
-                        "type": "boolean"
-                    },
-                    "extends": {
-                        "description": "References other tasks and extends them, which effectively means merging their properties with the properties of the referenced task. Here's the merging strategy for each property:\n\n- `working_directory`: Untouched.\n- `abstract`: Untouched.\n- `environment`: Merged. Child task values take precedence over parent task values.\n- `requires`: Merged and deduped.\n- `required_by`: Merged and deduped.\n- `script`: If present, child task value takes precedence over parent task value.\n- `quiet`: If present, child task value takes precedence over parent task value.\n- `when.check_fails`: If present, child task value takes precedence over parent task value.\n- `when.output_changes`: If present, child task value takes precedence over parent task value.",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "environment": {
-                        "description": "Additional environment variables available for the task. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (task referenced in `extends`, module or Ebro's execution environment), but **not** from the same environment object.",
-                        "type": "object"
-                    },
-                    "requires": {
-                        "description": "List of task names that need to execute before this one does.\n\nTasks are added to the execution plan when referenced by `requires`.\n\nIt is possible to reference tasks from submodules by writing the full path of the task (module and task name) with each name separated with a colon (`:`). Example: `submodule:task`.\n\nIt's also possible to reference tasks by their absolute path by prepending the whole path with another colon (`:`). Example: `:module:submodule:task`.",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "required_by": {
-                        "description": "List of task names that require this task to be executed before those. The opposite of `requires`.\n\nTasks are not planned to run due to being referenced by `required_by`. This just serves to indicate that the referenced tasks, if planned to run, need to run **after** this one.\n\nIt is possible to reference tasks from submodules by writing the full path of the task (module and task name) with each name separated with a colon (`:`). Example: `submodule:task`.\n\nIt's also possible to reference tasks by their absolute path by prepending the whole path with another colon (`:`). Example: `:module:submodule:task`.",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "script": {
-                        "description": "Bash script of the task. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).",
-                        "type": "string"
-                    },
-                    "quiet": {
-                        "description": "When `true`, flags the task as quiet. Quiet tasks are task that, visually and logging-wise, look almost the same as skipped tasks. This effectively means that their output will be hidden by default and only shown if the task fails. Also, their log line for \"running\" will be tinted green instead of yellow.",
-                        "type": "boolean"
-                    },
-                    "when": {
-                        "description": "Configure ways in which the task could be skipped. These are computed as an OR, meaning: One of them triggering is enough to trigger the task execution.",
-                        "type": "object",
-                        "additionalProperties": false,
-                        "properties": {
-                            "check_fails": {
-                                "description": "Bash script. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).\n\nAfter execution, the exit code will be checked. If it succeeded (exit code 0), the task is skipped. If it fails (exit code different than 0), the task is executed.",
-                                "type": "string"
-                            },
-                            "output_changes": {
-                                "description": "Bash script. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).\n\nAfter execution, the output (stdout and stderr, combined) will be compared with the output of the last time it executed and the task succeeded. If the output is the same, the task is skipped. If the output is different, the task is executed. If there is no previous output stored, the task is executed.",
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "modules": {
-            "description": "Modules can have other modules inside",
-            "type": "object",
-            "additionalProperties": {
-                "description": "Each key in the object will be the module's name",
-                "$ref": "#"
-            }
+          }
         }
+      }
+    },
+    "tasks": {
+      "description": "Collection of tasks defined in the module.",
+      "type": "object",
+      "additionalProperties": {
+        "description": "Each key in the object will be the task's name.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "working_directory": {
+            "description": "The working directory for the task. Defaults to the module working directory. Relative paths are valid and will be added to the default value to compute the final value.",
+            "type": "string"
+          },
+          "abstract": {
+            "description": "When `true`, flags the task as abstract. An abstract task is a task that cannot be executed directly and its only purpose is to be extended by other tasks by using the `extends` property.",
+            "type": "boolean"
+          },
+          "extends": {
+            "description": "References other tasks and extends them, which effectively means merging their properties with the properties of the referenced task. Here's the merging strategy for each property:\n\n- `working_directory`: Untouched.\n- `abstract`: Untouched.\n- `environment`: Merged. Child task values take precedence over parent task values.\n- `requires`: Merged and deduped.\n- `required_by`: Merged and deduped.\n- `script`: If present, child task value takes precedence over parent task value.\n- `quiet`: If present, child task value takes precedence over parent task value.\n- `when.check_fails`: If present, child task value takes precedence over parent task value.\n- `when.output_changes`: If present, child task value takes precedence over parent task value.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "environment": {
+            "description": "Additional environment variables available for the task. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (task referenced in `extends`, module or Ebro's execution environment), but **not** from the same environment object.",
+            "type": "object"
+          },
+          "requires": {
+            "description": "List of task names that need to execute before this one does.\n\nTasks are added to the execution plan when referenced by `requires`.\n\nIt is possible to reference tasks from submodules by writing the full path of the task (module and task name) with each name separated with a colon (`:`). Example: `submodule:task`.\n\nIt's also possible to reference tasks by their absolute path by prepending the whole path with another colon (`:`). Example: `:module:submodule:task`.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "required_by": {
+            "description": "List of task names that require this task to be executed before those. The opposite of `requires`.\n\nTasks are not planned to run due to being referenced by `required_by`. This just serves to indicate that the referenced tasks, if planned to run, need to run **after** this one.\n\nIt is possible to reference tasks from submodules by writing the full path of the task (module and task name) with each name separated with a colon (`:`). Example: `submodule:task`.\n\nIt's also possible to reference tasks by their absolute path by prepending the whole path with another colon (`:`). Example: `:module:submodule:task`.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "script": {
+            "description": "Bash script of the task. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "When `true`, flags the task as quiet. Quiet tasks are task that, visually and logging-wise, look almost the same as skipped tasks. This effectively means that their output will be hidden by default and only shown if the task fails. Also, their log line for \"running\" will be tinted green instead of yellow.",
+            "type": "boolean"
+          },
+          "when": {
+            "description": "Configure ways in which the task could be skipped. These are computed as an OR, meaning: One of them triggering is enough to trigger the task execution.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "check_fails": {
+                "description": "Bash script. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).\n\nAfter execution, the exit code will be checked. If it succeeded (exit code 0), the task is skipped. If it fails (exit code different than 0), the task is executed.",
+                "type": "string"
+              },
+              "output_changes": {
+                "description": "Bash script. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).\n\nAfter execution, the output (stdout and stderr, combined) will be compared with the output of the last time it executed and the task succeeded. If the output is the same, the task is skipped. If the output is different, the task is executed. If there is no previous output stored, the task is executed.",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "modules": {
+      "description": "Modules can have other modules inside",
+      "type": "object",
+      "additionalProperties": {
+        "description": "Each key in the object will be the module's name",
+        "$ref": "#"
+      }
     }
+  }
 }
