@@ -9,7 +9,7 @@ func TestModuleGetTaskWorks(t *testing.T) {
 		Tasks: map[string]*Task{
 			"default": {Script: "default"},
 		},
-		Modules: map[string]Module{
+		Modules: map[string]*Module{
 			"docker": {
 				Tasks: map[string]*Task{
 					"bin": {Script: "docker:bin"},

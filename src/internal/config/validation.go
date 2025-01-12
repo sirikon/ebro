@@ -12,17 +12,17 @@ func (t Task) Validate() error {
 }
 
 type rootModuleValidationContext struct {
-	rootModule Module
+	rootModule *Module
 }
 
-func ValidateRootModule(module Module) error {
+func ValidateRootModule(module *Module) error {
 	ctx := rootModuleValidationContext{
 		rootModule: module,
 	}
 	return ctx.validateModule(ctx.rootModule)
 }
 
-func (ctx *rootModuleValidationContext) validateModule(module Module) error {
+func (ctx *rootModuleValidationContext) validateModule(module *Module) error {
 	for taskName, task := range module.Tasks {
 		err := ctx.validateTask(task)
 		if err != nil {

@@ -14,11 +14,11 @@ import (
 
 type Inventory struct {
 	Tasks           map[string]*config.Task
-	taskModuleIndex map[string]config.Module
+	taskModuleIndex map[string]*config.Module
 }
 
 func MakeInventory(arguments cli.ExecutionArguments) (Inventory, error) {
-	inv := Inventory{Tasks: make(map[string]*config.Task), taskModuleIndex: make(map[string]config.Module)}
+	inv := Inventory{Tasks: make(map[string]*config.Task), taskModuleIndex: make(map[string]*config.Module)}
 	workingDirectory, err := os.Getwd()
 	if err != nil {
 		return inv, fmt.Errorf("obtaining working directory: %w", err)
@@ -116,7 +116,7 @@ func processModuleFile(inv Inventory, modulePath string, moduleNameTrail []strin
 	return nil
 }
 
-func processModule(inv Inventory, module config.Module, moduleNameTrail []string, environment map[string]string, workingDirectory string) error {
+func processModule(inv Inventory, module *config.Module, moduleNameTrail []string, environment map[string]string, workingDirectory string) error {
 	taskPrefix := ":" + strings.Join(append(moduleNameTrail, ""), ":")
 	makeTaskNameAbsolute := func(taskName string) string {
 		if !strings.HasPrefix(taskName, ":") {
@@ -178,7 +178,7 @@ func processModule(inv Inventory, module config.Module, moduleNameTrail []string
 			return fmt.Errorf("expanding import from %v: %w", importObj.From, err)
 		}
 
-		importModulePath, err := config.ImportModule(workingDirectory, expandedFrom)
+		importModulePath, err := config.SourceModule(workingDirectory, expandedFrom)
 		if err != nil {
 			return fmt.Errorf("parsing import %v: %w", expandedFrom, err)
 		}
