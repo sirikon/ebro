@@ -163,7 +163,7 @@ func processModule(inv Inventory, module config.Module, moduleNameTrail []string
 			task.WorkingDirectory = path.Join(module.WorkingDirectory, task.WorkingDirectory)
 		}
 
-		inv.Tasks[taskAbsoluteName] = &task
+		inv.Tasks[taskAbsoluteName] = task
 		inv.taskModuleIndex[taskAbsoluteName] = module
 	}
 
