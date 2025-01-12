@@ -6,18 +6,18 @@ import (
 	"slices"
 )
 
-type rootModuleValidationContext struct {
+type ctxValidateRootModule struct {
 	rootModule *Module
 }
 
 func ValidateRootModule(module *Module) error {
-	ctx := rootModuleValidationContext{
+	ctx := ctxValidateRootModule{
 		rootModule: module,
 	}
 	return ctx.validateModule(ctx.rootModule)
 }
 
-func (ctx *rootModuleValidationContext) validateModule(module *Module) error {
+func (ctx *ctxValidateRootModule) validateModule(module *Module) error {
 	taskNames := slices.Collect(maps.Keys(module.Tasks))
 	slices.Sort(taskNames)
 
@@ -43,7 +43,7 @@ func (ctx *rootModuleValidationContext) validateModule(module *Module) error {
 	return nil
 }
 
-func (ctx *rootModuleValidationContext) validateTask(task *Task) error {
+func (ctx *ctxValidateRootModule) validateTask(task *Task) error {
 	if len(task.Requires) == 0 && task.Script == "" && len(task.Extends) == 0 && !task.Abstract {
 		return fmt.Errorf("task has nothing to do (no requires, script, extends nor abstract)")
 	}
