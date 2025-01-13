@@ -79,7 +79,7 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 	}
 	module.Environment = moduleEnvironment
 
-	for taskName, task := range module.Tasks {
+	for taskName, task := range module.TasksSorted() {
 		task.Requires, err = ctx.resolveRefs(task.Requires, moduleTrail)
 		if err != nil {
 			return err
@@ -106,7 +106,7 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 
 	alreadyProcessedModules := make(map[string]bool)
 
-	for importName, importObj := range module.Imports {
+	for importName, importObj := range module.ImportsSorted() {
 		mergedEnv, err := expandMergeEnvs(module.Modules[importName].Environment, importObj.Environment, module.Environment)
 		if err != nil {
 			return fmt.Errorf("expanding import %v environment: %w", importName, err)
@@ -115,7 +115,7 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 		module.Modules[importName].Environment = mergedEnv
 	}
 
-	for submoduleName, submodule := range module.Modules {
+	for submoduleName, submodule := range module.ModulesSorted() {
 		if !alreadyProcessedModules[submoduleName] {
 			submoduleEnvironment, err := expandMergeEnvs(submodule.Environment, module.Environment)
 			submodule.Environment = submoduleEnvironment

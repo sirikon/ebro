@@ -21,8 +21,7 @@ func expandMergeEnvs(envs ...map[string]string) (map[string]string, error) {
 		//
 		// That's why we're sorting the keys and iterating over them
 		// instead of `range`ing the map directly.
-		envKeys := slices.Collect(maps.Keys(env))
-		slices.Sort(envKeys)
+		envKeys := slices.Sorted(maps.Keys(env))
 		for _, key := range envKeys {
 			expandedValue, err := expandString(env[key], parentEnv)
 			if err != nil {

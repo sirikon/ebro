@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"maps"
 	"os"
 	"path"
-	"slices"
 
 	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
@@ -56,9 +54,7 @@ func main() {
 	}
 
 	if arguments.Command == cli.CommandList {
-		taskNames := slices.Collect(maps.Keys(inv.Tasks))
-		slices.Sort(taskNames)
-		for _, taskName := range taskNames {
+		for taskName := range inv.TasksSorted() {
 			fmt.Println(taskName)
 		}
 		return

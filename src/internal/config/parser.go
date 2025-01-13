@@ -36,7 +36,7 @@ func processModule(module *Module, workingDirectory string) error {
 		module.WorkingDirectory = path.Join(workingDirectory, module.WorkingDirectory)
 	}
 
-	for importName, importObj := range module.Imports {
+	for importName, importObj := range module.ImportsSorted() {
 		if _, ok := module.Modules[importName]; ok {
 			return fmt.Errorf("cannot process import %v because there is already a module called %v", importName, importName)
 		}
@@ -57,7 +57,7 @@ func processModule(module *Module, workingDirectory string) error {
 		module.Modules[importName] = submodule
 	}
 
-	for _, submodule := range module.Modules {
+	for _, submodule := range module.ModulesSorted() {
 		processModule(submodule, module.WorkingDirectory)
 	}
 

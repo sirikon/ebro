@@ -12,7 +12,7 @@ func PurgeModule(module *Module) {
 }
 
 func (ctx *ctxPurgeModule) processModule(module *Module, moduleTrail []string) {
-	for taskName, task := range module.Tasks {
+	for taskName, task := range module.TasksSorted() {
 		if len(task.IfTasksExist) > 0 {
 			purge := false
 			for _, t := range task.IfTasksExist {
@@ -31,7 +31,7 @@ func (ctx *ctxPurgeModule) processModule(module *Module, moduleTrail []string) {
 		}
 	}
 
-	for submoduleName, submodule := range module.Modules {
+	for submoduleName, submodule := range module.ModulesSorted() {
 		ctx.processModule(submodule, append(moduleTrail, submoduleName))
 	}
 }

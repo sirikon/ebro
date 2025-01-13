@@ -2,7 +2,7 @@ package config
 
 type Module struct {
 	WorkingDirectory string             `yaml:"working_directory,omitempty"`
-	Imports          map[string]Import  `yaml:"imports,omitempty"`
+	Imports          map[string]*Import `yaml:"imports,omitempty"`
 	Environment      map[string]string  `yaml:"environment,omitempty"`
 	Tasks            map[string]*Task   `yaml:"tasks,omitempty"`
 	Modules          map[string]*Module `yaml:"modules,omitempty"`
