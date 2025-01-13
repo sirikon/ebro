@@ -1,6 +1,10 @@
 environment:
   DOCKER_APT_VERSION: "${DOCKER_VERSION:-1.0.0}-1-apt"
 
+imports:
+  plugins:
+    from: "${DOCKER_PLUGINS_MODULE_LOCATION}"
+
 tasks:
   default:
     requires: [package]

@@ -7,11 +7,20 @@ import (
 
 	"github.com/sirikon/ebro/internal/config/sources"
 	"github.com/sirikon/ebro/internal/constants"
+	"github.com/sirikon/ebro/internal/utils"
 
 	"github.com/goccy/go-yaml"
 )
 
 func ParseModule(modulePath string) (*Module, error) {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("obtaining working directory: %w", err)
+	}
+	return parseModule(modulePath, []map[string]string{{"EBRO_ROOT": workingDirectory}})
+}
+
+func parseModule(modulePath string, environmentChain []map[string]string) (*Module, error) {
 	module := &Module{}
 
 	body, err := os.ReadFile(modulePath)
@@ -24,12 +33,15 @@ func ParseModule(modulePath string) (*Module, error) {
 		return nil, fmt.Errorf("unmarshalling module file: %w", err)
 	}
 
-	processModule(module, path.Dir(modulePath))
+	err = processModule(module, path.Dir(modulePath), environmentChain)
+	if err != nil {
+		return nil, fmt.Errorf("processing module: %w", err)
+	}
 
 	return module, nil
 }
 
-func processModule(module *Module, workingDirectory string) error {
+func processModule(module *Module, workingDirectory string, environmentChain []map[string]string) error {
 	if module.WorkingDirectory == "" {
 		module.WorkingDirectory = workingDirectory
 	} else if !path.IsAbs(module.WorkingDirectory) {
@@ -41,12 +53,21 @@ func processModule(module *Module, workingDirectory string) error {
 			return fmt.Errorf("cannot process import %v because there is already a module called %v", importName, importName)
 		}
 
-		importPath, err := sourceModule(module.WorkingDirectory, importObj.From)
+		importEnv, err := utils.ExpandMergeEnvs(append([]map[string]string{importObj.Environment, module.Environment}, environmentChain...)...)
 		if err != nil {
-			return fmt.Errorf("parsing import.from %v: %w", importObj.From, err)
+			return fmt.Errorf("expanding environment for import operation: %w", err)
+		}
+		expandedFrom, err := utils.ExpandString(importObj.From, importEnv)
+		if err != nil {
+			return fmt.Errorf("expanding import.from for import operation: %w", err)
 		}
 
-		submodule, err := ParseModule(path.Join(importPath, constants.DefaultFile))
+		importPath, err := sourceModule(module.WorkingDirectory, expandedFrom)
+		if err != nil {
+			return fmt.Errorf("parsing import.from %v: %w", expandedFrom, err)
+		}
+
+		submodule, err := parseModule(path.Join(importPath, constants.DefaultFile), append([]map[string]string{module.Environment}, environmentChain...))
 		if err != nil {
 			return fmt.Errorf("parsing import %v: %w", importName, err)
 		}
@@ -58,7 +79,7 @@ func processModule(module *Module, workingDirectory string) error {
 	}
 
 	for _, submodule := range module.ModulesSorted() {
-		processModule(submodule, module.WorkingDirectory)
+		processModule(submodule, module.WorkingDirectory, append([]map[string]string{module.Environment}, environmentChain...))
 	}
 
 	return nil

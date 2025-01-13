@@ -1,11 +1,12 @@
 environment:
   DOCKER_MODULE_LOCATION: "docker"
+  DOCKER_PLUGINS_MODULE_LOCATION: "${EBRO_ROOT}/docker_plugins"
 
 imports:
   apt:
     from: ./apt
   docker:
-    from: ./docker
+    from: "./${DOCKER_MODULE_LOCATION}"
     environment:
       DOCKER_VERSION: "2.0.0"
   caddy:

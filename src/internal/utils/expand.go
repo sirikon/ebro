@@ -1,4 +1,4 @@
-package inventory
+package utils
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"mvdan.cc/sh/v3/shell"
 )
 
-func expandMergeEnvs(envs ...map[string]string) (map[string]string, error) {
+func ExpandMergeEnvs(envs ...map[string]string) (map[string]string, error) {
 	result := map[string]string{}
 	for i := (len(envs) - 1); i >= 0; i-- {
 		parentEnv := maps.Clone(result)
@@ -23,7 +23,7 @@ func expandMergeEnvs(envs ...map[string]string) (map[string]string, error) {
 		// instead of `range`ing the map directly.
 		envKeys := slices.Sorted(maps.Keys(env))
 		for _, key := range envKeys {
-			expandedValue, err := expandString(env[key], parentEnv)
+			expandedValue, err := ExpandString(env[key], parentEnv)
 			if err != nil {
 				return nil, fmt.Errorf("expanding %v: %w", env[key], err)
 			}
@@ -33,7 +33,7 @@ func expandMergeEnvs(envs ...map[string]string) (map[string]string, error) {
 	return result, nil
 }
 
-func expandString(s string, env map[string]string) (string, error) {
+func ExpandString(s string, env map[string]string) (string, error) {
 	return shell.Expand(s, func(s string) string {
 		if val, ok := env[s]; ok {
 			return val

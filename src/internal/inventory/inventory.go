@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/sirikon/ebro/internal/config"
+	"github.com/sirikon/ebro/internal/utils"
 )
 
 type Inventory struct {
@@ -57,7 +58,7 @@ func MakeInventory(module *config.Module) (Inventory, error) {
 			envsToMerge = append(envsToMerge, parentTask.Environment)
 		}
 		envsToMerge = append(envsToMerge, ctx.taskModuleIndex[taskName].Environment)
-		task.Environment, err = expandMergeEnvs(envsToMerge...)
+		task.Environment, err = utils.ExpandMergeEnvs(envsToMerge...)
 		if err != nil {
 			return ctx.inv, fmt.Errorf("expanding task %v environment: %w", taskName, err)
 		}
@@ -73,7 +74,7 @@ func MakeInventory(module *config.Module) (Inventory, error) {
 }
 
 func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []string, environment map[string]string) error {
-	moduleEnvironment, err := expandMergeEnvs(module.Environment, environment)
+	moduleEnvironment, err := utils.ExpandMergeEnvs(module.Environment, environment)
 	if err != nil {
 		return fmt.Errorf("expanding module environment: %w", err)
 	}
@@ -107,7 +108,7 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 	alreadyProcessedModules := make(map[string]bool)
 
 	for importName, importObj := range module.ImportsSorted() {
-		mergedEnv, err := expandMergeEnvs(module.Modules[importName].Environment, importObj.Environment, module.Environment)
+		mergedEnv, err := utils.ExpandMergeEnvs(module.Modules[importName].Environment, importObj.Environment, module.Environment)
 		if err != nil {
 			return fmt.Errorf("expanding import %v environment: %w", importName, err)
 		}
@@ -117,7 +118,7 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 
 	for submoduleName, submodule := range module.ModulesSorted() {
 		if !alreadyProcessedModules[submoduleName] {
-			submoduleEnvironment, err := expandMergeEnvs(submodule.Environment, module.Environment)
+			submoduleEnvironment, err := utils.ExpandMergeEnvs(submodule.Environment, module.Environment)
 			submodule.Environment = submoduleEnvironment
 			if err != nil {
 				return fmt.Errorf("expanding module %v environment: %w", submoduleName, err)

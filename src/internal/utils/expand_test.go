@@ -1,4 +1,4 @@
-package inventory
+package utils
 
 import (
 	"reflect"
@@ -23,7 +23,7 @@ func TestExpandMergeEnvsWorksWithSimpleScenario(t *testing.T) {
 		"C": "3",
 	}
 
-	result, err := expandMergeEnvs(childEnv, parentEnv, grandparentEnv)
+	result, err := ExpandMergeEnvs(childEnv, parentEnv, grandparentEnv)
 	if err != nil {
 		t.Fatalf("Error during execution: %v", err)
 	}
@@ -54,7 +54,7 @@ func TestExpandMergeEnvsWorksWithComplexScenario(t *testing.T) {
 		"DOCKER_VERSION_FOR_INSTALL": "2.0.0-apt",
 	}
 
-	result, err := expandMergeEnvs(childEnv, parentEnv, grandparentEnv)
+	result, err := ExpandMergeEnvs(childEnv, parentEnv, grandparentEnv)
 	if err != nil {
 		t.Fatalf("Error during execution: %v", err)
 	}
