@@ -16,16 +16,16 @@ type Inventory struct {
 
 type InventoryContext struct {
 	inv             Inventory
-	rootModule      *config.Module
+	rootModule      *config.RootModule
 	taskModuleIndex map[string]*config.Module
 }
 
-func MakeInventory(module *config.Module) (Inventory, error) {
+func MakeInventory(rootModule *config.RootModule) (Inventory, error) {
 	ctx := InventoryContext{
 		inv: Inventory{
 			Tasks: make(map[string]*config.Task),
 		},
-		rootModule:      module,
+		rootModule:      rootModule,
 		taskModuleIndex: make(map[string]*config.Module),
 	}
 
@@ -34,7 +34,7 @@ func MakeInventory(module *config.Module) (Inventory, error) {
 		return ctx.inv, fmt.Errorf("obtaining working directory: %w", err)
 	}
 
-	err = ctx.processModule(module, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
+	err = ctx.processModule(rootModule.Module, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
 	if err != nil {
 		return ctx.inv, fmt.Errorf("processing module: %w", err)
 	}
@@ -153,7 +153,7 @@ func normalizeTaskName(inv Inventory, taskName string) string {
 func (ctx *InventoryContext) resolveRefs(s []string, moduleTrail []string) ([]string, error) {
 	result := []string{}
 	for _, taskReferenceString := range s {
-		ref, _ := config.ParseTaskReference(taskReferenceString)
+		ref := config.MustParseTaskReference(taskReferenceString)
 		taskId, _ := ctx.rootModule.GetTask(ref.Absolute(moduleTrail))
 		if taskId != nil {
 			result = append(result, taskId.String())

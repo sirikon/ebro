@@ -2,8 +2,6 @@ package config
 
 import (
 	"fmt"
-	"maps"
-	"slices"
 )
 
 type ctxValidateRootModule struct {
@@ -18,24 +16,14 @@ func ValidateRootModule(module *Module) error {
 }
 
 func (ctx *ctxValidateRootModule) validateModule(module *Module) error {
-	taskNames := slices.Collect(maps.Keys(module.Tasks))
-	slices.Sort(taskNames)
-
-	for _, taskName := range taskNames {
-		task := module.Tasks[taskName]
-		err := ctx.validateTask(task)
-		if err != nil {
+	for taskName, task := range module.TasksSorted() {
+		if err := ctx.validateTask(task); err != nil {
 			return fmt.Errorf("validating task %v: %w", taskName, err)
 		}
 	}
 
-	moduleNames := slices.Collect(maps.Keys(module.Modules))
-	slices.Sort(moduleNames)
-
-	for _, moduleName := range moduleNames {
-		module := module.Modules[moduleName]
-		err := ctx.validateModule(module)
-		if err != nil {
+	for moduleName, module := range module.ModulesSorted() {
+		if err := ctx.validateModule(module); err != nil {
 			return fmt.Errorf("validating module %v: %w", moduleName, err)
 		}
 	}
@@ -49,22 +37,19 @@ func (ctx *ctxValidateRootModule) validateTask(task *Task) error {
 	}
 
 	for _, taskReferenceString := range task.Requires {
-		_, err := ParseTaskReference(taskReferenceString)
-		if err != nil {
+		if err := ValidateTaskReference(taskReferenceString); err != nil {
 			return fmt.Errorf("parsing reference %v in requires: %w", taskReferenceString, err)
 		}
 	}
 
 	for _, taskReferenceString := range task.RequiredBy {
-		_, err := ParseTaskReference(taskReferenceString)
-		if err != nil {
+		if err := ValidateTaskReference(taskReferenceString); err != nil {
 			return fmt.Errorf("parsing reference %v in required_by: %w", taskReferenceString, err)
 		}
 	}
 
 	for _, taskReferenceString := range task.Extends {
-		_, err := ParseTaskReference(taskReferenceString)
-		if err != nil {
+		if err := ValidateTaskReference(taskReferenceString); err != nil {
 			return fmt.Errorf("parsing reference %v in extends: %w", taskReferenceString, err)
 		}
 	}

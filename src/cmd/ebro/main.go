@@ -28,15 +28,16 @@ func main() {
 		os.Exit(0)
 	}
 
-	rootModule, err := config.ParseModule(rootModulePath(arguments))
+	module, err := config.ParseModule(rootModulePath(arguments))
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
-	err = config.ValidateRootModule(rootModule)
+	err = config.ValidateRootModule(module)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
+	rootModule := config.NewRootModule(module)
 	config.PurgeModule(rootModule)
 
 	inv, err := inventory.MakeInventory(rootModule)

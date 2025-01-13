@@ -1,37 +1,45 @@
 package config
 
-type ctxPurgeModule struct {
-	rootModule *Module
-}
+import (
+	"github.com/sirikon/ebro/internal/dag"
+)
 
-func PurgeModule(module *Module) {
-	ctx := ctxPurgeModule{
-		rootModule: module,
+func PurgeModule(rootModule *RootModule) {
+	purgeDag := dag.NewDag()
+
+	targets := []string{}
+	for taskId, task := range rootModule.AllTasks() {
+		if len(task.IfTasksExist) > 0 {
+			for _, t := range task.IfTasksExist {
+				parentTaskId := MustParseTaskReference(t).Absolute(taskId.ModuleTrail).TaskId()
+				purgeDag.Link(taskId.String(), parentTaskId.String())
+				targets = append(targets, taskId.String())
+			}
+		}
 	}
-	ctx.processModule(module, []string{})
-}
 
-func (ctx *ctxPurgeModule) processModule(module *Module, moduleTrail []string) {
-	for taskName, task := range module.TasksSorted() {
+	result, _ := purgeDag.Resolve(targets)
+
+	for _, refStr := range result {
+		taskId, task := rootModule.GetTask(MustParseTaskReference(refStr))
+		if taskId == nil {
+			continue
+		}
+
 		if len(task.IfTasksExist) > 0 {
 			purge := false
 			for _, t := range task.IfTasksExist {
-				ref, _ := ParseTaskReference(t)
-				ref = ref.Absolute(moduleTrail)
-				taskId, _ := ctx.rootModule.GetTask(ref)
+				ref := MustParseTaskReference(t).Absolute(taskId.ModuleTrail)
+				taskId, _ := rootModule.GetTask(ref)
 				if taskId == nil {
 					purge = true
 				}
 			}
 			if purge {
-				delete(module.Tasks, taskName)
+				rootModule.RemoveTask(taskId)
 			} else {
 				task.IfTasksExist = []string{}
 			}
 		}
-	}
-
-	for submoduleName, submodule := range module.ModulesSorted() {
-		ctx.processModule(submodule, append(moduleTrail, submoduleName))
 	}
 }
