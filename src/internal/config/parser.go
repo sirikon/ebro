@@ -42,11 +42,11 @@ func parseModule(modulePath string, environmentChain []map[string]string) (*Modu
 }
 
 func processModule(module *Module, workingDirectory string, environmentChain []map[string]string) error {
-	if module.WorkingDirectory == "" {
-		module.WorkingDirectory = workingDirectory
-	} else if !path.IsAbs(module.WorkingDirectory) {
+	if !path.IsAbs(module.WorkingDirectory) {
 		module.WorkingDirectory = path.Join(workingDirectory, module.WorkingDirectory)
 	}
+
+	alreadyProcessedModules := make(map[string]bool)
 
 	for importName, importObj := range module.ImportsSorted() {
 		if _, ok := module.Modules[importName]; ok {
@@ -76,9 +76,13 @@ func processModule(module *Module, workingDirectory string, environmentChain []m
 			module.Modules = make(map[string]*Module)
 		}
 		module.Modules[importName] = submodule
+		alreadyProcessedModules[importName] = true
 	}
 
-	for _, submodule := range module.ModulesSorted() {
+	for submoduleName, submodule := range module.ModulesSorted() {
+		if alreadyProcessedModules[submoduleName] {
+			continue
+		}
 		processModule(submodule, module.WorkingDirectory, append([]map[string]string{module.Environment}, environmentChain...))
 	}
 
