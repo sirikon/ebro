@@ -100,9 +100,9 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 			task.WorkingDirectory = path.Join(module.WorkingDirectory, task.WorkingDirectory)
 		}
 
-		taskId := config.TaskId{ModuleTrail: moduleTrail, TaskName: taskName}
-		ctx.inv.Tasks[taskId.String()] = task
-		ctx.taskModuleIndex[taskId.String()] = module
+		taskId := config.MakeTaskId(moduleTrail, taskName)
+		ctx.inv.Tasks[string(taskId)] = task
+		ctx.taskModuleIndex[string(taskId)] = module
 	}
 
 	alreadyProcessedModules := make(map[string]bool)
@@ -154,9 +154,9 @@ func (ctx *InventoryContext) resolveRefs(s []string, moduleTrail []string) ([]st
 	result := []string{}
 	for _, taskReferenceString := range s {
 		ref := config.MustParseTaskReference(taskReferenceString)
-		taskId, _ := ctx.rootModule.GetTask(ref.Absolute(moduleTrail))
+		taskId, _ := ctx.rootModule.FindTask(ref.Absolute(moduleTrail))
 		if taskId != nil {
-			result = append(result, taskId.String())
+			result = append(result, string(*taskId))
 		} else if !ref.IsOptional {
 			return nil, fmt.Errorf("referenced task %v does not exist", ref.String())
 		}

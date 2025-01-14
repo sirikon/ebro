@@ -140,7 +140,7 @@ func TestModuleGetTaskWorks(t *testing.T) {
 
 	for _, testCase := range testCases {
 		taskReference := MustParseTaskReference(testCase.input)
-		_, result := rootModule.GetTask(taskReference)
+		_, result := rootModule.FindTask(taskReference)
 		if result != testCase.expected {
 			t.Fatalf("Not the same object: \n%v\n%v", testCase.expected, result)
 		}

@@ -5,32 +5,32 @@ import (
 )
 
 func PurgeModule(rootModule *RootModule) {
-	purgeDag := dag.NewDag()
+	purgeDag := dag.NewDag[TaskId]()
 
-	targets := []string{}
+	targets := []TaskId{}
 	for taskId, task := range rootModule.AllTasks() {
 		if len(task.IfTasksExist) > 0 {
 			for _, t := range task.IfTasksExist {
-				parentTaskId := MustParseTaskReference(t).Absolute(taskId.ModuleTrail).TaskId()
-				purgeDag.Link(taskId.String(), parentTaskId.String())
-				targets = append(targets, taskId.String())
+				parentTaskId := MustParseTaskReference(t).Absolute(taskId.ModuleTrail()).TaskId()
+				purgeDag.Link(taskId, parentTaskId)
+				targets = append(targets, taskId)
 			}
 		}
 	}
 
-	result, _ := purgeDag.Resolve(targets)
+	taskIds, _ := purgeDag.Resolve(targets)
 
-	for _, refStr := range result {
-		taskId, task := rootModule.GetTask(MustParseTaskReference(refStr))
-		if taskId == nil {
+	for _, taskId := range taskIds {
+		task := rootModule.GetTask(taskId)
+		if task == nil {
 			continue
 		}
 
 		if len(task.IfTasksExist) > 0 {
 			purge := false
 			for _, t := range task.IfTasksExist {
-				ref := MustParseTaskReference(t).Absolute(taskId.ModuleTrail)
-				taskId, _ := rootModule.GetTask(ref)
+				ref := MustParseTaskReference(t).Absolute(taskId.ModuleTrail())
+				taskId, _ := rootModule.FindTask(ref)
 				if taskId == nil {
 					purge = true
 				}

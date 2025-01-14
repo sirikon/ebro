@@ -8,17 +8,15 @@ import (
 
 type RootModule struct {
 	Module          *Module
-	TaskIdIndex     map[string]*TaskId
-	TaskIndex       map[string]*Task
-	TaskModuleIndex map[string]*Module
+	TaskIndex       map[TaskId]*Task
+	TaskModuleIndex map[TaskId]*Module
 }
 
 func NewRootModule(module *Module) *RootModule {
 	rootModule := &RootModule{
 		Module:          module,
-		TaskIdIndex:     map[string]*TaskId{},
-		TaskIndex:       map[string]*Task{},
-		TaskModuleIndex: map[string]*Module{},
+		TaskIndex:       map[TaskId]*Task{},
+		TaskModuleIndex: map[TaskId]*Module{},
 	}
 	rootModule.processModule(rootModule.Module, []string{})
 	return rootModule
@@ -26,41 +24,51 @@ func NewRootModule(module *Module) *RootModule {
 
 func (rm *RootModule) processModule(module *Module, moduleTrail []string) {
 	for taskName, task := range module.TasksSorted() {
-		taskId := &TaskId{ModuleTrail: moduleTrail, TaskName: taskName}
-		rm.TaskIdIndex[taskId.String()] = taskId
-		rm.TaskIndex[taskId.String()] = task
-		rm.TaskModuleIndex[taskId.String()] = module
+		taskId := MakeTaskId(moduleTrail, taskName)
+		rm.TaskIndex[taskId] = task
+		rm.TaskModuleIndex[taskId] = module
 	}
 	for moduleName, module := range module.ModulesSorted() {
 		rm.processModule(module, append(moduleTrail, moduleName))
 	}
 }
 
-func (rm *RootModule) GetTask(taskReference TaskReference) (*TaskId, *Task) {
+func (rm *RootModule) FindTask(taskReference TaskReference) (*TaskId, *Task) {
 	if taskReference.IsRelative {
 		panic("cannot call getTask with a relative taskReference")
 	}
-	if task, ok := rm.TaskIndex[taskReference.TaskId().String()]; ok {
-		return taskReference.TaskId(), task
+
+	taskId := taskReference.TaskId()
+	if task, ok := rm.TaskIndex[taskId]; ok {
+		return &taskId, task
 	}
-	if task, ok := rm.TaskIndex[taskReference.Concat("default").TaskId().String()]; ok {
-		return taskReference.Concat("default").TaskId(), task
+
+	taskId = taskReference.Concat("default").TaskId()
+	if task, ok := rm.TaskIndex[taskId]; ok {
+		return &taskId, task
 	}
+
 	return nil, nil
 }
 
-func (rm *RootModule) RemoveTask(taskId *TaskId) {
-	delete(rm.TaskModuleIndex[taskId.String()].Tasks, taskId.TaskName)
-	delete(rm.TaskModuleIndex, taskId.String())
-	delete(rm.TaskIndex, taskId.String())
-	delete(rm.TaskIdIndex, taskId.String())
+func (rm *RootModule) GetTask(taskId TaskId) *Task {
+	if task, ok := rm.TaskIndex[taskId]; ok {
+		return task
+	}
+	return nil
 }
 
-func (rm *RootModule) AllTasks() iter.Seq2[*TaskId, *Task] {
-	taskIdsStr := slices.Sorted(maps.Keys(rm.TaskIndex))
-	return func(yield func(*TaskId, *Task) bool) {
-		for _, taskIdStr := range taskIdsStr {
-			if !yield(rm.TaskIdIndex[taskIdStr], rm.TaskIndex[taskIdStr]) {
+func (rm *RootModule) RemoveTask(taskId TaskId) {
+	delete(rm.TaskModuleIndex[taskId].Tasks, taskId.TaskName())
+	delete(rm.TaskModuleIndex, taskId)
+	delete(rm.TaskIndex, taskId)
+}
+
+func (rm *RootModule) AllTasks() iter.Seq2[TaskId, *Task] {
+	taskIds := slices.Sorted(maps.Keys(rm.TaskIndex))
+	return func(yield func(TaskId, *Task) bool) {
+		for _, taskId := range taskIds {
+			if !yield(taskId, rm.TaskIndex[taskId]) {
 				return
 			}
 		}

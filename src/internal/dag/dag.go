@@ -7,18 +7,18 @@ import (
 	"github.com/sirikon/ebro/internal/utils"
 )
 
-type Dag struct {
-	dependencyMap map[string]map[string]bool
+type Dag[T ~string] struct {
+	dependencyMap map[T]map[T]bool
 }
 
-func NewDag() Dag {
-	return Dag{dependencyMap: map[string]map[string]bool{}}
+func NewDag[T ~string]() Dag[T] {
+	return Dag[T]{dependencyMap: map[T]map[T]bool{}}
 }
 
-func (d *Dag) Link(parentNode string, childNodes ...string) {
+func (d *Dag[T]) Link(parentNode T, childNodes ...T) {
 	dependencies, ok := d.dependencyMap[parentNode]
 	if !ok {
-		dependencies = make(map[string]bool)
+		dependencies = make(map[T]bool)
 		d.dependencyMap[parentNode] = dependencies
 	}
 	for _, childNode := range childNodes {
@@ -26,9 +26,9 @@ func (d *Dag) Link(parentNode string, childNodes ...string) {
 	}
 }
 
-func (d *Dag) Resolve(targets []string) ([]string, map[string][]string) {
-	result := []string{}
-	nodesToSolve := utils.NewSet[string]()
+func (d *Dag[T]) Resolve(targets []T) ([]T, map[T][]T) {
+	result := []T{}
+	nodesToSolve := utils.NewSet[T]()
 
 	for _, node := range targets {
 		nodesToSolve.Add(node)
@@ -42,7 +42,7 @@ func (d *Dag) Resolve(targets []string) ([]string, map[string][]string) {
 	shouldContinue := true
 	for shouldContinue {
 		shouldContinue = false
-		batch := []string{}
+		batch := []T{}
 
 		for _, node := range nodesToSolve.List() {
 			dependencies := d.dependencyMap[node]
@@ -66,7 +66,7 @@ func (d *Dag) Resolve(targets []string) ([]string, map[string][]string) {
 	}
 
 	if nodesToSolve.Length() > 0 {
-		remains := make(map[string][]string)
+		remains := make(map[T][]T)
 		for _, parentNode := range nodesToSolve.List() {
 			nodes := slices.Collect(maps.Keys(d.dependencyMap[parentNode]))
 			slices.Sort(nodes)

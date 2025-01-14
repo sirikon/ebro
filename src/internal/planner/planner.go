@@ -14,7 +14,7 @@ type Plan []string
 
 func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
 	tasksToRun := utils.NewSet[string]()
-	taskDag := dag.NewDag()
+	taskDag := dag.NewDag[string]()
 
 	tasksToRun.Add(targets...)
 

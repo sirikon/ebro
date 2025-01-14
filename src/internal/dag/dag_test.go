@@ -6,7 +6,7 @@ import (
 )
 
 func TestWorksWithSimpleScenario(t *testing.T) {
-	testDag := NewDag()
+	testDag := NewDag[string]()
 	testDag.Link("A", "B")
 	testDag.Link("B", "C")
 	testDag.Link("Y", "Z")

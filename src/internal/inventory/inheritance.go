@@ -13,7 +13,7 @@ import (
 )
 
 func resolveInheritanceOrder(inv Inventory) ([]string, error) {
-	inheritanceDag := dag.NewDag()
+	inheritanceDag := dag.NewDag[string]()
 
 	for taskName, task := range inv.Tasks {
 		inheritanceDag.Link(taskName, task.Extends...)

@@ -77,16 +77,23 @@ func (m *Module) ImportsSorted() iter.Seq2[string, *Import] {
 	}
 }
 
-type TaskId struct {
-	ModuleTrail []string
-	TaskName    string
+type TaskId string
+
+func MakeTaskId(moduleTrail []string, taskName string) TaskId {
+	chunks := []string{""}
+	chunks = append(chunks, moduleTrail...)
+	chunks = append(chunks, taskName)
+	return TaskId(strings.Join(chunks, ":"))
 }
 
-func (tid TaskId) String() string {
-	chunks := []string{""}
-	chunks = append(chunks, tid.ModuleTrail...)
-	chunks = append(chunks, tid.TaskName)
-	return strings.Join(chunks, ":")
+func (tid TaskId) ModuleTrail() []string {
+	parts := strings.Split(strings.TrimPrefix(string(tid), ":"), ":")
+	return parts[:len(parts)-1]
+}
+
+func (tid TaskId) TaskName() string {
+	parts := strings.Split(strings.TrimPrefix(string(tid), ":"), ":")
+	return parts[len(parts)-1]
 }
 
 var taskReferenceRegex = regexp.MustCompile(`^:?[a-zA-Z0-9-_\.]+(:[a-zA-Z0-9-_\.]+)*\??$`)
@@ -150,14 +157,11 @@ func (tp TaskReference) Concat(extraPath ...string) TaskReference {
 	}
 }
 
-func (tp TaskReference) TaskId() *TaskId {
+func (tp TaskReference) TaskId() TaskId {
 	if tp.IsRelative {
 		panic("cannot build TaskId from relative TaskReference")
 	}
-	return &TaskId{
-		ModuleTrail: tp.Path[:len(tp.Path)-1],
-		TaskName:    tp.Path[len(tp.Path)-1],
-	}
+	return MakeTaskId(tp.Path[:len(tp.Path)-1], tp.Path[len(tp.Path)-1])
 }
 
 func (tp TaskReference) PathString() string {
