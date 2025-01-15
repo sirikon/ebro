@@ -8,18 +8,18 @@ import (
 )
 
 type ctxNormalizeModule struct {
-	rootModule *RootModule
+	indexedModule *IndexedModule
 }
 
-func NormalizeRootModule(rootModule *RootModule) (*core.Module, error) {
+func NormalizeModule(indexedModule *IndexedModule) (*core.Module, error) {
 	ctx := ctxNormalizeModule{
-		rootModule: rootModule,
+		indexedModule: indexedModule,
 	}
-	err := ctx.normalizeModule(ctx.rootModule.Module, []string{})
+	err := ctx.normalizeModule(ctx.indexedModule.Module, []string{})
 	if err != nil {
 		return nil, err
 	}
-	return toCoreModulePtr(ctx.rootModule.Module), nil
+	return toCoreModulePtr(ctx.indexedModule.Module), nil
 }
 
 func (ctx *ctxNormalizeModule) normalizeModule(module *Module, moduleTrail []string) error {
@@ -61,12 +61,12 @@ func (ctx *ctxNormalizeModule) normalizeTask(task *Task, moduleTrail []string) e
 func (ctx *ctxNormalizeModule) resolveRefs(s []string, moduleTrail []string) ([]string, error) {
 	result := []string{}
 	for _, taskReferenceString := range s {
-		ref := MustParseTaskReference(taskReferenceString)
-		taskId, _ := FindTask(ctx.rootModule, ref.Absolute(moduleTrail))
+		ref := mustParseTaskReference(taskReferenceString)
+		taskId, _ := FindTask(ctx.indexedModule, ref.Absolute(moduleTrail))
 		if taskId != nil {
 			result = append(result, string(*taskId))
 		} else if !ref.IsOptional {
-			return nil, fmt.Errorf("referenced task %v does not exist", ref.String())
+			return nil, fmt.Errorf("referenced task '%v' does not exist", ref.String())
 		}
 	}
 	return result, nil
@@ -86,10 +86,10 @@ func castUsingYaml(from interface{}, to interface{}) {
 	yaml.Unmarshal(data, to)
 }
 
-func NormalizeTargets(rootModule *RootModule, targets []string) ([]core.TaskId, error) {
+func NormalizeTargets(indexedModule *core.IndexedModule, targets []string) ([]core.TaskId, error) {
 	result := []core.TaskId{}
 	for _, target := range targets {
-		taskId, err := normalizeTarget(rootModule, target)
+		taskId, err := normalizeTarget(indexedModule, target)
 		if err != nil {
 			return nil, fmt.Errorf("validating target '%v': %w", target, err)
 		}
@@ -98,12 +98,12 @@ func NormalizeTargets(rootModule *RootModule, targets []string) ([]core.TaskId, 
 	return result, nil
 }
 
-func normalizeTarget(rootModule *RootModule, target string) (*core.TaskId, error) {
-	if err := ValidateTaskReference(target); err != nil {
+func normalizeTarget(indexedModule *core.IndexedModule, target string) (*core.TaskId, error) {
+	if err := validateTaskReference(target); err != nil {
 		return nil, err
 	}
-	ref := MustParseTaskReference(target).Absolute([]string{})
-	taskId, _ := FindTask(rootModule, ref)
+	ref := mustParseTaskReference(target).Absolute([]string{})
+	taskId, _ := FindTask(indexedModule, ref)
 	if taskId == nil {
 		return nil, fmt.Errorf("task does not exist")
 	}

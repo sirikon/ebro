@@ -24,7 +24,7 @@ func TestParseTaskReferenceChecksRegex(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		err := ValidateTaskReference(testCase.input)
+		err := validateTaskReference(testCase.input)
 		if testCase.should_work {
 			if err != nil {
 				t.Fatal(err)
@@ -40,24 +40,24 @@ func TestParseTaskReferenceChecksRegex(t *testing.T) {
 func TestParseTaskReferenceWorks(t *testing.T) {
 	testCases := []struct {
 		input    string
-		expected TaskReference
+		expected taskReference
 	}{
-		{"default", TaskReference{
+		{"default", taskReference{
 			Path:       []string{"default"},
 			IsRelative: true,
 			IsOptional: false,
 		}},
-		{"docker:bin", TaskReference{
+		{"docker:bin", taskReference{
 			Path:       []string{"docker", "bin"},
 			IsRelative: true,
 			IsOptional: false,
 		}},
-		{"docker:package:default?", TaskReference{
+		{"docker:package:default?", taskReference{
 			Path:       []string{"docker", "package", "default"},
 			IsRelative: true,
 			IsOptional: true,
 		}},
-		{":docker:package?", TaskReference{
+		{":docker:package?", taskReference{
 			Path:       []string{"docker", "package"},
 			IsRelative: false,
 			IsOptional: true,
@@ -65,7 +65,7 @@ func TestParseTaskReferenceWorks(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		result := MustParseTaskReference(testCase.input)
+		result := mustParseTaskReference(testCase.input)
 		if !reflect.DeepEqual(testCase.expected, result) {
 			t.Fatalf("Not deeply equal: \n%v\n%v", testCase.expected, result)
 		}
@@ -74,33 +74,33 @@ func TestParseTaskReferenceWorks(t *testing.T) {
 
 func TesTaskReferenceAbsoluteWorks(t *testing.T) {
 	testCases := []struct {
-		TaskReference TaskReference
+		TaskReference taskReference
 		path          []string
-		expected      TaskReference
+		expected      taskReference
 	}{
-		{TaskReference{
+		{taskReference{
 			Path:       []string{"default"},
 			IsRelative: true,
 			IsOptional: true,
-		}, []string{}, TaskReference{
+		}, []string{}, taskReference{
 			Path:       []string{"default"},
 			IsRelative: false,
 			IsOptional: true,
 		}},
-		{TaskReference{
+		{taskReference{
 			Path:       []string{"default"},
 			IsRelative: true,
 			IsOptional: true,
-		}, []string{"docker"}, TaskReference{
+		}, []string{"docker"}, taskReference{
 			Path:       []string{"docker", "default"},
 			IsRelative: false,
 			IsOptional: true,
 		}},
-		{TaskReference{
+		{taskReference{
 			Path:       []string{"default"},
 			IsRelative: false,
 			IsOptional: true,
-		}, []string{"docker"}, TaskReference{
+		}, []string{"docker"}, taskReference{
 			Path:       []string{"default"},
 			IsRelative: false,
 			IsOptional: true,

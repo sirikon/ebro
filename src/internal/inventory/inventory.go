@@ -16,16 +16,16 @@ type Inventory struct {
 
 type InventoryContext struct {
 	inv             Inventory
-	rootModule      *core.RootModule
+	indexedModule   *core.IndexedModule
 	taskModuleIndex map[core.TaskId]*core.Module
 }
 
-func MakeInventory(rootModule *core.RootModule) (Inventory, error) {
+func MakeInventory(indexedModule *core.IndexedModule) (Inventory, error) {
 	ctx := InventoryContext{
 		inv: Inventory{
 			Tasks: make(map[core.TaskId]*core.Task),
 		},
-		rootModule:      rootModule,
+		indexedModule:   indexedModule,
 		taskModuleIndex: make(map[core.TaskId]*core.Module),
 	}
 
@@ -34,7 +34,7 @@ func MakeInventory(rootModule *core.RootModule) (Inventory, error) {
 		return ctx.inv, fmt.Errorf("obtaining working directory: %w", err)
 	}
 
-	err = ctx.processModule(rootModule.Module, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
+	err = ctx.processModule(indexedModule.Module, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
 	if err != nil {
 		return ctx.inv, fmt.Errorf("processing module: %w", err)
 	}

@@ -2,11 +2,11 @@ package config
 
 import "github.com/sirikon/ebro/internal/core"
 
-type RootModule = core.RootModuleBase[Task, Import]
+type IndexedModule = core.IndexedModuleBase[Task, Import]
 
-var NewRootModule = core.NewRootModuleBase[Task, Import, *RootModule]
+var NewIndexedModule = core.NewIndexModuleBase[Task, Import, *IndexedModule]
 
-func FindTask(rm *RootModule, taskReference TaskReference) (*core.TaskId, *Task) {
+func FindTask[TTask any, TImport any](rm *core.IndexedModuleBase[TTask, TImport], taskReference taskReference) (*core.TaskId, *TTask) {
 	if taskReference.IsRelative {
 		panic("cannot call getTask with a relative taskReference")
 	}

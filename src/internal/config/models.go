@@ -19,27 +19,27 @@ type When = core.When
 
 var taskReferenceRegex = regexp.MustCompile(`^:?[a-zA-Z0-9-_\.]+(:[a-zA-Z0-9-_\.]+)*\??$`)
 
-type TaskReference struct {
+type taskReference struct {
 	Path       []string
 	IsRelative bool
 	IsOptional bool
 }
 
-func ValidateTaskReference(text string) error {
+func validateTaskReference(text string) error {
 	if !taskReferenceRegex.MatchString(text) {
 		return fmt.Errorf("task reference is invalid")
 	}
 	return nil
 }
 
-func MustParseTaskReference(text string) TaskReference {
-	result := TaskReference{
+func mustParseTaskReference(text string) taskReference {
+	result := taskReference{
 		Path:       []string{},
 		IsRelative: true,
 		IsOptional: false,
 	}
 
-	if err := ValidateTaskReference(text); err != nil {
+	if err := validateTaskReference(text); err != nil {
 		panic(err)
 	}
 
@@ -58,34 +58,34 @@ func MustParseTaskReference(text string) TaskReference {
 	return result
 }
 
-func (tp TaskReference) Absolute(parentPath []string) TaskReference {
+func (tp taskReference) Absolute(parentPath []string) taskReference {
 	if !tp.IsRelative {
 		return tp
 	}
 
-	return TaskReference{
+	return taskReference{
 		Path:       append(parentPath, tp.Path...),
 		IsRelative: false,
 		IsOptional: tp.IsOptional,
 	}
 }
 
-func (tp TaskReference) Concat(extraPath ...string) TaskReference {
-	return TaskReference{
+func (tp taskReference) Concat(extraPath ...string) taskReference {
+	return taskReference{
 		Path:       append(tp.Path, extraPath...),
 		IsRelative: tp.IsRelative,
 		IsOptional: tp.IsOptional,
 	}
 }
 
-func (tp TaskReference) TaskId() core.TaskId {
+func (tp taskReference) TaskId() core.TaskId {
 	if tp.IsRelative {
 		panic("cannot build TaskId from relative TaskReference")
 	}
 	return core.MakeTaskId(tp.Path[:len(tp.Path)-1], tp.Path[len(tp.Path)-1])
 }
 
-func (tp TaskReference) PathString() string {
+func (tp taskReference) PathString() string {
 	chunks := []string{}
 	if !tp.IsRelative {
 		chunks = append(chunks, ":")
@@ -94,7 +94,7 @@ func (tp TaskReference) PathString() string {
 	return strings.Join(chunks, "")
 }
 
-func (tp TaskReference) String() string {
+func (tp taskReference) String() string {
 	chunks := []string{}
 	chunks = append(chunks, tp.PathString())
 	if tp.IsOptional {

@@ -67,6 +67,6 @@ class TestPlan(EbroTestCase):
         self.assertStdout(
             stdout,
             """
-            ███ ERROR: normalizing task 'default': resolving 'requires': referenced task nonexistent does not exist
+            ███ ERROR: normalizing root module: normalizing task 'default': resolving 'requires': referenced task 'nonexistent' does not exist
             """,
         )

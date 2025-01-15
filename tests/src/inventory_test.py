@@ -254,7 +254,7 @@ class TestInventory(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: validating task default: task has nothing to do (no requires, script, extends nor abstract)
+            ███ ERROR: validating root module: validating task default: task has nothing to do (no requires, script, extends nor abstract)
             """,
         )
 
@@ -266,7 +266,7 @@ class TestInventory(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: unmarshalling module file: [1:1] unknown field "import"
+            ███ ERROR: parsing root module: unmarshalling module file: [1:1] unknown field "import"
             >  1 | import:
                    ^
                2 |   apt:

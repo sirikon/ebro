@@ -7,17 +7,31 @@ import (
 
 	"github.com/sirikon/ebro/internal/config/sources"
 	"github.com/sirikon/ebro/internal/constants"
+	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/utils"
 
 	"github.com/goccy/go-yaml"
 )
 
-func ParseModule(modulePath string) (*Module, error) {
-	workingDirectory, err := os.Getwd()
+func ParseRootModule(workingDirectory string, modulePath string) (*core.IndexedModule, error) {
+	rootModule, err := parseModule(modulePath, []map[string]string{{"EBRO_ROOT": workingDirectory}})
 	if err != nil {
-		return nil, fmt.Errorf("obtaining working directory: %w", err)
+		return nil, fmt.Errorf("parsing root module: %w", err)
 	}
-	return parseModule(modulePath, []map[string]string{{"EBRO_ROOT": workingDirectory}})
+
+	err = ValidateModule(rootModule)
+	if err != nil {
+		return nil, fmt.Errorf("validating root module: %w", err)
+	}
+
+	indexedModule := NewIndexedModule(rootModule)
+	PurgeModule(indexedModule)
+	coreModule, err := NormalizeModule(indexedModule)
+	if err != nil {
+		return nil, fmt.Errorf("normalizing root module: %w", err)
+	}
+
+	return core.NewIndexedModule(coreModule), nil
 }
 
 func parseModule(modulePath string, environmentChain []map[string]string) (*Module, error) {

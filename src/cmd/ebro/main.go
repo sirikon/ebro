@@ -10,7 +10,6 @@ import (
 
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/config"
-	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/runner"
@@ -19,38 +18,31 @@ import (
 func main() {
 	arguments := cli.Parse()
 
+	// -help
 	if arguments.Command == cli.CommandHelp {
 		cli.PrintHelp()
 		os.Exit(0)
 	}
 
+	// -version
 	if arguments.Command == cli.CommandVersion {
 		cli.PrintVersion()
 		os.Exit(0)
 	}
 
-	module, err := config.ParseModule(rootModulePath(arguments))
+	workingDirectory := getWorkingDirectory()
+
+	indexedRootModule, err := config.ParseRootModule(workingDirectory, rootModulePath(arguments))
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
-	err = config.ValidateRootModule(module)
-	if err != nil {
-		cli.ExitWithError(err)
-	}
-	rootModule := config.NewRootModule(module)
-	config.PurgeModule(rootModule)
-
-	coreModule, err := config.NormalizeRootModule(rootModule)
+	inv, err := inventory.MakeInventory(indexedRootModule)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
-	inv, err := inventory.MakeInventory(core.NewRootModule(coreModule))
-	if err != nil {
-		cli.ExitWithError(err)
-	}
-
+	// -inventory
 	if arguments.Command == cli.CommandInventory {
 		bytes, err := yaml.Marshal(inv.Tasks)
 		if err != nil {
@@ -67,15 +59,17 @@ func main() {
 		return
 	}
 
-	targets, err := config.NormalizeTargets(rootModule, arguments.Targets)
+	targets, err := config.NormalizeTargets(indexedRootModule, arguments.Targets)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
+
 	plan, err := planner.MakePlan(inv, targets)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
+	// -plan
 	if arguments.Command == cli.CommandPlan {
 		for _, step := range plan {
 			fmt.Println(step)
@@ -94,6 +88,26 @@ func main() {
 	}
 }
 
+func getWorkingDirectory() string {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		cli.ExitWithError(fmt.Errorf("obtaining working directory: %w", err))
+	}
+	return workingDirectory
+}
+
+func rootModulePath(arguments cli.ExecutionArguments) string {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		cli.ExitWithError(err)
+	}
+	filePath := *arguments.GetFlagString(cli.FlagFile)
+	if !path.IsAbs(filePath) {
+		filePath = path.Join(workingDirectory, filePath)
+	}
+	return filePath
+}
+
 func lock() error {
 	lockPath := path.Join(".ebro", "lock")
 	err := os.MkdirAll(path.Dir(lockPath), os.ModePerm)
@@ -107,16 +121,4 @@ func lock() error {
 		return fmt.Errorf("obtaining lock for process: %w", err)
 	}
 	return nil
-}
-
-func rootModulePath(arguments cli.ExecutionArguments) string {
-	workingDirectory, err := os.Getwd()
-	if err != nil {
-		cli.ExitWithError(err)
-	}
-	filePath := *arguments.GetFlagString(cli.FlagFile)
-	if !path.IsAbs(filePath) {
-		filePath = path.Join(workingDirectory, filePath)
-	}
-	return filePath
 }

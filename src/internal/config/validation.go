@@ -8,7 +8,7 @@ type ctxValidateModule struct {
 	module *Module
 }
 
-func ValidateRootModule(module *Module) error {
+func ValidateModule(module *Module) error {
 	ctx := ctxValidateModule{
 		module: module,
 	}
@@ -37,19 +37,19 @@ func (ctx *ctxValidateModule) validateTask(task *Task) error {
 	}
 
 	for _, taskReferenceString := range task.Requires {
-		if err := ValidateTaskReference(taskReferenceString); err != nil {
+		if err := validateTaskReference(taskReferenceString); err != nil {
 			return fmt.Errorf("parsing reference %v in requires: %w", taskReferenceString, err)
 		}
 	}
 
 	for _, taskReferenceString := range task.RequiredBy {
-		if err := ValidateTaskReference(taskReferenceString); err != nil {
+		if err := validateTaskReference(taskReferenceString); err != nil {
 			return fmt.Errorf("parsing reference %v in required_by: %w", taskReferenceString, err)
 		}
 	}
 
 	for _, taskReferenceString := range task.Extends {
-		if err := ValidateTaskReference(taskReferenceString); err != nil {
+		if err := validateTaskReference(taskReferenceString); err != nil {
 			return fmt.Errorf("parsing reference %v in extends: %w", taskReferenceString, err)
 		}
 	}
