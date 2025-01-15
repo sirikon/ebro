@@ -1,39 +1,14 @@
 package config
 
-import (
-	"iter"
-	"maps"
-	"slices"
-)
+import "github.com/sirikon/ebro/internal/core"
 
-type RootModule struct {
-	Module          *Module
-	TaskIndex       map[TaskId]*Task
-	TaskModuleIndex map[TaskId]*Module
-}
+type RootModule = core.RootModuleBase[Task, Import]
 
 func NewRootModule(module *Module) *RootModule {
-	rootModule := &RootModule{
-		Module:          module,
-		TaskIndex:       map[TaskId]*Task{},
-		TaskModuleIndex: map[TaskId]*Module{},
-	}
-	rootModule.processModule(rootModule.Module, []string{})
-	return rootModule
+	return core.NewRootModuleBase[Task, Import, *RootModule](module)
 }
 
-func (rm *RootModule) processModule(module *Module, moduleTrail []string) {
-	for taskName, task := range module.TasksSorted() {
-		taskId := MakeTaskId(moduleTrail, taskName)
-		rm.TaskIndex[taskId] = task
-		rm.TaskModuleIndex[taskId] = module
-	}
-	for moduleName, module := range module.ModulesSorted() {
-		rm.processModule(module, append(moduleTrail, moduleName))
-	}
-}
-
-func (rm *RootModule) FindTask(taskReference TaskReference) (*TaskId, *Task) {
+func FindTask(rm *RootModule, taskReference TaskReference) (*core.TaskId, *Task) {
 	if taskReference.IsRelative {
 		panic("cannot call getTask with a relative taskReference")
 	}
@@ -49,28 +24,4 @@ func (rm *RootModule) FindTask(taskReference TaskReference) (*TaskId, *Task) {
 	}
 
 	return nil, nil
-}
-
-func (rm *RootModule) GetTask(taskId TaskId) *Task {
-	if task, ok := rm.TaskIndex[taskId]; ok {
-		return task
-	}
-	return nil
-}
-
-func (rm *RootModule) RemoveTask(taskId TaskId) {
-	delete(rm.TaskModuleIndex[taskId].Tasks, taskId.TaskName())
-	delete(rm.TaskModuleIndex, taskId)
-	delete(rm.TaskIndex, taskId)
-}
-
-func (rm *RootModule) AllTasks() iter.Seq2[TaskId, *Task] {
-	taskIds := slices.Sorted(maps.Keys(rm.TaskIndex))
-	return func(yield func(TaskId, *Task) bool) {
-		for _, taskId := range taskIds {
-			if !yield(taskId, rm.TaskIndex[taskId]) {
-				return
-			}
-		}
-	}
 }

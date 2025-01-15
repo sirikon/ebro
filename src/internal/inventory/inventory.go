@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/sirikon/ebro/internal/config"
+	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/utils"
 )
 
@@ -100,7 +101,7 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 			task.WorkingDirectory = path.Join(module.WorkingDirectory, task.WorkingDirectory)
 		}
 
-		taskId := config.MakeTaskId(moduleTrail, taskName)
+		taskId := core.MakeTaskId(moduleTrail, taskName)
 		ctx.inv.Tasks[string(taskId)] = task
 		ctx.taskModuleIndex[string(taskId)] = module
 	}
@@ -154,7 +155,7 @@ func (ctx *InventoryContext) resolveRefs(s []string, moduleTrail []string) ([]st
 	result := []string{}
 	for _, taskReferenceString := range s {
 		ref := config.MustParseTaskReference(taskReferenceString)
-		taskId, _ := ctx.rootModule.FindTask(ref.Absolute(moduleTrail))
+		taskId, _ := config.FindTask(ctx.rootModule, ref.Absolute(moduleTrail))
 		if taskId != nil {
 			result = append(result, string(*taskId))
 		} else if !ref.IsOptional {

@@ -1,13 +1,14 @@
 package config
 
 import (
+	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/dag"
 )
 
 func PurgeModule(rootModule *RootModule) {
-	purgeDag := dag.NewDag[TaskId]()
+	purgeDag := dag.NewDag[core.TaskId]()
 
-	targets := []TaskId{}
+	targets := []core.TaskId{}
 	for taskId, task := range rootModule.AllTasks() {
 		if len(task.IfTasksExist) > 0 {
 			for _, t := range task.IfTasksExist {
@@ -30,7 +31,7 @@ func PurgeModule(rootModule *RootModule) {
 			purge := false
 			for _, t := range task.IfTasksExist {
 				ref := MustParseTaskReference(t).Absolute(taskId.ModuleTrail())
-				taskId, _ := rootModule.FindTask(ref)
+				taskId, _ := FindTask(rootModule, ref)
 				if taskId == nil {
 					purge = true
 				}
