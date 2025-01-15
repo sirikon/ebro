@@ -52,6 +52,7 @@ func main() {
 		return
 	}
 
+	// -list
 	if arguments.Command == cli.CommandList {
 		for taskName := range inv.TasksSorted() {
 			fmt.Println(taskName)
