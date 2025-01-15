@@ -9,7 +9,7 @@ class TestRun(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: task :invent does not exist
+            ███ ERROR: validating target ':invent': task does not exist
             """,
         )
 

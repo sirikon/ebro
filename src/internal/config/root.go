@@ -4,9 +4,7 @@ import "github.com/sirikon/ebro/internal/core"
 
 type RootModule = core.RootModuleBase[Task, Import]
 
-func NewRootModule(module *Module) *RootModule {
-	return core.NewRootModuleBase[Task, Import, *RootModule](module)
-}
+var NewRootModule = core.NewRootModuleBase[Task, Import, *RootModule]
 
 func FindTask(rm *RootModule, taskReference TaskReference) (*core.TaskId, *Task) {
 	if taskReference.IsRelative {

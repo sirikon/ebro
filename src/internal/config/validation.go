@@ -4,18 +4,18 @@ import (
 	"fmt"
 )
 
-type ctxValidateRootModule struct {
-	rootModule *Module
+type ctxValidateModule struct {
+	module *Module
 }
 
 func ValidateRootModule(module *Module) error {
-	ctx := ctxValidateRootModule{
-		rootModule: module,
+	ctx := ctxValidateModule{
+		module: module,
 	}
-	return ctx.validateModule(ctx.rootModule)
+	return ctx.validateModule(ctx.module)
 }
 
-func (ctx *ctxValidateRootModule) validateModule(module *Module) error {
+func (ctx *ctxValidateModule) validateModule(module *Module) error {
 	for taskName, task := range module.TasksSorted() {
 		if err := ctx.validateTask(task); err != nil {
 			return fmt.Errorf("validating task %v: %w", taskName, err)
@@ -31,7 +31,7 @@ func (ctx *ctxValidateRootModule) validateModule(module *Module) error {
 	return nil
 }
 
-func (ctx *ctxValidateRootModule) validateTask(task *Task) error {
+func (ctx *ctxValidateModule) validateTask(task *Task) error {
 	if len(task.Requires) == 0 && task.Script == "" && len(task.Extends) == 0 && !task.Abstract {
 		return fmt.Errorf("task has nothing to do (no requires, script, extends nor abstract)")
 	}

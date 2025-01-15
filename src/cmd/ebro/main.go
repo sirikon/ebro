@@ -10,6 +10,7 @@ import (
 
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/config"
+	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/runner"
@@ -40,7 +41,12 @@ func main() {
 	rootModule := config.NewRootModule(module)
 	config.PurgeModule(rootModule)
 
-	inv, err := inventory.MakeInventory(rootModule)
+	coreModule, err := config.NormalizeRootModule(rootModule)
+	if err != nil {
+		cli.ExitWithError(err)
+	}
+
+	inv, err := inventory.MakeInventory(core.NewRootModule(coreModule))
 	if err != nil {
 		cli.ExitWithError(err)
 	}
@@ -61,8 +67,11 @@ func main() {
 		return
 	}
 
-	inventory.NormalizeTaskNames(inv, arguments.Targets)
-	plan, err := planner.MakePlan(inv, arguments.Targets)
+	targets, err := config.NormalizeTargets(rootModule, arguments.Targets)
+	if err != nil {
+		cli.ExitWithError(err)
+	}
+	plan, err := planner.MakePlan(inv, targets)
 	if err != nil {
 		cli.ExitWithError(err)
 	}

@@ -3,6 +3,7 @@ package planner
 import (
 	"fmt"
 
+	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/dag"
 	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/utils"
@@ -10,11 +11,11 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
-type Plan []string
+type Plan []core.TaskId
 
-func MakePlan(inv inventory.Inventory, targets []string) (Plan, error) {
-	tasksToRun := utils.NewSet[string]()
-	taskDag := dag.NewDag[string]()
+func MakePlan(inv inventory.Inventory, targets []core.TaskId) (Plan, error) {
+	tasksToRun := utils.NewSet[core.TaskId]()
+	taskDag := dag.NewDag[core.TaskId]()
 
 	tasksToRun.Add(targets...)
 

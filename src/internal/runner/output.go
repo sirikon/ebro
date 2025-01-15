@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"os"
 	"path"
+
+	"github.com/sirikon/ebro/internal/core"
 )
 
-func storeTaskOutputAndCheckIfChanged(taskName string, output []byte) (bool, error) {
+func storeTaskOutputAndCheckIfChanged(taskId core.TaskId, output []byte) (bool, error) {
 	changed := false
 
 	newHash, err := hashBytes(output)
@@ -17,7 +19,7 @@ func storeTaskOutputAndCheckIfChanged(taskName string, output []byte) (bool, err
 		return changed, fmt.Errorf("hashing output: %w", err)
 	}
 
-	outputPath := path.Join(".ebro", "output_tracking", taskName)
+	outputPath := path.Join(".ebro", "output_tracking", string(taskId))
 	err = os.MkdirAll(path.Dir(outputPath), os.ModePerm)
 	if err != nil {
 		return changed, fmt.Errorf("creating directory for output tracking: %w", err)
@@ -45,8 +47,8 @@ func storeTaskOutputAndCheckIfChanged(taskName string, output []byte) (bool, err
 	return changed, nil
 }
 
-func removeTaskOutput(taskName string) error {
-	outputPath := path.Join(".ebro", "output_tracking", taskName)
+func removeTaskOutput(taskId core.TaskId) error {
+	outputPath := path.Join(".ebro", "output_tracking", string(taskId))
 	err := os.Remove(outputPath)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("removing task output: %w", err)

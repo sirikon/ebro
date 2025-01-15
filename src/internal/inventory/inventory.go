@@ -6,28 +6,27 @@ import (
 	"path"
 	"slices"
 
-	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/utils"
 )
 
 type Inventory struct {
-	Tasks map[string]*config.Task
+	Tasks map[core.TaskId]*core.Task
 }
 
 type InventoryContext struct {
 	inv             Inventory
-	rootModule      *config.RootModule
-	taskModuleIndex map[string]*config.Module
+	rootModule      *core.RootModule
+	taskModuleIndex map[core.TaskId]*core.Module
 }
 
-func MakeInventory(rootModule *config.RootModule) (Inventory, error) {
+func MakeInventory(rootModule *core.RootModule) (Inventory, error) {
 	ctx := InventoryContext{
 		inv: Inventory{
-			Tasks: make(map[string]*config.Task),
+			Tasks: make(map[core.TaskId]*core.Task),
 		},
 		rootModule:      rootModule,
-		taskModuleIndex: make(map[string]*config.Module),
+		taskModuleIndex: make(map[core.TaskId]*core.Module),
 	}
 
 	workingDirectory, err := os.Getwd()
@@ -74,7 +73,7 @@ func MakeInventory(rootModule *config.RootModule) (Inventory, error) {
 	return ctx.inv, nil
 }
 
-func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []string, environment map[string]string) error {
+func (ctx *InventoryContext) processModule(module *core.Module, moduleTrail []string, environment map[string]string) error {
 	moduleEnvironment, err := utils.ExpandMergeEnvs(module.Environment, environment)
 	if err != nil {
 		return fmt.Errorf("expanding module environment: %w", err)
@@ -82,19 +81,6 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 	module.Environment = moduleEnvironment
 
 	for taskName, task := range module.TasksSorted() {
-		task.Requires, err = ctx.resolveRefs(task.Requires, moduleTrail)
-		if err != nil {
-			return err
-		}
-		task.RequiredBy, err = ctx.resolveRefs(task.RequiredBy, moduleTrail)
-		if err != nil {
-			return err
-		}
-		task.Extends, err = ctx.resolveRefs(task.Extends, moduleTrail)
-		if err != nil {
-			return err
-		}
-
 		if task.WorkingDirectory == "" {
 			task.WorkingDirectory = module.WorkingDirectory
 		} else if !path.IsAbs(task.WorkingDirectory) {
@@ -102,8 +88,8 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 		}
 
 		taskId := core.MakeTaskId(moduleTrail, taskName)
-		ctx.inv.Tasks[string(taskId)] = task
-		ctx.taskModuleIndex[string(taskId)] = module
+		ctx.inv.Tasks[taskId] = task
+		ctx.taskModuleIndex[taskId] = module
 	}
 
 	alreadyProcessedModules := make(map[string]bool)
@@ -133,34 +119,4 @@ func (ctx *InventoryContext) processModule(module *config.Module, moduleTrail []
 	}
 
 	return nil
-}
-
-func NormalizeTaskNames(inv Inventory, taskNames []string) {
-	for i, taskName := range taskNames {
-		taskNames[i] = normalizeTaskName(inv, taskName)
-	}
-}
-
-func normalizeTaskName(inv Inventory, taskName string) string {
-	defaultedTaskName := taskName + ":default"
-	_, taskExists := inv.Tasks[taskName]
-	_, defaultedTaskExists := inv.Tasks[defaultedTaskName]
-	if !taskExists && defaultedTaskExists {
-		return defaultedTaskName
-	}
-	return taskName
-}
-
-func (ctx *InventoryContext) resolveRefs(s []string, moduleTrail []string) ([]string, error) {
-	result := []string{}
-	for _, taskReferenceString := range s {
-		ref := config.MustParseTaskReference(taskReferenceString)
-		taskId, _ := config.FindTask(ctx.rootModule, ref.Absolute(moduleTrail))
-		if taskId != nil {
-			result = append(result, string(*taskId))
-		} else if !ref.IsOptional {
-			return nil, fmt.Errorf("referenced task %v does not exist", ref.String())
-		}
-	}
-	return result, nil
 }

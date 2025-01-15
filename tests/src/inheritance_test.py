@@ -5,7 +5,6 @@ class TestInheritance(EbroTestCase):
 
     def test_inventory_is_correct(self):
         exit_code, stdout = self.ebro("-inventory", "--file", "Ebro.inheritance.yaml")
-        self.assertEqual(exit_code, 0)
         self.assertStdout(
             stdout,
             f"""
@@ -81,6 +80,7 @@ class TestInheritance(EbroTestCase):
                 output_changes: echo test2
             """,
         )
+        self.assertEqual(exit_code, 0)
 
     def test_execution_is_correct(self):
         exit_code, stdout = self.ebro("--file", "Ebro.inheritance.yaml", "default", "b")

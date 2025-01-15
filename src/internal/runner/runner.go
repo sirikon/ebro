@@ -13,20 +13,21 @@ import (
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
 
+	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/logger"
 	"github.com/sirikon/ebro/internal/planner"
 )
 
 func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
-	for _, taskName := range plan {
-		task, ok := inv.Tasks[taskName]
+	for _, taskId := range plan {
+		task, ok := inv.Tasks[taskId]
 		if !ok {
-			return fmt.Errorf("task %v does not exist", taskName)
+			return fmt.Errorf("task %v does not exist", taskId)
 		}
 
 		if task.Script == "" {
-			logger.Info(logLine(taskName, "satisfied"))
+			logger.Info(logLine(taskId, "satisfied"))
 			continue
 		}
 
@@ -39,11 +40,11 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 				outputWriter := bufio.NewWriter(&output)
 				status, err := runScriptWithIO(task.When.CheckFails, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
 				if err != nil {
-					return fmt.Errorf("running task %v when.check_fails: %w", taskName, err)
+					return fmt.Errorf("running task %v when.check_fails: %w", taskId, err)
 				}
 				err = outputWriter.Flush()
 				if err != nil {
-					return fmt.Errorf("running task %v when.check_fails: flushing writer: %w", taskName, err)
+					return fmt.Errorf("running task %v when.check_fails: flushing writer: %w", taskId, err)
 				}
 				if status > 0 {
 					skip = false
@@ -55,19 +56,19 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 				outputWriter := bufio.NewWriter(&output)
 				status, err := runScriptWithIO(task.When.OutputChanges, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
 				if err != nil {
-					return fmt.Errorf("running task %v when.output_changes: %w", taskName, err)
+					return fmt.Errorf("running task %v when.output_changes: %w", taskId, err)
 				}
 				err = outputWriter.Flush()
 				if err != nil {
-					return fmt.Errorf("running task %v when.check_fails: flushing writer: %w", taskName, err)
+					return fmt.Errorf("running task %v when.check_fails: flushing writer: %w", taskId, err)
 				}
 				if status > 0 {
-					return fmt.Errorf("task %v when.output_changes returned status code %v. here is the output:\n%v", taskName, status, output.String())
+					return fmt.Errorf("task %v when.output_changes returned status code %v. here is the output:\n%v", taskId, status, output.String())
 				}
 
-				outputChanged, err := storeTaskOutputAndCheckIfChanged(taskName, output.Bytes())
+				outputChanged, err := storeTaskOutputAndCheckIfChanged(taskId, output.Bytes())
 				if err != nil {
-					return fmt.Errorf("storing output for task %v when.output_changes: %w", taskName, err)
+					return fmt.Errorf("storing output for task %v when.output_changes: %w", taskId, err)
 				}
 				if outputChanged {
 					skip = false
@@ -76,14 +77,14 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 		}
 
 		if skip {
-			logger.Info(logLine(taskName, "skipping"))
+			logger.Info(logLine(taskId, "skipping"))
 			continue
 		}
 
 		var err error
 		var status uint8
 		if task.Quiet != nil && *task.Quiet {
-			logger.Info(logLine(taskName, "running"))
+			logger.Info(logLine(taskId, "running"))
 			output := bytes.Buffer{}
 			outputWriter := bufio.NewWriter(&output)
 			status, err = runScriptWithIO(task.Script, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
@@ -92,24 +93,24 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 				fmt.Print(output.String())
 			}
 		} else {
-			logger.Notice(logLine(taskName, "running"))
+			logger.Notice(logLine(taskId, "running"))
 			status, err = runScript(task.Script, task.WorkingDirectory, task.Environment)
 		}
 
 		var final_err error
 
 		if err != nil {
-			final_err = fmt.Errorf("running task %v script: %w", taskName, err)
+			final_err = fmt.Errorf("running task %v script: %w", taskId, err)
 		}
 
 		if status != 0 {
-			final_err = fmt.Errorf("task %v returned status code %v", taskName, status)
+			final_err = fmt.Errorf("task %v returned status code %v", taskId, status)
 		}
 
 		if final_err != nil {
-			err := removeTaskOutput(taskName)
+			err := removeTaskOutput(taskId)
 			if err != nil {
-				return fmt.Errorf("removing output after failure of task %v: %w", taskName, err)
+				return fmt.Errorf("removing output after failure of task %v: %w", taskId, err)
 			}
 			return final_err
 		}
@@ -117,8 +118,8 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 	return nil
 }
 
-func logLine(taskName string, message string) string {
-	return "[" + taskName + "] " + message
+func logLine(taskId core.TaskId, message string) string {
+	return "[" + string(taskId) + "] " + message
 }
 
 func runScript(script string, workingDirectory string, environment map[string]string) (uint8, error) {

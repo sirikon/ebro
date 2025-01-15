@@ -67,6 +67,6 @@ class TestPlan(EbroTestCase):
         self.assertStdout(
             stdout,
             """
-            ███ ERROR: processing module: referenced task nonexistent does not exist
+            ███ ERROR: normalizing task 'default': resolving 'requires': referenced task nonexistent does not exist
             """,
         )

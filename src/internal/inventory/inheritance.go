@@ -6,14 +6,15 @@ import (
 	"slices"
 
 	"github.com/sirikon/ebro/internal/config"
+	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/dag"
 	"github.com/sirikon/ebro/internal/utils"
 
 	"github.com/goccy/go-yaml"
 )
 
-func resolveInheritanceOrder(inv Inventory) ([]string, error) {
-	inheritanceDag := dag.NewDag[string]()
+func resolveInheritanceOrder(inv Inventory) ([]core.TaskId, error) {
+	inheritanceDag := dag.NewDag[core.TaskId]()
 
 	for taskName, task := range inv.Tasks {
 		inheritanceDag.Link(taskName, task.Extends...)
@@ -33,7 +34,7 @@ func resolveInheritanceOrder(inv Inventory) ([]string, error) {
 	return result, nil
 }
 
-func applyInheritance(childTask *config.Task, parentTask *config.Task) {
+func applyInheritance(childTask *core.Task, parentTask *core.Task) {
 	childTask.Extends = nil
 	childTask.Requires = utils.Dedupe(slices.Concat(childTask.Requires, parentTask.Requires))
 	childTask.RequiredBy = utils.Dedupe(slices.Concat(childTask.RequiredBy, parentTask.RequiredBy))

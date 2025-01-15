@@ -8,6 +8,8 @@ import (
 
 type RootModule = RootModuleBase[Task, Import]
 
+var NewRootModule = NewRootModuleBase[Task, Import, *RootModule]
+
 type RootModuleBase[TTask any, TImport any] struct {
 	Module          *ModuleBase[TTask, TImport]
 	TaskIndex       map[TaskId]*TTask

@@ -5,7 +5,6 @@ class TestQuiet(EbroTestCase):
 
     def test_inventory_is_correct(self):
         exit_code, stdout = self.ebro("-inventory", "--file", "Ebro.quiet.yaml")
-        self.assertEqual(exit_code, 0)
         self.assertStdout(
             stdout,
             f"""
@@ -25,6 +24,7 @@ class TestQuiet(EbroTestCase):
               quiet: true
             """,
         )
+        self.assertEqual(exit_code, 0)
 
     def test_execution_is_correct_with_working_task(self):
         exit_code, stdout = self.ebro("--file", "Ebro.quiet.yaml", "works")
