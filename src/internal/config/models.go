@@ -56,8 +56,10 @@ func mapToCoreTask(task *Task) *core.Task {
 
 func mapToTaskIds(taskIds []string) []core.TaskId {
 	result := []core.TaskId{}
-	for _, taskId := range taskIds {
-		result = append(result, core.TaskId(taskId))
+	for _, taskIdStr := range taskIds {
+		taskId := core.TaskId(taskIdStr)
+		taskId.MustBeValid()
+		result = append(result, taskId)
 	}
 	return result
 }

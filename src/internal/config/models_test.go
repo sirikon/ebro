@@ -140,6 +140,13 @@ func TestModuleMappingWorks(t *testing.T) {
 
 	indexedModule := NewIndexedModule(rootModule)
 	PurgeModule(indexedModule)
+	ctx := ctxNormalizeModule{
+		indexedModule: indexedModule,
+	}
+	err = ctx.normalizeModule(ctx.indexedModule.Module, []string{})
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// convert using yaml
 	yamlResult := &core.Module{}
