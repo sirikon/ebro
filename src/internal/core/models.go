@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"iter"
 	"maps"
 	"regexp"
@@ -10,7 +11,16 @@ import (
 
 type TaskId string
 
-var TaskIdRe = regexp.MustCompile(`^(:[a-zA-Z0-9-_\.]+)+$`)
+var nameValidCharsRe = `[a-zA-Z0-9-_\.]`
+var NameRe = regexp.MustCompile("^" + nameValidCharsRe + "+$")
+var TaskIdRe = regexp.MustCompile("^(:" + nameValidCharsRe + "+)+$")
+
+func ValidateName(name string) error {
+	if !NameRe.MatchString(name) {
+		return fmt.Errorf("name does not match the following regex: %v", NameRe.String())
+	}
+	return nil
+}
 
 func MakeTaskId(moduleTrail []string, taskName string) TaskId {
 	chunks := []string{""}

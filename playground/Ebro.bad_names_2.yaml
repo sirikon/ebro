@@ -1,0 +1,5 @@
+modules:
+  ñodule:
+    tasks:
+      default:
+        script: echo "Hello"

@@ -1,0 +1,3 @@
+tasks:
+  dëfault:
+    script: echo "Hëllo"
