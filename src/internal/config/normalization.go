@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 
-	"github.com/goccy/go-yaml"
 	"github.com/sirikon/ebro/internal/core"
 )
 
@@ -19,7 +18,7 @@ func NormalizeModule(indexedModule *IndexedModule) (*core.Module, error) {
 	if err != nil {
 		return nil, err
 	}
-	return toCoreModulePtr(ctx.indexedModule.Module), nil
+	return MapToCoreModule(ctx.indexedModule.Module), nil
 }
 
 func (ctx *ctxNormalizeModule) normalizeModule(module *Module, moduleTrail []string) error {
@@ -70,20 +69,6 @@ func (ctx *ctxNormalizeModule) resolveRefs(s []string, moduleTrail []string) ([]
 		}
 	}
 	return result, nil
-}
-
-func toCoreModulePtr(module *Module) *core.Module {
-	result := &core.Module{}
-	castUsingYaml(module, result)
-	return result
-}
-
-func castUsingYaml(from interface{}, to interface{}) {
-	data, err := yaml.Marshal(from)
-	if err != nil {
-		panic(err)
-	}
-	yaml.Unmarshal(data, to)
 }
 
 func NormalizeTargets(indexedModule *core.IndexedModule, targets []string) ([]core.TaskId, error) {

@@ -8,14 +8,59 @@ import (
 	"github.com/sirikon/ebro/internal/core"
 )
 
-/* ==== Models reflected in Ebro.yaml files ==== */
-
 type Module = core.ModuleBase[Task, Import]
 type Task = core.TaskBase[string, When]
 type Import = core.Import
 type When = core.When
 
-/* ============================================= */
+func MapToCoreModule(module *Module) *core.Module {
+	return &core.Module{
+		WorkingDirectory: module.WorkingDirectory,
+		Environment:      module.Environment,
+		Imports:          module.Imports,
+		Modules:          mapToCoreModules(module.Modules),
+		Tasks:            mapToCoreTasks(module.Tasks),
+	}
+}
+
+func mapToCoreModules(modules map[string]*Module) map[string]*core.Module {
+	result := map[string]*core.Module{}
+	for moduleName, module := range modules {
+		result[moduleName] = MapToCoreModule(module)
+	}
+	return result
+}
+
+func mapToCoreTasks(tasks map[string]*Task) map[string]*core.Task {
+	result := map[string]*core.Task{}
+	for taskName, task := range tasks {
+		result[taskName] = mapToCoreTask(task)
+	}
+	return result
+}
+
+func mapToCoreTask(task *Task) *core.Task {
+	return &core.Task{
+		WorkingDirectory: task.WorkingDirectory,
+		IfTasksExist:     mapToTaskIds(task.IfTasksExist),
+		Abstract:         task.Abstract,
+		Extends:          mapToTaskIds(task.Extends),
+		Environment:      task.Environment,
+		Requires:         mapToTaskIds(task.Requires),
+		RequiredBy:       mapToTaskIds(task.RequiredBy),
+		Script:           task.Script,
+		Quiet:            task.Quiet,
+		When:             task.When,
+	}
+}
+
+func mapToTaskIds(taskIds []string) []core.TaskId {
+	result := []core.TaskId{}
+	for _, taskId := range taskIds {
+		result = append(result, core.TaskId(taskId))
+	}
+	return result
+}
 
 var taskReferenceRegex = regexp.MustCompile(`^:?[a-zA-Z0-9-_\.]+(:[a-zA-Z0-9-_\.]+)*\??$`)
 

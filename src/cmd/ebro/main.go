@@ -32,7 +32,7 @@ func main() {
 
 	workingDirectory := getWorkingDirectory()
 
-	indexedRootModule, err := config.ParseRootModule(workingDirectory, rootModulePath(arguments))
+	indexedRootModule, err := config.ParseRootModule(workingDirectory, rootModulePath(workingDirectory, arguments))
 	if err != nil {
 		cli.ExitWithError(err)
 	}
@@ -96,11 +96,7 @@ func getWorkingDirectory() string {
 	return workingDirectory
 }
 
-func rootModulePath(arguments cli.ExecutionArguments) string {
-	workingDirectory, err := os.Getwd()
-	if err != nil {
-		cli.ExitWithError(err)
-	}
+func rootModulePath(workingDirectory string, arguments cli.ExecutionArguments) string {
 	filePath := *arguments.GetFlagString(cli.FlagFile)
 	if !path.IsAbs(filePath) {
 		filePath = path.Join(workingDirectory, filePath)
