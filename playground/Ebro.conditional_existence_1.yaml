@@ -1,0 +1,11 @@
+tasks:
+  server:
+    requires: ["configure-backups?"]
+    script: |
+      echo 'Configuring server'
+
+  configure-backups:
+    if_tasks_exist: [restic]
+    requires: [restic]
+    script: |
+      echo 'Configuring backups'

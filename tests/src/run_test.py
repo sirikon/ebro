@@ -194,3 +194,33 @@ class TestRun(EbroTestCase):
             """,
         )
         self.assertEqual(exit_code, 1)
+
+    def test_conditional_existence_works_1(self):
+        exit_code, stdout = self.ebro(
+            "--file", "Ebro.conditional_existence_1.yaml", "server"
+        )
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:server] running
+            Configuring server
+            """,
+        )
+        self.assertEqual(exit_code, 0)
+
+    def test_conditional_existence_works_2(self):
+        exit_code, stdout = self.ebro(
+            "--file", "Ebro.conditional_existence_2.yaml", "server"
+        )
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:restic] running
+            Installing restic
+            ███ [:configure-backups] running
+            Configuring backups
+            ███ [:server] running
+            Configuring server
+            """,
+        )
+        self.assertEqual(exit_code, 0)
