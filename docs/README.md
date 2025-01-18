@@ -175,7 +175,7 @@ Targeting a module by its name is equivalent to targeting the module's `default`
 
 ## Conditional existence
 
-Tasks can be configured to only exist when another task already exists using the `if_tasks_exist` parameter. Additionally, we can `require` tasks only if the referenced task exists, and ignore the requirement otherwise.
+Tasks can be configured to only exist when another task already exists using the `if_tasks_exist` parameter. Additionally, we can `require` tasks only if the referenced task exists by using the `?` suffix, and ignore the requirement otherwise.
 
 With this configuration, as the task `restic` doesn't exist, `configure-backups` will not exist either, but that's okay, because `server`'s reference to it was optional.
 
