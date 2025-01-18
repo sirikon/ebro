@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import json
 import re
-from os import getcwd
+from os import getcwd, listdir
 from os.path import join
 from subprocess import run, PIPE
 
@@ -131,9 +131,9 @@ def schema():
 
 
 def get_tagged_versions():
-    command_result = run(
-        ["git", "tag", "--list"], check=True, stdin=None, stdout=PIPE, stderr=PIPE
-    )
-    result = command_result.stdout.decode().splitlines()
+    result = []
+    for file in listdir(join("docs", "changelog")):
+        if file.endswith(".md") and file != "HEAD.md":
+            result.append(file.removesuffix(".md"))
     result.sort(reverse=True)
     return result
