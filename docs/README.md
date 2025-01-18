@@ -94,7 +94,8 @@ More on Bash's documentation: [The Set Builtin](https://www.gnu.org/software/bas
 
 During the first execution it will execute everything, with no skips, which should output something like this:
 
-```
+```text
+$ ./ebrow
 ███ [:cache_dir] running
 ███ [:produce_a] running
 ███ [:produce_b] running
@@ -107,7 +108,8 @@ this is B
 
 But if we execute `./ebrow` again, we'll see this output:
 
-```
+```text
+$ ./ebrow
 ███ [:cache_dir] skipping
 ███ [:produce_a] skipping
 ███ [:produce_b] skipping
@@ -120,12 +122,9 @@ Ebro skips tasks whenever possible, and the task definition is what mandates whe
 
 Now we'll manually edit the file `cache/A.txt`, run `./ebrow` again, and see the result.
 
-```bash
-echo 'hello world!' > cache/A.txt
-./ebrow
-```
-
-```
+```text
+$ echo 'hello world!' > cache/A.txt
+$ ./ebrow
 ███ [:cache_dir] skipping
 ███ [:produce_a] skipping
 ███ [:produce_b] skipping
@@ -158,16 +157,14 @@ tasks:
     script: echo 'something else'
 ```
 
-Now, running `ebro something` has this output:
-
 ```text
+$ ebro something
 ███ [:something:default] running
 something
 ```
 
-And running `ebro something:else` has this output:
-
 ```text
+$ ebro something:else
 ███ [:something:else] running
 something else
 ```
@@ -175,6 +172,62 @@ something else
 It's important to note that the contents of an `Ebro.yaml` file are considered a **module**. When we import another `Ebro.yaml` file, we're creating a new module that hangs from the **root module** and has an explicitly-given name. In this case, `something`.
 
 Targeting a module by its name is equivalent to targeting the module's `default` task. As `something` is a module, it translates to `something:default`.
+
+## Conditional existence
+
+Tasks can be configured to only exist when another task already exists using the `if_tasks_exist` parameter. Additionally, we can `require` tasks only if the referenced task exists, and ignore the requirement otherwise.
+
+With this configuration, as the task `restic` doesn't exist, `configure-backups` will not exist either, but that's okay, because `server`'s reference to it was optional.
+
+```yaml
+tasks:
+  server:
+    requires: [configure-backups?]
+    script: |
+      echo 'Configuring server'
+
+  configure-backups:
+    if_tasks_exist: [restic]
+    requires: [restic]
+    script: |
+      echo 'Configuring backups'
+```
+
+```text
+$ ebro server
+███ [:server] running
+Configuring server
+```
+
+But as soon as the `restic` task exists, this happens:
+
+```yaml
+tasks:
+  server:
+    requires: [configure-backups?]
+    script: |
+      echo 'Configuring server'
+
+  configure-backups:
+    if_tasks_exist: [restic]
+    requires: [restic]
+    script: |
+      echo 'Configuring backups'
+
+  restic:
+    script: |
+      echo 'Installing restic'
+```
+
+```text
+$ ebro server
+███ [:restic] running
+Installing restic
+███ [:configure-backups] running
+Configuring backups
+███ [:server] running
+Configuring server
+```
 
 ## Task inheritance
 
@@ -200,7 +253,8 @@ tasks:
 
 Now, running `ebro default child` (targeting both `default` and `child` tasks) has this output:
 
-```
+```text
+$ ebro default child
 ███ [:child] running
 foo
 ███ [:default] running
