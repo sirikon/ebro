@@ -61,6 +61,7 @@ type ModuleBase[TTask any, TImport any] struct {
 }
 
 type TaskBase[RefT ~string, WhenT any] struct {
+	Labels           map[string]string `yaml:"labels,omitempty"`
 	WorkingDirectory string            `yaml:"working_directory,omitempty"`
 	IfTasksExist     []RefT            `yaml:"if_tasks_exist,omitempty"`
 	Abstract         bool              `yaml:"abstract,omitempty"`

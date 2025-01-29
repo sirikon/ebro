@@ -41,6 +41,7 @@ func mapToCoreTasks(tasks map[string]*Task) map[string]*core.Task {
 
 func mapToCoreTask(task *Task) *core.Task {
 	return &core.Task{
+		Labels:           task.Labels,
 		WorkingDirectory: task.WorkingDirectory,
 		IfTasksExist:     mapToTaskIds(task.IfTasksExist),
 		Abstract:         task.Abstract,

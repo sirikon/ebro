@@ -68,6 +68,8 @@ class TestInventory(EbroTestCase):
                         check_fails: test -f "${{EBRO_ROOT}}/.cache/apt/packages/caddy.txt"
                         output_changes: echo caddy
                     :default:
+                      labels:
+                        default: "true"
                       working_directory: {self.workdir}
                       environment:
                         DOCKER_MODULE_LOCATION: docker

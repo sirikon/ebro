@@ -41,6 +41,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "labels": {
+            "description": "WIP",
+            "type": "object"
+          },
           "working_directory": {
             "description": "The working directory for the task. Defaults to the module working directory. Relative paths are valid and will be added to the default value to compute the final value.",
             "type": "string"
