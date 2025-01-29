@@ -33,7 +33,8 @@ class TestCli(EbroTestCase):
     or -l
     # Display only the names of all the tasks in the inventory
     flags:
-      --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+      --file value    Specify the file that should be loaded as root module. default: Ebro.yaml
+      --filter value  Filter tasks using an `expr` expression
 
 
   ebro -plan [--flags...] [targets...]

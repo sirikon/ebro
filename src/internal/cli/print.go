@@ -92,8 +92,12 @@ func printFlags(flags []*Flag) {
 		}
 		fmt.Print("  ")
 		fmt.Print(flag.Description)
-		fmt.Print(". default: ")
-		fmt.Println(flag.Default)
+		if flag.Default != "" {
+			fmt.Print(". default: ")
+			fmt.Println(flag.Default)
+		} else {
+			fmt.Println()
+		}
 	}
 }
 

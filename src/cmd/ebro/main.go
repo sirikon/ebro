@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"reflect"
 
+	"github.com/expr-lang/expr"
 	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
 
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/config"
+	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/runner"
@@ -54,8 +57,11 @@ func main() {
 
 	// -list
 	if arguments.Command == cli.CommandList {
-		for taskName := range inv.TasksSorted() {
-			fmt.Println(taskName)
+		taskFilter := buildTaskFilter(arguments)
+		for taskId := range inv.TasksSorted() {
+			if taskFilter(taskId, inv.Tasks[taskId]) {
+				fmt.Println(taskId)
+			}
 		}
 		return
 	}
@@ -118,4 +124,29 @@ func lock() error {
 		return fmt.Errorf("obtaining lock for process: %w", err)
 	}
 	return nil
+}
+
+func buildTaskFilter(arguments cli.ExecutionArguments) func(_ core.TaskId, _ *core.Task) bool {
+	filterExpression := *arguments.GetFlagString(cli.FlagFilter)
+	if filterExpression != "" {
+		program, err := expr.Compile(filterExpression, expr.Env(core.Task{}))
+		if err != nil {
+			cli.ExitWithError(fmt.Errorf("compiling filter expression: %w", err))
+		}
+
+		return func(taskId core.TaskId, task *core.Task) bool {
+			output, err := expr.Run(program, task)
+			if err != nil {
+				cli.ExitWithError(fmt.Errorf("running filter expression: %w", err))
+			}
+			if reflect.TypeOf(output).Kind() != reflect.Bool {
+				cli.ExitWithError(fmt.Errorf("filter expression did not return a boolean when running with task %v. returned: %v", taskId, output))
+			}
+			return output.(bool)
+		}
+	}
+
+	return func(_ core.TaskId, _ *core.Task) bool {
+		return true
+	}
 }

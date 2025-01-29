@@ -198,6 +198,21 @@ class TestInventory(EbroTestCase):
                     """,
                 )
 
+    def test_list_with_filter_works(self):
+        commands = ["-list", "-l"]
+        for command in commands:
+            with self.subTest(command):
+                exit_code, stdout = self.ebro(
+                    command, "--filter", 'Labels.default == "true"'
+                )
+                self.assertEqual(exit_code, 0)
+                self.assertStdout(
+                    stdout,
+                    f"""
+                    :default
+                    """,
+                )
+
     def test_inventory_with_absolute_workdir_is_correct(self):
         exit_code, stdout = self.ebro("-inventory", "--file", "Ebro.workdirs.yaml")
         self.assertEqual(exit_code, 0)

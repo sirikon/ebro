@@ -20,6 +20,13 @@ var FlagForce = &Flag{
 	Default:     false,
 }
 
+var FlagFilter = &Flag{
+	Name:        "filter",
+	Description: "Filter tasks using an `expr` expression",
+	Kind:        reflect.String,
+	Default:     "",
+}
+
 var CommandRun = &Command{
 	Name:           "",
 	Description:    "Run everything",
@@ -39,7 +46,7 @@ var CommandList = &Command{
 	Name:           "list",
 	ShortName:      "l",
 	Description:    "Display only the names of all the tasks in the inventory",
-	Flags:          []*Flag{FlagFile},
+	Flags:          []*Flag{FlagFile, FlagFilter},
 	AcceptsTargets: false,
 }
 
