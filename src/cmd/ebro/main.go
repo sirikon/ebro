@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"reflect"
 
-	"github.com/expr-lang/expr"
 	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
 
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/core"
+	"github.com/sirikon/ebro/internal/filtering"
 	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/runner"
@@ -126,31 +125,14 @@ func lock() error {
 	return nil
 }
 
-type TaskInFilter struct {
-	Labels map[string]string `expr:"labels"`
-}
-
 func buildTaskFilter(arguments cli.ExecutionArguments) func(_ core.TaskId, _ *core.Task) bool {
 	filterExpression := *arguments.GetFlagString(cli.FlagFilter)
 	if filterExpression != "" {
-		program, err := expr.Compile(filterExpression, expr.Env(TaskInFilter{}), expr.AsBool())
+		filter, err := filtering.BuildTaskFilter(filterExpression)
 		if err != nil {
-			cli.ExitWithError(fmt.Errorf("compiling filter expression: %w", err))
+			cli.ExitWithError(err)
 		}
-
-		return func(taskId core.TaskId, task *core.Task) bool {
-			taskInFilter := TaskInFilter{
-				Labels: task.Labels,
-			}
-			output, err := expr.Run(program, taskInFilter)
-			if err != nil {
-				cli.ExitWithError(fmt.Errorf("running filter expression: %w", err))
-			}
-			if reflect.TypeOf(output).Kind() != reflect.Bool {
-				cli.ExitWithError(fmt.Errorf("filter expression did not return a boolean when running with task %v. returned: %v", taskId, output))
-			}
-			return output.(bool)
-		}
+		return filter
 	}
 
 	return func(_ core.TaskId, _ *core.Task) bool {
