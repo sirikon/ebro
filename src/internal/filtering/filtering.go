@@ -3,6 +3,7 @@ package filtering
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/expr-lang/expr"
 	"github.com/sirikon/ebro/internal/cli"
@@ -10,6 +11,9 @@ import (
 )
 
 type Task struct {
+	Id               string            `expr:"id"`
+	Module           string            `expr:"module"`
+	Name             string            `expr:"name"`
 	Labels           map[string]string `expr:"labels"`
 	WorkingDirectory string            `expr:"working_directory"`
 	Extends          []string          `expr:"extends"`
@@ -34,6 +38,9 @@ func BuildTaskFilter(code string) (func(_ core.TaskId, _ *core.Task) bool, error
 
 	return func(taskId core.TaskId, task *core.Task) bool {
 		taskInFilter := Task{
+			Id:               string(taskId),
+			Module:           ":" + strings.Join(taskId.ModuleTrail(), ":"),
+			Name:             taskId.TaskName(),
 			Labels:           task.Labels,
 			WorkingDirectory: task.WorkingDirectory,
 			Extends:          taskIdListToStringList(task.Extends),

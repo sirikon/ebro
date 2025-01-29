@@ -14,6 +14,9 @@ class TestInheritance(EbroTestCase):
                 BAR: It's BAR
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :b
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: b
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                 FOO: It's FOO
               requires:
@@ -30,6 +33,9 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :c
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: c
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo "I'm C"
             :d:
@@ -37,6 +43,9 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :d
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: d
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo "I'm D"
             :default:
@@ -44,6 +53,9 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :default
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: default
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo Hello
             :multi-c:
@@ -55,6 +67,9 @@ class TestInheritance(EbroTestCase):
                 D: "44"
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :multi-c
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: multi-c
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo multi-b
               quiet: true
@@ -65,6 +80,9 @@ class TestInheritance(EbroTestCase):
                 B: "2"
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :y
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: "y"
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo y
               quiet: true
@@ -79,6 +97,9 @@ class TestInheritance(EbroTestCase):
                 C: "3"
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :z
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: z
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo z
               quiet: false

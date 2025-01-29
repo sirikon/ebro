@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path"
 	"slices"
+	"strings"
 
 	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/utils"
@@ -38,11 +39,16 @@ func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment map[string
 		return ctx.inv, fmt.Errorf("resolving inheritance order: %w", err)
 	}
 
-	for _, taskName := range inheritanceOrder {
-		task := ctx.inv.Tasks[taskName]
+	for _, taskId := range inheritanceOrder {
+		task := ctx.inv.Tasks[taskId]
 		envsToMerge := [](map[string]string){
 			task.Environment,
-			map[string]string{"EBRO_TASK_WORKING_DIRECTORY": task.WorkingDirectory},
+			map[string]string{
+				"EBRO_TASK_WORKING_DIRECTORY": task.WorkingDirectory,
+				"EBRO_TASK_ID":                string(taskId),
+				"EBRO_TASK_MODULE":            ":" + strings.Join(taskId.ModuleTrail(), ":"),
+				"EBRO_TASK_NAME":              taskId.TaskName(),
+			},
 		}
 		parentTasks := slices.Clone(task.Extends)
 		slices.Reverse(parentTasks)
@@ -51,28 +57,28 @@ func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment map[string
 			applyInheritance(task, parentTask)
 			envsToMerge = append(envsToMerge, parentTask.Environment)
 		}
-		envsToMerge = append(envsToMerge, ctx.taskModuleIndex[taskName].Environment)
+		envsToMerge = append(envsToMerge, ctx.taskModuleIndex[taskId].Environment)
 		task.Environment, err = utils.ExpandMergeEnvs(envsToMerge...)
 		if err != nil {
-			return ctx.inv, fmt.Errorf("expanding task %v environment: %w", taskName, err)
+			return ctx.inv, fmt.Errorf("expanding task %v environment: %w", taskId, err)
 		}
 	}
 
-	for taskName, task := range ctx.inv.Tasks {
+	for taskId, task := range ctx.inv.Tasks {
 		if task.Abstract {
-			delete(ctx.inv.Tasks, taskName)
+			delete(ctx.inv.Tasks, taskId)
 		}
 	}
 
-	for taskName, task := range ctx.inv.Tasks {
+	for taskId, task := range ctx.inv.Tasks {
 		for label, value := range task.Labels {
 			task.Labels[label], err = utils.ExpandString(value, task.Environment)
 			if err != nil {
-				return ctx.inv, fmt.Errorf("expanding label %v in task %v: %w", label, taskName, err)
+				return ctx.inv, fmt.Errorf("expanding label %v in task %v: %w", label, taskId, err)
 			}
 		}
 		if task.Abstract {
-			delete(ctx.inv.Tasks, taskName)
+			delete(ctx.inv.Tasks, taskId)
 		}
 	}
 

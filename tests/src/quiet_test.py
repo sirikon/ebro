@@ -13,6 +13,9 @@ class TestQuiet(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :fails
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: fails
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo 'oh no' && exit 1
               quiet: true
@@ -21,6 +24,9 @@ class TestQuiet(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :works
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: works
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo hello
               quiet: true

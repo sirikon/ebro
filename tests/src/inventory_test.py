@@ -17,6 +17,9 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :apt:default
+                        EBRO_TASK_MODULE: :apt
+                        EBRO_TASK_NAME: default
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/apt/wd
                       script: |
                         echo 'Installing apt packages'
@@ -28,6 +31,9 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :apt:pre-config
+                        EBRO_TASK_MODULE: :apt
+                        EBRO_TASK_NAME: pre-config
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/apt/wd
                       script: mkdir -p "${{EBRO_ROOT}}/.cache/apt/packages"
                       when:
@@ -37,6 +43,9 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :caddy:default
+                        EBRO_TASK_MODULE: :caddy
+                        EBRO_TASK_NAME: default
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/caddy
                       requires:
                       - :caddy:package
@@ -45,6 +54,9 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :caddy:package
+                        EBRO_TASK_MODULE: :caddy
+                        EBRO_TASK_NAME: package
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/caddy
                       requires:
                       - :caddy:package-apt-config
@@ -53,6 +65,9 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :caddy:package-apt-config
+                        EBRO_TASK_MODULE: :caddy
+                        EBRO_TASK_NAME: package-apt-config
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/caddy
                       requires:
                       - :apt:pre-config
@@ -69,6 +84,9 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :default
+                        EBRO_TASK_MODULE: ":"
+                        EBRO_TASK_NAME: default
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                       requires:
                       - :apt:default
@@ -85,6 +103,9 @@ class TestInventory(EbroTestCase):
                         DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :docker:default
+                        EBRO_TASK_MODULE: :docker
+                        EBRO_TASK_NAME: default
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker
                       requires:
                       - :docker:package
@@ -95,6 +116,9 @@ class TestInventory(EbroTestCase):
                         DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :docker:package
+                        EBRO_TASK_MODULE: :docker
+                        EBRO_TASK_NAME: package
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker
                       requires:
                       - :docker:package-apt-config
@@ -105,6 +129,9 @@ class TestInventory(EbroTestCase):
                         DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :docker:package-apt-config
+                        EBRO_TASK_MODULE: :docker
+                        EBRO_TASK_NAME: package-apt-config
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker
                       requires:
                       - :apt:pre-config
@@ -121,6 +148,9 @@ class TestInventory(EbroTestCase):
                         DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :docker:plugins:default
+                        EBRO_TASK_MODULE: :docker:plugins
+                        EBRO_TASK_NAME: default
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker_plugins
                       script: echo Hello
                     :farm:chicken:
@@ -128,6 +158,9 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :farm:chicken
+                        EBRO_TASK_MODULE: :farm
+                        EBRO_TASK_NAME: chicken
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                       requires:
                       - :farm:egg
@@ -137,6 +170,9 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :farm:egg
+                        EBRO_TASK_MODULE: :farm
+                        EBRO_TASK_NAME: egg
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                       script: echo 'Egg ready'
                     :farm:tractor:default:
@@ -144,6 +180,9 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :farm:tractor:default
+                        EBRO_TASK_MODULE: :farm:tractor
+                        EBRO_TASK_NAME: default
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/tractor
                       script: echo "Tractor is here"
                     :ignored:
@@ -151,6 +190,9 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :ignored
+                        EBRO_TASK_MODULE: ":"
+                        EBRO_TASK_NAME: ignored
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                       required_by:
                       - :default
@@ -199,6 +241,53 @@ class TestInventory(EbroTestCase):
                 )
                 self.assertEqual(exit_code, 0)
 
+    def test_list_with_filter_works_2(self):
+        commands = ["-list", "-l"]
+        for command in commands:
+            with self.subTest(command):
+                exit_code, stdout = self.ebro(command, "--filter", 'module == ":apt"')
+                self.assertStdout(
+                    stdout,
+                    f"""
+                    :apt:default
+                    :apt:pre-config
+                    """,
+                )
+                self.assertEqual(exit_code, 0)
+
+    def test_list_with_filter_works_3(self):
+        commands = ["-list", "-l"]
+        for command in commands:
+            with self.subTest(command):
+                exit_code, stdout = self.ebro(
+                    command, "--filter", 'id == ":apt:default"'
+                )
+                self.assertStdout(
+                    stdout,
+                    f"""
+                    :apt:default
+                    """,
+                )
+                self.assertEqual(exit_code, 0)
+
+    def test_list_with_filter_works_4(self):
+        commands = ["-list", "-l"]
+        for command in commands:
+            with self.subTest(command):
+                exit_code, stdout = self.ebro(command, "--filter", 'name == "default"')
+                self.assertStdout(
+                    stdout,
+                    f"""
+                    :apt:default
+                    :caddy:default
+                    :default
+                    :docker:default
+                    :docker:plugins:default
+                    :farm:tractor:default
+                    """,
+                )
+                self.assertEqual(exit_code, 0)
+
     def test_inventory_with_absolute_workdir_is_correct(self):
         exit_code, stdout = self.ebro("-inventory", "--file", "Ebro.workdirs.yaml")
         self.assertEqual(exit_code, 0)
@@ -211,6 +300,9 @@ class TestInventory(EbroTestCase):
                 ABSTRACT_WORKING_DIRECTORY: /somewhere/absolute/abstract
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :child
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: child
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute/child
               script: echo $ABSTRACT_WORKING_DIRECTORY
             :default:
@@ -218,6 +310,9 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :default
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: default
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute
               script: echo "Hello!"
             :other-absolute:
@@ -225,6 +320,9 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :other-absolute
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: other-absolute
                 EBRO_TASK_WORKING_DIRECTORY: /other/absolute
               script: echo "Hello from the other absolute side!"
             :other-relative:
@@ -232,6 +330,9 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :other-relative
+                EBRO_TASK_MODULE: ":"
+                EBRO_TASK_NAME: other-relative
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute/other/relative
               script: echo "Hello from the other relative side!"
             :submodule:other:
@@ -239,6 +340,9 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :submodule:other
+                EBRO_TASK_MODULE: :submodule
+                EBRO_TASK_NAME: other
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute/submodule
               script: echo "Hello from the other side!"
             :submodule:other-absolute:
@@ -246,6 +350,9 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :submodule:other-absolute
+                EBRO_TASK_MODULE: :submodule
+                EBRO_TASK_NAME: other-absolute
                 EBRO_TASK_WORKING_DIRECTORY: /other/absolute
               script: echo "Hello from the other absolute side!"
             :submodule:other-relative:
@@ -253,6 +360,9 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_TASK_ID: :submodule:other-relative
+                EBRO_TASK_MODULE: :submodule
+                EBRO_TASK_NAME: other-relative
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute/submodule/other/relative
               script: echo "Hello from the other relative side!"
             """,
