@@ -128,7 +128,7 @@ func TestModuleMappingWorks(t *testing.T) {
 
 	baseDir := path.Join(workingDirectory, "../../../playground")
 
-	rootModule, err := parseModule(path.Join(baseDir, "Ebro.yaml"), []map[string]string{{"EBRO_ROOT": baseDir}})
+	rootModule, err := parseModule(path.Join(baseDir, "Ebro.yaml"))
 	if err != nil {
 		t.Fatal(err)
 	}

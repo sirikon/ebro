@@ -3,7 +3,7 @@ environment:
 
 imports:
   plugins:
-    from: "${DOCKER_PLUGINS_MODULE_LOCATION}"
+    from: ../docker_plugins
 
 tasks:
   default:

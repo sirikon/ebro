@@ -34,14 +34,14 @@ func main() {
 
 	workingDirectory := getWorkingDirectory()
 
+	indexedRootModule, err := config.ParseRootModule(rootModulePath(workingDirectory, arguments))
+	if err != nil {
+		cli.ExitWithError(err)
+	}
+
 	baseEnvironment := map[string]string{
 		"EBRO_ROOT": workingDirectory,
 		"EBRO_BIN":  arguments.Bin,
-	}
-
-	indexedRootModule, err := config.ParseRootModule(rootModulePath(workingDirectory, arguments), baseEnvironment)
-	if err != nil {
-		cli.ExitWithError(err)
 	}
 
 	inv, err := inventory.MakeInventory(indexedRootModule, baseEnvironment)

@@ -15,8 +15,6 @@ class TestInventory(EbroTestCase):
                     :apt:default:
                       working_directory: {self.workdir}/apt/wd
                       environment:
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/apt/wd
@@ -28,8 +26,6 @@ class TestInventory(EbroTestCase):
                     :apt:pre-config:
                       working_directory: {self.workdir}/apt/wd
                       environment:
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/apt/wd
@@ -39,8 +35,6 @@ class TestInventory(EbroTestCase):
                     :caddy:default:
                       working_directory: {self.workdir}/caddy
                       environment:
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/caddy
@@ -49,8 +43,6 @@ class TestInventory(EbroTestCase):
                     :caddy:package:
                       working_directory: {self.workdir}/caddy
                       environment:
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/caddy
@@ -59,8 +51,6 @@ class TestInventory(EbroTestCase):
                     :caddy:package-apt-config:
                       working_directory: {self.workdir}/caddy
                       environment:
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/caddy
@@ -77,8 +67,6 @@ class TestInventory(EbroTestCase):
                         default: "true"
                       working_directory: {self.workdir}
                       environment:
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
@@ -94,8 +82,6 @@ class TestInventory(EbroTestCase):
                       working_directory: {self.workdir}/docker
                       environment:
                         DOCKER_APT_VERSION: 2.0.0-1-apt
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
@@ -106,8 +92,6 @@ class TestInventory(EbroTestCase):
                       working_directory: {self.workdir}/docker
                       environment:
                         DOCKER_APT_VERSION: 2.0.0-1-apt
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
@@ -118,8 +102,6 @@ class TestInventory(EbroTestCase):
                       working_directory: {self.workdir}/docker
                       environment:
                         DOCKER_APT_VERSION: 2.0.0-1-apt
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
@@ -136,8 +118,6 @@ class TestInventory(EbroTestCase):
                       working_directory: {self.workdir}/docker_plugins
                       environment:
                         DOCKER_APT_VERSION: 2.0.0-1-apt
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
@@ -146,8 +126,6 @@ class TestInventory(EbroTestCase):
                     :farm:chicken:
                       working_directory: {self.workdir}
                       environment:
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
@@ -157,8 +135,6 @@ class TestInventory(EbroTestCase):
                     :farm:egg:
                       working_directory: {self.workdir}
                       environment:
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
@@ -166,8 +142,6 @@ class TestInventory(EbroTestCase):
                     :farm:tractor:default:
                       working_directory: {self.workdir}/tractor
                       environment:
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/tractor
@@ -175,8 +149,6 @@ class TestInventory(EbroTestCase):
                     :ignored:
                       working_directory: {self.workdir}
                       environment:
-                        DOCKER_MODULE_LOCATION: docker
-                        DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
