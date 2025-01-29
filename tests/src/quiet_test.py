@@ -11,6 +11,7 @@ class TestQuiet(EbroTestCase):
             :fails:
               working_directory: {self.workdir}
               environment:
+                EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo 'oh no' && exit 1
@@ -18,6 +19,7 @@ class TestQuiet(EbroTestCase):
             :works:
               working_directory: {self.workdir}
               environment:
+                EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
               script: echo hello

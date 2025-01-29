@@ -2,7 +2,6 @@ package inventory
 
 import (
 	"fmt"
-	"os"
 	"path"
 	"slices"
 
@@ -20,7 +19,7 @@ type InventoryContext struct {
 	taskModuleIndex map[core.TaskId]*core.Module
 }
 
-func MakeInventory(indexedModule *core.IndexedModule) (Inventory, error) {
+func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment map[string]string) (Inventory, error) {
 	ctx := InventoryContext{
 		inv: Inventory{
 			Tasks: make(map[core.TaskId]*core.Task),
@@ -29,12 +28,7 @@ func MakeInventory(indexedModule *core.IndexedModule) (Inventory, error) {
 		taskModuleIndex: make(map[core.TaskId]*core.Module),
 	}
 
-	workingDirectory, err := os.Getwd()
-	if err != nil {
-		return ctx.inv, fmt.Errorf("obtaining working directory: %w", err)
-	}
-
-	err = ctx.processModule(indexedModule.Module, []string{}, map[string]string{"EBRO_ROOT": workingDirectory})
+	err := ctx.processModule(indexedModule.Module, []string{}, baseEnvironment)
 	if err != nil {
 		return ctx.inv, fmt.Errorf("processing module: %w", err)
 	}

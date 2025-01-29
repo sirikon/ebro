@@ -17,6 +17,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/apt/wd
                       script: |
@@ -29,6 +30,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/apt/wd
                       script: mkdir -p "${{EBRO_ROOT}}/.cache/apt/packages"
@@ -39,6 +41,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/caddy
                       requires:
@@ -48,6 +51,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/caddy
                       requires:
@@ -57,6 +61,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/caddy
                       requires:
@@ -74,6 +79,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                       requires:
@@ -91,6 +97,7 @@ class TestInventory(EbroTestCase):
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         DOCKER_VERSION: 2.0.0
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker
                       requires:
@@ -102,6 +109,7 @@ class TestInventory(EbroTestCase):
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         DOCKER_VERSION: 2.0.0
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker
                       requires:
@@ -113,6 +121,7 @@ class TestInventory(EbroTestCase):
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         DOCKER_VERSION: 2.0.0
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker
                       requires:
@@ -130,6 +139,7 @@ class TestInventory(EbroTestCase):
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
                         DOCKER_VERSION: 2.0.0
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/docker_plugins
                       script: echo Hello
@@ -138,6 +148,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                       requires:
@@ -148,6 +159,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                       script: echo 'Egg ready'
@@ -156,6 +168,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}/tractor
                       script: echo "Tractor is here"
@@ -164,6 +177,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         DOCKER_MODULE_LOCATION: docker
                         DOCKER_PLUGINS_MODULE_LOCATION: {self.workdir}/docker_plugins
+                        EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
                         EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                       required_by:
@@ -223,42 +237,49 @@ class TestInventory(EbroTestCase):
               working_directory: /somewhere/absolute/child
               environment:
                 ABSTRACT_WORKING_DIRECTORY: /somewhere/absolute/abstract
+                EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute/child
               script: echo $ABSTRACT_WORKING_DIRECTORY
             :default:
               working_directory: /somewhere/absolute
               environment:
+                EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute
               script: echo "Hello!"
             :other-absolute:
               working_directory: /other/absolute
               environment:
+                EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_WORKING_DIRECTORY: /other/absolute
               script: echo "Hello from the other absolute side!"
             :other-relative:
               working_directory: /somewhere/absolute/other/relative
               environment:
+                EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute/other/relative
               script: echo "Hello from the other relative side!"
             :submodule:other:
               working_directory: /somewhere/absolute/submodule
               environment:
+                EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute/submodule
               script: echo "Hello from the other side!"
             :submodule:other-absolute:
               working_directory: /other/absolute
               environment:
+                EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_WORKING_DIRECTORY: /other/absolute
               script: echo "Hello from the other absolute side!"
             :submodule:other-relative:
               working_directory: /somewhere/absolute/submodule/other/relative
               environment:
+                EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute/submodule/other/relative
               script: echo "Hello from the other relative side!"

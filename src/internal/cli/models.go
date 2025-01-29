@@ -26,6 +26,7 @@ type Command struct {
 }
 
 type ExecutionArguments struct {
+	Bin     string
 	Command *Command
 	Flags   []FlagValue
 	Targets []string

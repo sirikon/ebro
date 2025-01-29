@@ -13,8 +13,8 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
-func ParseRootModule(workingDirectory string, modulePath string) (*core.IndexedModule, error) {
-	rootModule, err := parseModule(modulePath, []map[string]string{{"EBRO_ROOT": workingDirectory}})
+func ParseRootModule(modulePath string, baseEnvironment map[string]string) (*core.IndexedModule, error) {
+	rootModule, err := parseModule(modulePath, []map[string]string{baseEnvironment})
 	if err != nil {
 		return nil, fmt.Errorf("parsing root module: %w", err)
 	}

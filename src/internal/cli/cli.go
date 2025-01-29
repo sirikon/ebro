@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"slices"
@@ -17,7 +18,13 @@ var commandRe = regexp.MustCompile("^-([a-zA-Z0-9 ]+)$")
 var flagRe = regexp.MustCompile("^--([a-zA-Z0-9 ]+)$")
 
 func Parse() ExecutionArguments {
+	bin, err := filepath.Abs(os.Args[0])
+	if err != nil {
+		ExitWithError(fmt.Errorf("obtaining absolute path to ebro binary: %w", err))
+	}
+
 	result := ExecutionArguments{
+		Bin:     bin,
 		Command: CommandRun,
 		Targets: []string{":" + constants.DefaultTarget},
 	}

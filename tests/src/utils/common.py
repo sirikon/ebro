@@ -67,6 +67,7 @@ class EbroTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs) -> None:
         self.maxDiff = None
         self.workdir = normpath(join(getcwd(), "..", "playground"))
+        self.bin = normpath(join(getcwd(), "..", "out", "ebro"))
         super().__init__(*args, **kwargs)
 
     def setUp(self) -> None:
@@ -82,7 +83,7 @@ class EbroTestCase(unittest.TestCase):
 
     def ebro(self, *args, env=dict()):
         result = run(
-            [join(getcwd(), "..", "out", "ebro"), *args],
+            [self.bin, *args],
             cwd=self.workdir,
             stdout=PIPE,
             stderr=STDOUT,
