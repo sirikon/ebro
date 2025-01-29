@@ -126,16 +126,23 @@ func lock() error {
 	return nil
 }
 
+type TaskInFilter struct {
+	Labels map[string]string `expr:"labels"`
+}
+
 func buildTaskFilter(arguments cli.ExecutionArguments) func(_ core.TaskId, _ *core.Task) bool {
 	filterExpression := *arguments.GetFlagString(cli.FlagFilter)
 	if filterExpression != "" {
-		program, err := expr.Compile(filterExpression, expr.Env(core.Task{}))
+		program, err := expr.Compile(filterExpression, expr.Env(TaskInFilter{}), expr.AsBool())
 		if err != nil {
 			cli.ExitWithError(fmt.Errorf("compiling filter expression: %w", err))
 		}
 
 		return func(taskId core.TaskId, task *core.Task) bool {
-			output, err := expr.Run(program, task)
+			taskInFilter := TaskInFilter{
+				Labels: task.Labels,
+			}
+			output, err := expr.Run(program, taskInFilter)
 			if err != nil {
 				cli.ExitWithError(fmt.Errorf("running filter expression: %w", err))
 			}

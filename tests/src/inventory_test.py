@@ -203,15 +203,15 @@ class TestInventory(EbroTestCase):
         for command in commands:
             with self.subTest(command):
                 exit_code, stdout = self.ebro(
-                    command, "--filter", 'Labels.default == "true"'
+                    command, "--filter", 'labels.default == "true"'
                 )
-                self.assertEqual(exit_code, 0)
                 self.assertStdout(
                     stdout,
                     f"""
                     :default
                     """,
                 )
+                self.assertEqual(exit_code, 0)
 
     def test_inventory_with_absolute_workdir_is_correct(self):
         exit_code, stdout = self.ebro("-inventory", "--file", "Ebro.workdirs.yaml")
