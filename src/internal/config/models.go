@@ -51,6 +51,7 @@ func mapToCoreTask(task *Task) *core.Task {
 		RequiredBy:       mapToTaskIds(task.RequiredBy),
 		Script:           task.Script,
 		Quiet:            task.Quiet,
+		Interactive:      task.Interactive,
 		When:             task.When,
 	}
 }

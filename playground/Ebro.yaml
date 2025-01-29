@@ -20,6 +20,10 @@ tasks:
     required_by: [default]
     script: echo 'I should be ignored'
 
+  bash:
+    script: bash
+    interactive: true
+
 modules:
   farm:
     imports:

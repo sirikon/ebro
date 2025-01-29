@@ -2,6 +2,7 @@
 
 - labels
 - filtering
+- interactive tasks
 - EBRO_BIN env var
 - EBRO_TASK_ID
 - EBRO_TASK_MODULE

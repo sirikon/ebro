@@ -38,6 +38,17 @@ class TestInventory(EbroTestCase):
                       script: mkdir -p "${{EBRO_ROOT}}/.cache/apt/packages"
                       when:
                         check_fails: test -d "${{EBRO_ROOT}}/.cache/apt/packages"
+                    :bash:
+                      working_directory: {self.workdir}
+                      environment:
+                        EBRO_BIN: {self.bin}
+                        EBRO_ROOT: {self.workdir}
+                        EBRO_TASK_ID: :bash
+                        EBRO_TASK_MODULE: ":"
+                        EBRO_TASK_NAME: bash
+                        EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
+                      script: bash
+                      interactive: true
                     :caddy:default:
                       working_directory: {self.workdir}/caddy
                       environment:
@@ -211,6 +222,7 @@ class TestInventory(EbroTestCase):
                     f"""
                     :apt:default
                     :apt:pre-config
+                    :bash
                     :caddy:default
                     :caddy:package
                     :caddy:package-apt-config

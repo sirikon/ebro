@@ -71,6 +71,7 @@ type TaskBase[RefT ~string, WhenT any] struct {
 	RequiredBy       []RefT            `yaml:"required_by,omitempty"`
 	Script           string            `yaml:"script,omitempty"`
 	Quiet            *bool             `yaml:"quiet,omitempty"`
+	Interactive      *bool             `yaml:"interactive,omitempty"`
 	When             *WhenT            `yaml:"when,omitempty"`
 }
 

@@ -38,7 +38,7 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 			if task.When.CheckFails != "" {
 				output := bytes.Buffer{}
 				outputWriter := bufio.NewWriter(&output)
-				status, err := runScriptWithIO(task.When.CheckFails, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
+				status, err := runScript(task.When.CheckFails, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
 				if err != nil {
 					return fmt.Errorf("running task %v when.check_fails: %w", taskId, err)
 				}
@@ -54,7 +54,7 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 			if task.When.OutputChanges != "" {
 				output := bytes.Buffer{}
 				outputWriter := bufio.NewWriter(&output)
-				status, err := runScriptWithIO(task.When.OutputChanges, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
+				status, err := runScript(task.When.OutputChanges, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
 				if err != nil {
 					return fmt.Errorf("running task %v when.output_changes: %w", taskId, err)
 				}
@@ -87,14 +87,18 @@ func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
 			logger.Info(logLine(taskId, "running"))
 			output := bytes.Buffer{}
 			outputWriter := bufio.NewWriter(&output)
-			status, err = runScriptWithIO(task.Script, task.WorkingDirectory, task.Environment, outputWriter, outputWriter)
+			status, err = runScript(task.Script, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
 			outputWriter.Flush()
 			if err != nil || status != 0 {
 				fmt.Print(output.String())
 			}
 		} else {
 			logger.Notice(logLine(taskId, "running"))
-			status, err = runScript(task.Script, task.WorkingDirectory, task.Environment)
+			var stdin io.Reader = nil
+			if task.Interactive != nil && *task.Interactive {
+				stdin = os.Stdin
+			}
+			status, err = runScript(task.Script, task.WorkingDirectory, task.Environment, stdin, os.Stdout, os.Stdout)
 		}
 
 		var final_err error
@@ -122,11 +126,7 @@ func logLine(taskId core.TaskId, message string) string {
 	return "[" + string(taskId) + "] " + message
 }
 
-func runScript(script string, workingDirectory string, environment map[string]string) (uint8, error) {
-	return runScriptWithIO(script, workingDirectory, environment, os.Stdout, os.Stdout)
-}
-
-func runScriptWithIO(script string, workingDirectory string, environment map[string]string, stdout io.Writer, stderr io.Writer) (uint8, error) {
+func runScript(script string, workingDirectory string, environment map[string]string, stdin io.Reader, stdout io.Writer, stderr io.Writer) (uint8, error) {
 	script_header := []string{"set -euo pipefail"}
 
 	file, err := syntax.NewParser().Parse(strings.NewReader(strings.Join(script_header, "\n")+"\n"+script), "")
@@ -137,7 +137,7 @@ func runScriptWithIO(script string, workingDirectory string, environment map[str
 	runner, err := interp.New(
 		interp.Env(expand.ListEnviron(append(os.Environ(), environmentToString(environment)...)...)),
 		interp.Dir(workingDirectory),
-		interp.StdIO(nil, stdout, stderr),
+		interp.StdIO(stdin, stdout, stderr),
 	)
 	if err != nil {
 		return 1, fmt.Errorf("runner creation failed: %w", err)

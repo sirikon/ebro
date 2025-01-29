@@ -50,6 +50,10 @@ func (ctx *ctxValidateModule) validateTask(task *Task) error {
 		return fmt.Errorf("task has nothing to do (no requires, script, extends nor abstract)")
 	}
 
+	if task.Quiet != nil && *task.Quiet && task.Interactive != nil && *task.Interactive {
+		return fmt.Errorf("task cannot be quiet and interactive at the same time")
+	}
+
 	for _, taskReferenceString := range task.Requires {
 		if err := validateTaskReference(taskReferenceString); err != nil {
 			return fmt.Errorf("parsing reference %v in requires: %w", taskReferenceString, err)
