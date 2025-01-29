@@ -7,6 +7,8 @@ imports:
 
 tasks:
   default:
+    labels:
+      docker.version: "${DOCKER_VERSION:-1.0.0}"
     requires: [package]
 
   package:

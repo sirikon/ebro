@@ -83,6 +83,8 @@ class TestInventory(EbroTestCase):
                       script: |
                         echo "Done!"
                     :docker:default:
+                      labels:
+                        docker.version: 2.0.0
                       working_directory: {self.workdir}/docker
                       environment:
                         DOCKER_APT_VERSION: 2.0.0-1-apt

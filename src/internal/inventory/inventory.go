@@ -70,6 +70,18 @@ func MakeInventory(indexedModule *core.IndexedModule) (Inventory, error) {
 		}
 	}
 
+	for taskName, task := range ctx.inv.Tasks {
+		for label, value := range task.Labels {
+			task.Labels[label], err = utils.ExpandString(value, task.Environment)
+			if err != nil {
+				return ctx.inv, fmt.Errorf("expanding label %v in task %v: %w", label, taskName, err)
+			}
+		}
+		if task.Abstract {
+			delete(ctx.inv.Tasks, taskName)
+		}
+	}
+
 	return ctx.inv, nil
 }
 
