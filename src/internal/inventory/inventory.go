@@ -47,16 +47,11 @@ func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment *core.Envi
 			parentTask := ctx.inv.Tasks[parentTaskName]
 			applyInheritance(task, parentTask)
 		}
-	}
 
-	for taskId, task := range ctx.inv.Tasks {
 		task.Environment, err = ctx.resolveTaskEnvironment(taskId)
 		if err != nil {
 			return ctx.inv, fmt.Errorf("resolving task %v environment: %w", taskId, err)
 		}
-	}
-
-	for _, task := range ctx.inv.Tasks {
 		task.Extends = nil
 	}
 
@@ -131,7 +126,7 @@ func (ctx *InventoryContext) processModule(module *core.Module, moduleTrail []st
 
 func (ctx *InventoryContext) resolveTaskEnvironment(taskId core.TaskId) (*core.Environment, error) {
 	task := ctx.inv.Tasks[taskId]
-	envsToMerge := [](*core.Environment){
+	envsToMerge := []*core.Environment{
 		task.Environment,
 		core.NewEnvironment(
 			core.EnvironmentValue{Key: "EBRO_TASK_ID", Value: string(taskId)},
