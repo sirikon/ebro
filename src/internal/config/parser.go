@@ -45,7 +45,7 @@ func init() {
 	})
 
 	yaml.RegisterCustomMarshaler(func(env *core.Environment) ([]byte, error) {
-		return yaml.Marshal(env.Map())
+		return yaml.Marshal(env.YamlMapSlice())
 	})
 }
 

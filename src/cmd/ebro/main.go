@@ -40,8 +40,8 @@ func main() {
 	}
 
 	baseEnvironment := core.NewEnvironment(
-		core.EnvironmentValue{Key: "EBRO_ROOT", Value: workingDirectory},
 		core.EnvironmentValue{Key: "EBRO_BIN", Value: arguments.Bin},
+		core.EnvironmentValue{Key: "EBRO_ROOT", Value: workingDirectory},
 	)
 
 	inv, err := inventory.MakeInventory(indexedRootModule, baseEnvironment)

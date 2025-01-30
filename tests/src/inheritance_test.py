@@ -11,7 +11,6 @@ class TestInheritance(EbroTestCase):
             :b:
               working_directory: {self.workdir}
               environment:
-                BAR: It's BAR
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_ID: :b
@@ -19,6 +18,7 @@ class TestInheritance(EbroTestCase):
                 EBRO_TASK_NAME: b
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
                 FOO: It's FOO
+                BAR: It's BAR
               requires:
               - :d
               - :c
@@ -61,29 +61,29 @@ class TestInheritance(EbroTestCase):
             :multi-c:
               working_directory: {self.workdir}
               environment:
-                A: "1"
-                B: "22"
-                C: "3"
-                D: "44"
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_ID: :multi-c
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: multi-c
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
+                A: "1"
+                B: "22"
+                D: "44"
+                C: "3"
               script: echo multi-b
               quiet: true
             :y:
               working_directory: {self.workdir}
               environment:
-                A: "1"
-                B: "2"
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_ID: :y
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: "y"
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
+                A: "1"
+                B: "2"
               script: echo y
               quiet: true
               when:
@@ -92,15 +92,15 @@ class TestInheritance(EbroTestCase):
             :z:
               working_directory: {self.workdir}
               environment:
-                A: "1"
-                B: "22"
-                C: "3"
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_ID: :z
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: z
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
+                A: "1"
+                B: "22"
+                C: "3"
               script: echo z
               quiet: false
               when:

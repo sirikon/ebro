@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/goccy/go-yaml"
 )
 
 type TaskId string
@@ -157,6 +159,17 @@ func (env Environment) Map() map[string]string {
 
 	for _, envVal := range env.values {
 		result[envVal.Key] = envVal.Value
+	}
+	return result
+}
+
+func (env Environment) YamlMapSlice() yaml.MapSlice {
+	result := yaml.MapSlice{}
+	if env.values == nil {
+		return result
+	}
+	for _, envVal := range env.values {
+		result = append(result, yaml.MapItem{Key: envVal.Key, Value: envVal.Value})
 	}
 	return result
 }

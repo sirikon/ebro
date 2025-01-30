@@ -44,10 +44,10 @@ func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment *core.Envi
 		envsToMerge := [](*core.Environment){
 			task.Environment,
 			core.NewEnvironment(
-				core.EnvironmentValue{Key: "EBRO_TASK_WORKING_DIRECTORY", Value: task.WorkingDirectory},
 				core.EnvironmentValue{Key: "EBRO_TASK_ID", Value: string(taskId)},
 				core.EnvironmentValue{Key: "EBRO_TASK_MODULE", Value: ":" + strings.Join(taskId.ModuleTrail(), ":")},
 				core.EnvironmentValue{Key: "EBRO_TASK_NAME", Value: taskId.TaskName()},
+				core.EnvironmentValue{Key: "EBRO_TASK_WORKING_DIRECTORY", Value: task.WorkingDirectory},
 			),
 		}
 		parentTasks := slices.Clone(task.Extends)

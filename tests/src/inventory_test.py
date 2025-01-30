@@ -110,10 +110,10 @@ class TestInventory(EbroTestCase):
                         docker.version: 2.0.0
                       working_directory: {self.workdir}/docker
                       environment:
-                        DOCKER_APT_VERSION: 2.0.0-1-apt
-                        DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        DOCKER_VERSION: 2.0.0
+                        DOCKER_APT_VERSION: 2.0.0-1-apt
                         EBRO_TASK_ID: :docker:default
                         EBRO_TASK_MODULE: :docker
                         EBRO_TASK_NAME: default
@@ -123,10 +123,10 @@ class TestInventory(EbroTestCase):
                     :docker:package:
                       working_directory: {self.workdir}/docker
                       environment:
-                        DOCKER_APT_VERSION: 2.0.0-1-apt
-                        DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        DOCKER_VERSION: 2.0.0
+                        DOCKER_APT_VERSION: 2.0.0-1-apt
                         EBRO_TASK_ID: :docker:package
                         EBRO_TASK_MODULE: :docker
                         EBRO_TASK_NAME: package
@@ -136,10 +136,10 @@ class TestInventory(EbroTestCase):
                     :docker:package-apt-config:
                       working_directory: {self.workdir}/docker
                       environment:
-                        DOCKER_APT_VERSION: 2.0.0-1-apt
-                        DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        DOCKER_VERSION: 2.0.0
+                        DOCKER_APT_VERSION: 2.0.0-1-apt
                         EBRO_TASK_ID: :docker:package-apt-config
                         EBRO_TASK_MODULE: :docker
                         EBRO_TASK_NAME: package-apt-config
@@ -155,10 +155,10 @@ class TestInventory(EbroTestCase):
                     :docker:plugins:default:
                       working_directory: {self.workdir}/docker_plugins
                       environment:
-                        DOCKER_APT_VERSION: 2.0.0-1-apt
-                        DOCKER_VERSION: 2.0.0
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        DOCKER_VERSION: 2.0.0
+                        DOCKER_APT_VERSION: 2.0.0-1-apt
                         EBRO_TASK_ID: :docker:plugins:default
                         EBRO_TASK_MODULE: :docker:plugins
                         EBRO_TASK_NAME: default
@@ -309,13 +309,13 @@ class TestInventory(EbroTestCase):
             :child:
               working_directory: /somewhere/absolute/child
               environment:
-                ABSTRACT_WORKING_DIRECTORY: /somewhere/absolute/abstract
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_TASK_ID: :child
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: child
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute/child
+                ABSTRACT_WORKING_DIRECTORY: /somewhere/absolute/abstract
               script: echo $ABSTRACT_WORKING_DIRECTORY
             :default:
               working_directory: /somewhere/absolute
