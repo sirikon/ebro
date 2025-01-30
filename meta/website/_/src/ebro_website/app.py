@@ -3,7 +3,6 @@ import json
 import re
 from os import getcwd, listdir
 from os.path import join
-from subprocess import run, PIPE
 
 from flask import Flask, render_template, send_file
 from markdown import Markdown
