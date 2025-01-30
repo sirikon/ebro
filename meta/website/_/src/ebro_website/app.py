@@ -135,5 +135,5 @@ def get_tagged_versions():
     for file in listdir(join("docs", "changelog")):
         if file.endswith(".md") and file != "HEAD.md":
             result.append(file.removesuffix(".md"))
-    result.sort(reverse=True)
+    result.sort(reverse=True, key=lambda x: tuple([int(n) for n in x.split(".")]))
     return result
