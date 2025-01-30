@@ -1,5 +1,8 @@
 ## Breaking Changes
 
+- Now the `interactive` and `labels` properties introduced in version `0.10.0` are included in `extends` operations. 
+
+### Variable expansion updates
 Expanding environment variables now supports referencing variables that were defined **before** the current variable in the same map.
 
 ```yaml

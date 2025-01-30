@@ -58,4 +58,15 @@ func applyInheritance(childTask *core.Task, parentTask *core.Task) {
 			childTask.When.OutputChanges = parentTask.When.OutputChanges
 		}
 	}
+
+	if parentTask.Labels != nil {
+		if childTask.Labels == nil {
+			childTask.Labels = map[string]string{}
+		}
+		for key, val := range parentTask.Labels {
+			if _, ok := childTask.Labels[key]; !ok {
+				childTask.Labels[key] = val
+			}
+		}
+	}
 }

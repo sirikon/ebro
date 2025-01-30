@@ -74,6 +74,9 @@ class TestInheritance(EbroTestCase):
               script: echo multi-b
               quiet: true
             :y:
+              labels:
+                label.A: "1"
+                label.B: "2"
               working_directory: {self.workdir}
               environment:
                 EBRO_BIN: {self.bin}
@@ -90,6 +93,10 @@ class TestInheritance(EbroTestCase):
                 check_fails: exit 1
                 output_changes: echo test2
             :z:
+              labels:
+                label.A: "1"
+                label.B: "22"
+                label.C: "33"
               working_directory: {self.workdir}
               environment:
                 EBRO_BIN: {self.bin}
