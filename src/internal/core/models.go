@@ -52,10 +52,19 @@ func (tid TaskId) parts() []string {
 	return strings.Split(strings.TrimPrefix(string(tid), ":"), ":")
 }
 
+type EnvironmentValue struct {
+	Key   string
+	Value string
+}
+
+type Environment struct {
+	values []EnvironmentValue
+}
+
 type ModuleBase[TTask any, TImport any] struct {
 	WorkingDirectory string                                 `yaml:"working_directory,omitempty"`
 	Imports          map[string]*TImport                    `yaml:"imports,omitempty"`
-	Environment      map[string]string                      `yaml:"environment,omitempty"`
+	Environment      *Environment                           `yaml:"environment,omitempty"`
 	Tasks            map[string]*TTask                      `yaml:"tasks,omitempty"`
 	Modules          map[string]*ModuleBase[TTask, TImport] `yaml:"modules,omitempty"`
 }
@@ -66,7 +75,7 @@ type TaskBase[RefT ~string, WhenT any] struct {
 	IfTasksExist     []RefT            `yaml:"if_tasks_exist,omitempty"`
 	Abstract         bool              `yaml:"abstract,omitempty"`
 	Extends          []RefT            `yaml:"extends,omitempty"`
-	Environment      map[string]string `yaml:"environment,omitempty"`
+	Environment      *Environment      `yaml:"environment,omitempty"`
 	Requires         []RefT            `yaml:"requires,omitempty"`
 	RequiredBy       []RefT            `yaml:"required_by,omitempty"`
 	Script           string            `yaml:"script,omitempty"`
@@ -81,8 +90,8 @@ type When struct {
 }
 
 type Import struct {
-	From        string            `yaml:"from,omitempty"`
-	Environment map[string]string `yaml:"environment,omitempty"`
+	From        string       `yaml:"from,omitempty"`
+	Environment *Environment `yaml:"environment,omitempty"`
 }
 
 type Task = TaskBase[TaskId, When]
@@ -119,4 +128,51 @@ func (m *ModuleBase[TTask, TImport]) ImportsSorted() iter.Seq2[string, *TImport]
 			}
 		}
 	}
+}
+
+func NewEnvironment(envValues ...EnvironmentValue) *Environment {
+	return &Environment{
+		values: envValues,
+	}
+}
+
+func (env Environment) Values() iter.Seq[EnvironmentValue] {
+	return func(yield func(EnvironmentValue) bool) {
+		if env.values == nil {
+			return
+		}
+		for _, envVal := range env.values {
+			if !yield(envVal) {
+				return
+			}
+		}
+	}
+}
+
+func (env Environment) Map() map[string]string {
+	result := map[string]string{}
+	if env.values == nil {
+		return result
+	}
+
+	for _, envVal := range env.values {
+		result[envVal.Key] = envVal.Value
+	}
+	return result
+}
+
+func (env *Environment) Set(key, value string) {
+	if env.values == nil {
+		env.values = []EnvironmentValue{}
+	}
+	for i := range env.values {
+		if env.values[i].Key == key {
+			env.values[i].Value = value
+			return
+		}
+	}
+	env.values = append(env.values, EnvironmentValue{
+		Key:   key,
+		Value: value,
+	})
 }

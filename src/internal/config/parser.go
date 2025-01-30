@@ -10,7 +10,44 @@ import (
 	"github.com/sirikon/ebro/internal/core"
 
 	"github.com/goccy/go-yaml"
+	"github.com/goccy/go-yaml/ast"
+	"github.com/goccy/go-yaml/parser"
 )
+
+func init() {
+	yaml.RegisterCustomUnmarshaler(func(env *core.Environment, b []byte) error {
+		file, err := parser.ParseBytes(b, parser.ParseComments)
+		if err != nil {
+			panic(err)
+		}
+
+		body := file.Docs[0].Body
+
+		if body.Type() != ast.MappingType {
+			return fmt.Errorf("wrong type")
+		}
+
+		mapping := body.(*ast.MappingNode)
+		for _, mappingValue := range mapping.Values {
+			if mappingValue.Key.Type() != ast.StringType {
+				return fmt.Errorf("wrong type for key %v in mapping", mappingValue.Key.String())
+			}
+			if mappingValue.Value.Type() != ast.StringType {
+				return fmt.Errorf("wrong type for value %v in mapping", mappingValue.Value.String())
+			}
+
+			key := mappingValue.Key.(*ast.StringNode)
+			value := mappingValue.Value.(*ast.StringNode)
+
+			env.Set(key.Value, value.Value)
+		}
+		return nil
+	})
+
+	yaml.RegisterCustomMarshaler(func(env *core.Environment) ([]byte, error) {
+		return yaml.Marshal(env.Map())
+	})
+}
 
 func ParseRootModule(modulePath string) (*core.IndexedModule, error) {
 	rootModule, err := parseModule(modulePath)

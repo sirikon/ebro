@@ -4,30 +4,26 @@ import (
 	"fmt"
 	"maps"
 	"os"
-	"slices"
 
+	"github.com/sirikon/ebro/internal/core"
 	"mvdan.cc/sh/v3/shell"
 )
 
-func ExpandMergeEnvs(envs ...map[string]string) (map[string]string, error) {
-	result := map[string]string{}
+func ExpandMergeEnvs(envs ...*core.Environment) (*core.Environment, error) {
+	result := &core.Environment{}
 	for i := (len(envs) - 1); i >= 0; i-- {
-		parentEnv := maps.Clone(result)
+		parentEnv := maps.Clone(result.Map())
 		env := envs[i]
-		// We want to iterate through keys in a repeatable and predictable way.
-		// The order in which we process each key SHOULD NOT BE IMPORTANT, but
-		// in the scenario of a bug in here, we want the behavior to be
-		// consistent.
-		//
-		// That's why we're sorting the keys and iterating over them
-		// instead of `range`ing the map directly.
-		envKeys := slices.Sorted(maps.Keys(env))
-		for _, key := range envKeys {
-			expandedValue, err := ExpandString(env[key], parentEnv)
+		if env == nil {
+			continue
+		}
+
+		for envValue := range env.Values() {
+			expandedValue, err := ExpandString(envValue.Value, parentEnv)
 			if err != nil {
-				return nil, fmt.Errorf("expanding %v: %w", env[key], err)
+				return nil, fmt.Errorf("expanding %v: %w", envValue.Value, err)
 			}
-			result[key] = expandedValue
+			result.Set(envValue.Key, expandedValue)
 		}
 	}
 	return result, nil

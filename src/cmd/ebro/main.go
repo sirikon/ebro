@@ -39,10 +39,10 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	baseEnvironment := map[string]string{
-		"EBRO_ROOT": workingDirectory,
-		"EBRO_BIN":  arguments.Bin,
-	}
+	baseEnvironment := core.NewEnvironment(
+		core.EnvironmentValue{Key: "EBRO_ROOT", Value: workingDirectory},
+		core.EnvironmentValue{Key: "EBRO_BIN", Value: arguments.Bin},
+	)
 
 	inv, err := inventory.MakeInventory(indexedRootModule, baseEnvironment)
 	if err != nil {

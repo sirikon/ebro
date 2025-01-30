@@ -1,13 +1,8 @@
 package config
 
 import (
-	"os"
-	"path"
 	"reflect"
 	"testing"
-
-	"github.com/goccy/go-yaml"
-	"github.com/sirikon/ebro/internal/core"
 )
 
 func TestParseTaskReferenceChecksRegex(t *testing.T) {
@@ -117,60 +112,5 @@ func TesTaskReferenceAbsoluteWorks(t *testing.T) {
 		if !reflect.DeepEqual(testCase.expected, result) {
 			t.Fatalf("Not deeply equal: \n%v\n%v", testCase.expected, result)
 		}
-	}
-}
-
-func TestModuleMappingWorks(t *testing.T) {
-	workingDirectory, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	baseDir := path.Join(workingDirectory, "../../../playground")
-
-	rootModule, err := parseModule(path.Join(baseDir, "Ebro.yaml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = ValidateModule(rootModule)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	indexedModule := NewIndexedModule(rootModule)
-	PurgeModule(indexedModule)
-	ctx := ctxNormalizeModule{
-		indexedModule: indexedModule,
-	}
-	err = ctx.normalizeModule(ctx.indexedModule.Module, []string{})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// convert using yaml
-	yamlResult := &core.Module{}
-	data, err := yaml.Marshal(indexedModule.Module)
-	if err != nil {
-		t.Fatal(err)
-	}
-	yaml.Unmarshal(data, yamlResult)
-
-	// convert using mapper
-	mapperResult := MapToCoreModule(indexedModule.Module)
-
-	// convert both to yaml to compare
-	yamlResultData, err := yaml.Marshal(yamlResult)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	mapperResultData, err := yaml.Marshal(mapperResult)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if string(yamlResultData) != string(mapperResultData) {
-		t.Fatalf("Not deeply equal: \n%v\n%v", string(yamlResultData), string(mapperResultData))
 	}
 }

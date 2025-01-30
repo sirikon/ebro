@@ -126,7 +126,7 @@ func logLine(taskId core.TaskId, message string) string {
 	return "[" + string(taskId) + "] " + message
 }
 
-func runScript(script string, workingDirectory string, environment map[string]string, stdin io.Reader, stdout io.Writer, stderr io.Writer) (uint8, error) {
+func runScript(script string, workingDirectory string, environment *core.Environment, stdin io.Reader, stdout io.Writer, stderr io.Writer) (uint8, error) {
 	script_header := []string{"set -euo pipefail"}
 
 	file, err := syntax.NewParser().Parse(strings.NewReader(strings.Join(script_header, "\n")+"\n"+script), "")
@@ -155,10 +155,10 @@ func runScript(script string, workingDirectory string, environment map[string]st
 	}
 }
 
-func environmentToString(environment map[string]string) []string {
+func environmentToString(environment *core.Environment) []string {
 	result := []string{}
-	for key, value := range environment {
-		result = append(result, key+"="+value)
+	for envValue := range environment.Values() {
+		result = append(result, envValue.Key+"="+envValue.Value)
 	}
 	return result
 }

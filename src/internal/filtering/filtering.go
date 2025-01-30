@@ -44,7 +44,7 @@ func BuildTaskFilter(code string) (func(_ core.TaskId, _ *core.Task) bool, error
 			Labels:           task.Labels,
 			WorkingDirectory: task.WorkingDirectory,
 			Extends:          taskIdListToStringList(task.Extends),
-			Environment:      task.Environment,
+			Environment:      task.Environment.Map(),
 			Requires:         taskIdListToStringList(task.Requires),
 			RequiredBy:       taskIdListToStringList(task.RequiredBy),
 			Script:           task.Script,

@@ -20,7 +20,7 @@ type InventoryContext struct {
 	taskModuleIndex map[core.TaskId]*core.Module
 }
 
-func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment map[string]string) (Inventory, error) {
+func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment *core.Environment) (Inventory, error) {
 	ctx := InventoryContext{
 		inv: Inventory{
 			Tasks: make(map[core.TaskId]*core.Task),
@@ -41,14 +41,14 @@ func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment map[string
 
 	for _, taskId := range inheritanceOrder {
 		task := ctx.inv.Tasks[taskId]
-		envsToMerge := [](map[string]string){
+		envsToMerge := [](*core.Environment){
 			task.Environment,
-			map[string]string{
-				"EBRO_TASK_WORKING_DIRECTORY": task.WorkingDirectory,
-				"EBRO_TASK_ID":                string(taskId),
-				"EBRO_TASK_MODULE":            ":" + strings.Join(taskId.ModuleTrail(), ":"),
-				"EBRO_TASK_NAME":              taskId.TaskName(),
-			},
+			core.NewEnvironment(
+				core.EnvironmentValue{Key: "EBRO_TASK_WORKING_DIRECTORY", Value: task.WorkingDirectory},
+				core.EnvironmentValue{Key: "EBRO_TASK_ID", Value: string(taskId)},
+				core.EnvironmentValue{Key: "EBRO_TASK_MODULE", Value: ":" + strings.Join(taskId.ModuleTrail(), ":")},
+				core.EnvironmentValue{Key: "EBRO_TASK_NAME", Value: taskId.TaskName()},
+			),
 		}
 		parentTasks := slices.Clone(task.Extends)
 		slices.Reverse(parentTasks)
@@ -72,7 +72,7 @@ func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment map[string
 
 	for taskId, task := range ctx.inv.Tasks {
 		for label, value := range task.Labels {
-			task.Labels[label], err = utils.ExpandString(value, task.Environment)
+			task.Labels[label], err = utils.ExpandString(value, task.Environment.Map())
 			if err != nil {
 				return ctx.inv, fmt.Errorf("expanding label %v in task %v: %w", label, taskId, err)
 			}
@@ -85,7 +85,7 @@ func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment map[string
 	return ctx.inv, nil
 }
 
-func (ctx *InventoryContext) processModule(module *core.Module, moduleTrail []string, environment map[string]string) error {
+func (ctx *InventoryContext) processModule(module *core.Module, moduleTrail []string, environment *core.Environment) error {
 	moduleEnvironment, err := utils.ExpandMergeEnvs(module.Environment, environment)
 	if err != nil {
 		return fmt.Errorf("expanding module environment: %w", err)
