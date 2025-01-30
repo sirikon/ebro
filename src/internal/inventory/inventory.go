@@ -41,27 +41,23 @@ func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment *core.Envi
 
 	for _, taskId := range inheritanceOrder {
 		task := ctx.inv.Tasks[taskId]
-		envsToMerge := [](*core.Environment){
-			task.Environment,
-			core.NewEnvironment(
-				core.EnvironmentValue{Key: "EBRO_TASK_ID", Value: string(taskId)},
-				core.EnvironmentValue{Key: "EBRO_TASK_MODULE", Value: ":" + strings.Join(taskId.ModuleTrail(), ":")},
-				core.EnvironmentValue{Key: "EBRO_TASK_NAME", Value: taskId.TaskName()},
-				core.EnvironmentValue{Key: "EBRO_TASK_WORKING_DIRECTORY", Value: task.WorkingDirectory},
-			),
-		}
 		parentTasks := slices.Clone(task.Extends)
 		slices.Reverse(parentTasks)
 		for _, parentTaskName := range parentTasks {
 			parentTask := ctx.inv.Tasks[parentTaskName]
 			applyInheritance(task, parentTask)
-			envsToMerge = append(envsToMerge, parentTask.Environment)
 		}
-		envsToMerge = append(envsToMerge, ctx.taskModuleIndex[taskId].Environment)
-		task.Environment, err = utils.ExpandMergeEnvs(envsToMerge...)
+	}
+
+	for taskId, task := range ctx.inv.Tasks {
+		task.Environment, err = ctx.resolveTaskEnvironment(taskId)
 		if err != nil {
-			return ctx.inv, fmt.Errorf("expanding task %v environment: %w", taskId, err)
+			return ctx.inv, fmt.Errorf("resolving task %v environment: %w", taskId, err)
 		}
+	}
+
+	for _, task := range ctx.inv.Tasks {
+		task.Extends = nil
 	}
 
 	for taskId, task := range ctx.inv.Tasks {
@@ -72,7 +68,7 @@ func MakeInventory(indexedModule *core.IndexedModule, baseEnvironment *core.Envi
 
 	for taskId, task := range ctx.inv.Tasks {
 		for label, value := range task.Labels {
-			task.Labels[label], err = utils.ExpandString(value, task.Environment.Map())
+			task.Labels[label], err = utils.ExpandString(value, task.Environment)
 			if err != nil {
 				return ctx.inv, fmt.Errorf("expanding label %v in task %v: %w", label, taskId, err)
 			}
@@ -131,4 +127,25 @@ func (ctx *InventoryContext) processModule(module *core.Module, moduleTrail []st
 	}
 
 	return nil
+}
+
+func (ctx *InventoryContext) resolveTaskEnvironment(taskId core.TaskId) (*core.Environment, error) {
+	task := ctx.inv.Tasks[taskId]
+	envsToMerge := [](*core.Environment){
+		task.Environment,
+		core.NewEnvironment(
+			core.EnvironmentValue{Key: "EBRO_TASK_ID", Value: string(taskId)},
+			core.EnvironmentValue{Key: "EBRO_TASK_MODULE", Value: ":" + strings.Join(taskId.ModuleTrail(), ":")},
+			core.EnvironmentValue{Key: "EBRO_TASK_NAME", Value: taskId.TaskName()},
+			core.EnvironmentValue{Key: "EBRO_TASK_WORKING_DIRECTORY", Value: task.WorkingDirectory},
+		),
+	}
+	parentTasks := slices.Clone(task.Extends)
+	slices.Reverse(parentTasks)
+	for _, parentTaskName := range parentTasks {
+		parentTask := ctx.inv.Tasks[parentTaskName]
+		envsToMerge = append(envsToMerge, parentTask.Environment)
+	}
+	envsToMerge = append(envsToMerge, ctx.taskModuleIndex[taskId].Environment)
+	return utils.ExpandMergeEnvs(envsToMerge...)
 }

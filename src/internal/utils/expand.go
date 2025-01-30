@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"maps"
 	"os"
 
 	"github.com/sirikon/ebro/internal/core"
@@ -12,7 +11,7 @@ import (
 func ExpandMergeEnvs(envs ...*core.Environment) (*core.Environment, error) {
 	result := &core.Environment{}
 	for i := (len(envs) - 1); i >= 0; i-- {
-		parentEnv := maps.Clone(result.Map())
+		parentEnv := result.Clone()
 		env := envs[i]
 		if env == nil {
 			continue
@@ -29,10 +28,10 @@ func ExpandMergeEnvs(envs ...*core.Environment) (*core.Environment, error) {
 	return result, nil
 }
 
-func ExpandString(s string, env map[string]string) (string, error) {
+func ExpandString(s string, env *core.Environment) (string, error) {
 	return shell.Expand(s, func(s string) string {
-		if val, ok := env[s]; ok {
-			return val
+		if val := env.Get(s); val != nil {
+			return *val
 		}
 		return os.Getenv(s)
 	})

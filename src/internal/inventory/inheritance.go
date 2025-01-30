@@ -35,7 +35,6 @@ func resolveInheritanceOrder(inv Inventory) ([]core.TaskId, error) {
 }
 
 func applyInheritance(childTask *core.Task, parentTask *core.Task) {
-	childTask.Extends = nil
 	childTask.Requires = utils.Dedupe(slices.Concat(childTask.Requires, parentTask.Requires))
 	childTask.RequiredBy = utils.Dedupe(slices.Concat(childTask.RequiredBy, parentTask.RequiredBy))
 	if childTask.Script == "" {
@@ -43,6 +42,9 @@ func applyInheritance(childTask *core.Task, parentTask *core.Task) {
 	}
 	if childTask.Quiet == nil {
 		childTask.Quiet = parentTask.Quiet
+	}
+	if childTask.Interactive == nil {
+		childTask.Interactive = parentTask.Interactive
 	}
 	if parentTask.When != nil {
 		if childTask.When == nil {

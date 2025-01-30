@@ -174,6 +174,21 @@ func (env Environment) YamlMapSlice() yaml.MapSlice {
 	return result
 }
 
+func (env *Environment) Get(key string) *string {
+	if env.values == nil {
+		return nil
+	}
+
+	for i := range env.values {
+		if env.values[i].Key == key {
+			value := env.values[i].Value
+			return &value
+		}
+	}
+
+	return nil
+}
+
 func (env *Environment) Set(key, value string) {
 	if env.values == nil {
 		env.values = []EnvironmentValue{}
@@ -191,4 +206,14 @@ func (env *Environment) Set(key, value string) {
 		Key:   key,
 		Value: value,
 	})
+}
+
+func (env *Environment) Clone() *Environment {
+	result := &Environment{
+		values: []EnvironmentValue{},
+	}
+	for _, envValue := range env.values {
+		result.values = append(result.values, envValue)
+	}
+	return result
 }
