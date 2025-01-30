@@ -16,7 +16,7 @@ if [ ! -f "$EBRO_BIN" ] || [ ! -x "$EBRO_BIN" ]; then
   fi
   curl --fail --location --create-dirs --output "$EBRO_BIN" \
     "https://github.com/sirikon/ebro/releases/download/${EBRO_VERSION}/ebro-${variant}"
-  echo "${EBRO_SUMS[$variant]} ${EBRO_BIN}" | sha256sum --check --status
+  echo "${EBRO_SUMS[$variant]}  ${EBRO_BIN}" | shasum --algorithm 256 --check 2>/dev/null
   chmod +x "$EBRO_BIN"
 fi
 exec "$EBRO_BIN" "$@"
