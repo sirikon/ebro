@@ -13,12 +13,12 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                FOO: It's FOO
+                BAR: It's BAR
                 EBRO_TASK_ID: :b
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: b
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
-                FOO: It's FOO
-                BAR: It's BAR
               requires:
               - :d
               - :c
@@ -61,16 +61,16 @@ class TestInheritance(EbroTestCase):
             :multi-c:
               working_directory: {self.workdir}
               environment:
+                A: "1"
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                B: "22"
+                C: "3"
                 EBRO_TASK_ID: :multi-c
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: multi-c
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
-                A: "1"
-                B: "22"
                 D: "44"
-                C: "3"
               script: echo multi-b
               quiet: true
             :y:
@@ -94,11 +94,11 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                A: "1"
                 EBRO_TASK_ID: :z
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: z
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
-                A: "1"
                 B: "22"
                 C: "3"
               script: echo z

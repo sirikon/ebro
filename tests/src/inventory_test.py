@@ -311,11 +311,11 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                ABSTRACT_WORKING_DIRECTORY: /somewhere/absolute/abstract
                 EBRO_TASK_ID: :child
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: child
                 EBRO_TASK_WORKING_DIRECTORY: /somewhere/absolute/child
-                ABSTRACT_WORKING_DIRECTORY: /somewhere/absolute/abstract
               script: echo $ABSTRACT_WORKING_DIRECTORY
             :default:
               working_directory: /somewhere/absolute

@@ -178,11 +178,14 @@ func (env *Environment) Set(key, value string) {
 	if env.values == nil {
 		env.values = []EnvironmentValue{}
 	}
+	existingPos := -1
 	for i := range env.values {
 		if env.values[i].Key == key {
-			env.values[i].Value = value
-			return
+			existingPos = i
 		}
+	}
+	if existingPos >= 0 {
+		env.values = append(env.values[:existingPos], env.values[existingPos+1:]...)
 	}
 	env.values = append(env.values, EnvironmentValue{
 		Key:   key,
