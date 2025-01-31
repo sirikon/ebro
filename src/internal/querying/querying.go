@@ -27,6 +27,7 @@ type Task struct {
 	RequiredBy       []string          `expr:"required_by"`
 	Script           string            `expr:"script"`
 	Quiet            *bool             `expr:"quiet"`
+	Interactive      *bool             `expr:"interactive"`
 	When             *When             `expr:"when"`
 }
 
@@ -61,6 +62,7 @@ func BuildQuery(code string) (func(map[core.TaskId]*core.Task) any, error) {
 				RequiredBy:       taskIdListToStringList(task.RequiredBy),
 				Script:           task.Script,
 				Quiet:            task.Quiet,
+				Interactive:      task.Interactive,
 				When:             mapWhen(task.When),
 			})
 		}
