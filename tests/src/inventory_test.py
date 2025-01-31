@@ -312,6 +312,28 @@ class TestInventory(EbroTestCase):
                 )
                 self.assertEqual(exit_code, 0)
 
+    def test_inventory_with_query_works_4(self):
+        commands = ["-inventory", "-i"]
+        for command in commands:
+            with self.subTest(command):
+                exit_code, stdout = self.ebro(
+                    command,
+                    "--query",
+                    'tasks | filter(.name == "default") | map(.id)',
+                )
+                self.assertStdout(
+                    stdout,
+                    f"""
+                    - :apt:default
+                    - :caddy:default
+                    - :default
+                    - :docker:default
+                    - :docker:plugins:default
+                    - :farm:tractor:default
+                    """,
+                )
+                self.assertEqual(exit_code, 0)
+
     def test_inventory_with_absolute_workdir_is_correct(self):
         exit_code, stdout = self.ebro("-inventory", "--file", "Ebro.workdirs.yaml")
         self.assertEqual(exit_code, 0)
