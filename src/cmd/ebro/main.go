@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"reflect"
 
 	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
@@ -11,9 +12,9 @@ import (
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/core"
-	"github.com/sirikon/ebro/internal/filtering"
 	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/planner"
+	"github.com/sirikon/ebro/internal/querying"
 	"github.com/sirikon/ebro/internal/runner"
 )
 
@@ -51,7 +52,18 @@ func main() {
 
 	// -inventory
 	if arguments.Command == cli.CommandInventory {
-		bytes, err := yaml.Marshal(inv.Tasks)
+		var result any = inv.Tasks
+		inventoryQuery := buildInventoryQuery(arguments)
+		if inventoryQuery != nil {
+			result = inventoryQuery(inv.Tasks)
+		}
+
+		if reflect.TypeOf(result).Kind() == reflect.String {
+			fmt.Println(result)
+			return
+		}
+
+		bytes, err := yaml.Marshal(result)
 		if err != nil {
 			cli.ExitWithError(err)
 		}
@@ -61,11 +73,8 @@ func main() {
 
 	// -list
 	if arguments.Command == cli.CommandList {
-		taskFilter := buildTaskFilter(arguments)
 		for taskId := range inv.TasksSorted() {
-			if taskFilter(taskId, inv.Tasks[taskId]) {
-				fmt.Println(taskId)
-			}
+			fmt.Println(taskId)
 		}
 		return
 	}
@@ -130,17 +139,14 @@ func lock() error {
 	return nil
 }
 
-func buildTaskFilter(arguments cli.ExecutionArguments) func(_ core.TaskId, _ *core.Task) bool {
-	filterExpression := *arguments.GetFlagString(cli.FlagFilter)
-	if filterExpression != "" {
-		filter, err := filtering.BuildTaskFilter(filterExpression)
+func buildInventoryQuery(arguments cli.ExecutionArguments) func(map[core.TaskId]*core.Task) any {
+	queryExpression := *arguments.GetFlagString(cli.FlagQuery)
+	if queryExpression != "" {
+		query, err := querying.BuildQuery(queryExpression)
 		if err != nil {
 			cli.ExitWithError(err)
 		}
-		return filter
+		return query
 	}
-
-	return func(_ core.TaskId, _ *core.Task) bool {
-		return true
-	}
+	return nil
 }

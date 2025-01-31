@@ -42,7 +42,7 @@
         "additionalProperties": false,
         "properties": {
           "labels": {
-            "description": "Dictionary of key/value labels (`string` -> `string`). Intended for task authors to put labels that might be useful for filtering with `-list --filter` or by any third-party tool reading `Ebro.yaml` files.\n\nEbro ignores the contents of `labels` in regular operations and only uses it for filtering when asked to.\n\nA limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the environment.",
+            "description": "Dictionary of key/value labels (`string` -> `string`). Intended for task authors to put labels that might be useful for during `-inventory --query` or by any third-party tool reading `Ebro.yaml` files.\n\nEbro ignores the contents of `labels` in regular operations and only uses it for querying when asked to.\n\nA limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the environment.",
             "type": "object"
           },
           "working_directory": {

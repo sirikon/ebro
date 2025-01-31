@@ -238,12 +238,14 @@ class TestInventory(EbroTestCase):
                     """,
                 )
 
-    def test_list_with_filter_works(self):
-        commands = ["-list", "-l"]
+    def test_inventory_with_query_works(self):
+        commands = ["-inventory", "-i"]
         for command in commands:
             with self.subTest(command):
                 exit_code, stdout = self.ebro(
-                    command, "--filter", 'labels.default == "true"'
+                    command,
+                    "--query",
+                    'join(tasks | filter(.labels.default == "true") | map(.id), "\\n")',
                 )
                 self.assertStdout(
                     stdout,
@@ -253,11 +255,15 @@ class TestInventory(EbroTestCase):
                 )
                 self.assertEqual(exit_code, 0)
 
-    def test_list_with_filter_works_2(self):
-        commands = ["-list", "-l"]
+    def test_inventory_with_query_works_2(self):
+        commands = ["-inventory", "-i"]
         for command in commands:
             with self.subTest(command):
-                exit_code, stdout = self.ebro(command, "--filter", 'module == ":apt"')
+                exit_code, stdout = self.ebro(
+                    command,
+                    "--query",
+                    'join(tasks | filter(.module == ":apt") | map(.id), "\\n")',
+                )
                 self.assertStdout(
                     stdout,
                     f"""
@@ -267,12 +273,14 @@ class TestInventory(EbroTestCase):
                 )
                 self.assertEqual(exit_code, 0)
 
-    def test_list_with_filter_works_3(self):
-        commands = ["-list", "-l"]
+    def test_inventory_with_query_works_3(self):
+        commands = ["-inventory", "-i"]
         for command in commands:
             with self.subTest(command):
                 exit_code, stdout = self.ebro(
-                    command, "--filter", 'id == ":apt:default"'
+                    command,
+                    "--query",
+                    'join(tasks | filter(.id == ":apt:default") | map(.id), "\\n")',
                 )
                 self.assertStdout(
                     stdout,
@@ -282,11 +290,15 @@ class TestInventory(EbroTestCase):
                 )
                 self.assertEqual(exit_code, 0)
 
-    def test_list_with_filter_works_4(self):
-        commands = ["-list", "-l"]
+    def test_inventory_with_query_works_4(self):
+        commands = ["-inventory", "-i"]
         for command in commands:
             with self.subTest(command):
-                exit_code, stdout = self.ebro(command, "--filter", 'name == "default"')
+                exit_code, stdout = self.ebro(
+                    command,
+                    "--query",
+                    'join(tasks | filter(.name == "default") | map(.id), "\\n")',
+                )
                 self.assertStdout(
                     stdout,
                     f"""

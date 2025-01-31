@@ -1,14 +1,19 @@
-package filtering
+package querying
 
 import (
 	"fmt"
-	"reflect"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/expr-lang/expr"
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/core"
 )
+
+type QueryEnv struct {
+	Tasks []Task `expr:"tasks"`
+}
 
 type Task struct {
 	Id               string            `expr:"id"`
@@ -30,35 +35,42 @@ type When struct {
 	OutputChanges string `expr:"labels"`
 }
 
-func BuildTaskFilter(code string) (func(_ core.TaskId, _ *core.Task) bool, error) {
-	program, err := expr.Compile(code, expr.Env(Task{}), expr.AsBool())
+func BuildQuery(code string) (func(map[core.TaskId]*core.Task) any, error) {
+	program, err := expr.Compile(code, expr.Env(QueryEnv{}))
 	if err != nil {
-		return nil, fmt.Errorf("compiling filter expression: %w", err)
+		return nil, fmt.Errorf("compiling query expression: %w", err)
 	}
 
-	return func(taskId core.TaskId, task *core.Task) bool {
-		taskInFilter := Task{
-			Id:               string(taskId),
-			Module:           ":" + strings.Join(taskId.ModuleTrail(), ":"),
-			Name:             taskId.TaskName(),
-			Labels:           task.Labels,
-			WorkingDirectory: task.WorkingDirectory,
-			Extends:          taskIdListToStringList(task.Extends),
-			Environment:      task.Environment.Map(),
-			Requires:         taskIdListToStringList(task.Requires),
-			RequiredBy:       taskIdListToStringList(task.RequiredBy),
-			Script:           task.Script,
-			Quiet:            task.Quiet,
-			When:             mapWhen(task.When),
+	return func(inv map[core.TaskId]*core.Task) any {
+		queryEnv := QueryEnv{
+			Tasks: []Task{},
 		}
-		output, err := expr.Run(program, taskInFilter)
+
+		taskIds := slices.Sorted(maps.Keys(inv))
+		for _, taskId := range taskIds {
+			task := inv[taskId]
+			queryEnv.Tasks = append(queryEnv.Tasks, Task{
+				Id:               string(taskId),
+				Module:           ":" + strings.Join(taskId.ModuleTrail(), ":"),
+				Name:             taskId.TaskName(),
+				Labels:           task.Labels,
+				WorkingDirectory: task.WorkingDirectory,
+				Extends:          taskIdListToStringList(task.Extends),
+				Environment:      task.Environment.Map(),
+				Requires:         taskIdListToStringList(task.Requires),
+				RequiredBy:       taskIdListToStringList(task.RequiredBy),
+				Script:           task.Script,
+				Quiet:            task.Quiet,
+				When:             mapWhen(task.When),
+			})
+		}
+
+		output, err := expr.Run(program, queryEnv)
 		if err != nil {
-			cli.ExitWithError(fmt.Errorf("running filter expression: %w", err))
+			cli.ExitWithError(fmt.Errorf("running query expression: %w", err))
 		}
-		if reflect.TypeOf(output).Kind() != reflect.Bool {
-			cli.ExitWithError(fmt.Errorf("filter expression did not return a boolean when running with task %v. returned: %v", taskId, output))
-		}
-		return output.(bool)
+
+		return output
 	}, nil
 }
 
