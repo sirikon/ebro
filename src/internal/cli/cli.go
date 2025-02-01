@@ -67,7 +67,7 @@ func Parse() ExecutionArguments {
 					args = args[1:]
 					result.Flags = append(result.Flags, FlagValue{Flag: flag, Value: value})
 				} else {
-					ExitWithError(fmt.Errorf("expected value after --file flag"))
+					ExitWithError(fmt.Errorf("expected value after --%v flag", flag.Name))
 				}
 			} else if flag.Kind == reflect.Bool {
 				result.Flags = append(result.Flags, FlagValue{Flag: flag, Value: true})
