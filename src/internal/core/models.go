@@ -212,8 +212,6 @@ func (env *Environment) Clone() *Environment {
 	result := &Environment{
 		values: []EnvironmentValue{},
 	}
-	for _, envValue := range env.values {
-		result.values = append(result.values, envValue)
-	}
+	result.values = append(result.values, env.values...)
 	return result
 }
