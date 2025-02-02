@@ -13,6 +13,7 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.inheritance.yaml
                 FOO: It's FOO
                 BAR: It's BAR
                 EBRO_TASK_ID: :b
@@ -33,6 +34,7 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.inheritance.yaml
                 EBRO_TASK_ID: :c
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: c
@@ -43,6 +45,7 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.inheritance.yaml
                 EBRO_TASK_ID: :d
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: d
@@ -53,6 +56,7 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.inheritance.yaml
                 EBRO_TASK_ID: :default
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: default
@@ -64,6 +68,7 @@ class TestInheritance(EbroTestCase):
                 A: "1"
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.inheritance.yaml
                 B: "22"
                 C: "3"
                 EBRO_TASK_ID: :multi-c
@@ -81,6 +86,7 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.inheritance.yaml
                 EBRO_TASK_ID: :y
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: "y"
@@ -101,6 +107,7 @@ class TestInheritance(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.inheritance.yaml
                 A: "1"
                 EBRO_TASK_ID: :z
                 EBRO_TASK_MODULE: ":"

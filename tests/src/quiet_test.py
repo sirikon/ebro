@@ -13,6 +13,7 @@ class TestQuiet(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.quiet.yaml
                 EBRO_TASK_ID: :fails
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: fails
@@ -24,6 +25,7 @@ class TestQuiet(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.quiet.yaml
                 EBRO_TASK_ID: :works
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: works

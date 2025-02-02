@@ -333,6 +333,45 @@ ebro -help
   # Display this help message
 ```
 
+### Querying the inventory
+
+The `-inventory` (or `-i`) command supports a flag called `--query` for using an [Expr expression](https://expr-lang.org/docs/language-definition) that transforms the output at your will:
+
+```text
+$ ebro -i --query 'tasks | filter(.name == "default") | map(.id)'
+- :apt:default
+- :caddy:default
+- :default
+- :docker:default
+- :docker:plugins:default
+```
+
+The output is serialized as `YAML` unless the data resulting from the expression is a **string**, in which case the result is printed to `stdout` verbatim.
+
+```text
+$ ebro -i --query 'tasks | filter(.name == "default") | map(.id) | join(", ")'
+:apt:default, :caddy:default, :default, :docker:default, :docker:plugins:default
+```
+
+Here is the environment available during the expression execution apart from [Expr's built-in functions](https://expr-lang.org/docs/language-definition):
+
+- `tasks`: Array of objects with the following properties:
+  - `id`: (`string`) Task's ID (ex: `:module:task`)
+  - `module`: (`string`) Task's module (ex: `:module`)
+  - `name`: (`string`) Task's name (ex: `name`)
+  - `labels`: (`string` -> `string` dictionary)
+  - `working_directory`: (`string`)
+  - `extends`: (`string` array)
+  - `environment`: (`string` -> `string` dictionary)
+  - `requires`: (`string` array)
+  - `required_by`: (`string` array)
+  - `script`: (`string`)
+  - `quiet`: (`bool`)
+  - `interactive`: (`bool`)
+  - `when`: Object with the following properties:
+    - `check_fails`: (`string`)
+    - `output_changes`: (`string`)
+
 ## The `Ebro.yaml` format
 
 This is also available as a [JSON Schema](./schema.json).

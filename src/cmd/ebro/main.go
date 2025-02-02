@@ -34,8 +34,9 @@ func main() {
 	}
 
 	workingDirectory := getWorkingDirectory()
+	rootFile := rootFilePath(workingDirectory, arguments)
 
-	indexedRootModule, err := config.ParseRootModule(rootModulePath(workingDirectory, arguments))
+	indexedRootModule, err := config.ParseRootModule(rootFile)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
@@ -43,6 +44,7 @@ func main() {
 	baseEnvironment := core.NewEnvironment(
 		core.EnvironmentValue{Key: "EBRO_BIN", Value: arguments.Bin},
 		core.EnvironmentValue{Key: "EBRO_ROOT", Value: workingDirectory},
+		core.EnvironmentValue{Key: "EBRO_ROOT_FILE", Value: rootFile},
 	)
 
 	inv, err := inventory.MakeInventory(indexedRootModule, baseEnvironment)
@@ -116,7 +118,7 @@ func getWorkingDirectory() string {
 	return workingDirectory
 }
 
-func rootModulePath(workingDirectory string, arguments cli.ExecutionArguments) string {
+func rootFilePath(workingDirectory string, arguments cli.ExecutionArguments) string {
 	filePath := *arguments.GetFlagString(cli.FlagFile)
 	if !path.IsAbs(filePath) {
 		filePath = path.Join(workingDirectory, filePath)

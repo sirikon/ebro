@@ -32,8 +32,8 @@ type Task struct {
 }
 
 type When struct {
-	CheckFails    string `expr:"labels"`
-	OutputChanges string `expr:"labels"`
+	CheckFails    string `expr:"check_fails"`
+	OutputChanges string `expr:"output_changes"`
 }
 
 func BuildQuery(code string) (func(map[core.TaskId]*core.Task) any, error) {

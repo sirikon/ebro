@@ -17,6 +17,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :apt:default
                         EBRO_TASK_MODULE: :apt
                         EBRO_TASK_NAME: default
@@ -31,6 +32,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :apt:pre-config
                         EBRO_TASK_MODULE: :apt
                         EBRO_TASK_NAME: pre-config
@@ -43,6 +45,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :bash
                         EBRO_TASK_MODULE: ":"
                         EBRO_TASK_NAME: bash
@@ -54,6 +57,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :caddy:default
                         EBRO_TASK_MODULE: :caddy
                         EBRO_TASK_NAME: default
@@ -65,6 +69,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :caddy:package
                         EBRO_TASK_MODULE: :caddy
                         EBRO_TASK_NAME: package
@@ -76,6 +81,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :caddy:package-apt-config
                         EBRO_TASK_MODULE: :caddy
                         EBRO_TASK_NAME: package-apt-config
@@ -95,6 +101,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :default
                         EBRO_TASK_MODULE: ":"
                         EBRO_TASK_NAME: default
@@ -112,6 +119,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         DOCKER_VERSION: 2.0.0
                         DOCKER_APT_VERSION: 2.0.0-1-apt
                         EBRO_TASK_ID: :docker:default
@@ -125,6 +133,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         DOCKER_VERSION: 2.0.0
                         DOCKER_APT_VERSION: 2.0.0-1-apt
                         EBRO_TASK_ID: :docker:package
@@ -138,6 +147,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         DOCKER_VERSION: 2.0.0
                         DOCKER_APT_VERSION: 2.0.0-1-apt
                         EBRO_TASK_ID: :docker:package-apt-config
@@ -157,6 +167,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         DOCKER_VERSION: 2.0.0
                         DOCKER_APT_VERSION: 2.0.0-1-apt
                         EBRO_TASK_ID: :docker:plugins:default
@@ -169,6 +180,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :farm:chicken
                         EBRO_TASK_MODULE: :farm
                         EBRO_TASK_NAME: chicken
@@ -181,6 +193,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :farm:egg
                         EBRO_TASK_MODULE: :farm
                         EBRO_TASK_NAME: egg
@@ -191,6 +204,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :farm:tractor:default
                         EBRO_TASK_MODULE: :farm:tractor
                         EBRO_TASK_NAME: default
@@ -201,6 +215,7 @@ class TestInventory(EbroTestCase):
                       environment:
                         EBRO_BIN: {self.bin}
                         EBRO_ROOT: {self.workdir}
+                        EBRO_ROOT_FILE: {self.workdir}/Ebro.yaml
                         EBRO_TASK_ID: :ignored
                         EBRO_TASK_MODULE: ":"
                         EBRO_TASK_NAME: ignored
@@ -345,6 +360,7 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.workdirs.yaml
                 ABSTRACT_WORKING_DIRECTORY: /somewhere/absolute/abstract
                 EBRO_TASK_ID: :child
                 EBRO_TASK_MODULE: ":"
@@ -356,6 +372,7 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.workdirs.yaml
                 EBRO_TASK_ID: :default
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: default
@@ -366,6 +383,7 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.workdirs.yaml
                 EBRO_TASK_ID: :other-absolute
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: other-absolute
@@ -376,6 +394,7 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.workdirs.yaml
                 EBRO_TASK_ID: :other-relative
                 EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: other-relative
@@ -386,6 +405,7 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.workdirs.yaml
                 EBRO_TASK_ID: :submodule:other
                 EBRO_TASK_MODULE: :submodule
                 EBRO_TASK_NAME: other
@@ -396,6 +416,7 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.workdirs.yaml
                 EBRO_TASK_ID: :submodule:other-absolute
                 EBRO_TASK_MODULE: :submodule
                 EBRO_TASK_NAME: other-absolute
@@ -406,6 +427,7 @@ class TestInventory(EbroTestCase):
               environment:
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
+                EBRO_ROOT_FILE: {self.workdir}/Ebro.workdirs.yaml
                 EBRO_TASK_ID: :submodule:other-relative
                 EBRO_TASK_MODULE: :submodule
                 EBRO_TASK_NAME: other-relative
