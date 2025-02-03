@@ -57,6 +57,13 @@ func (inv *Inventory) Task(taskId TaskId) *Task {
 	return nil
 }
 
+func (inv *Inventory) TaskModule(taskId TaskId) *Module {
+	if module, ok := inv.ModuleIndex[taskId]; ok {
+		return module
+	}
+	return nil
+}
+
 func (inv *Inventory) RemoveTask(taskId TaskId) {
 	delete(inv.ModuleIndex[taskId].Tasks, taskId.TaskName())
 	delete(inv.ModuleIndex, taskId)

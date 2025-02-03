@@ -3,10 +3,12 @@ package loader
 import (
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/sirikon/ebro/internal/core2"
 	"github.com/sirikon/ebro/internal/dag"
 	"github.com/sirikon/ebro/internal/utils"
+	"github.com/sirikon/ebro/internal/utils2"
 
 	"github.com/goccy/go-yaml"
 )
@@ -25,6 +27,12 @@ func (ctx *loadCtx) extendingPhase() error {
 			parentTask := ctx.inventory.Task(parentTaskId)
 			extendTask(task, parentTask)
 		}
+
+		task.Environment, err = resolveTaskEnvironment(ctx.inventory, taskId)
+		if err != nil {
+			return fmt.Errorf("resolving task %v environment: %w", taskId, err)
+		}
+		task.Extends = nil
 	}
 
 	for task := range ctx.inventory.Tasks() {
@@ -95,4 +103,27 @@ func extendTask(childTask *core2.Task, parentTask *core2.Task) {
 			}
 		}
 	}
+}
+
+func resolveTaskEnvironment(inventory *core2.Inventory, taskId core2.TaskId) (*core2.Environment, error) {
+	task := inventory.Task(taskId)
+	envsToMerge := []*core2.Environment{
+		task.Environment,
+		{
+			Values: []core2.EnvironmentValue{
+				{Key: "EBRO_TASK_ID", Value: string(taskId)},
+				{Key: "EBRO_TASK_MODULE", Value: ":" + strings.Join(taskId.ModulePath(), ":")},
+				{Key: "EBRO_TASK_NAME", Value: taskId.TaskName()},
+				{Key: "EBRO_TASK_WORKING_DIRECTORY", Value: task.WorkingDirectory},
+			},
+		},
+	}
+	parentTasks := slices.Clone(task.ExtendsIds)
+	slices.Reverse(parentTasks)
+	for _, parentTaskName := range parentTasks {
+		parentTask := inventory.Task(parentTaskName)
+		envsToMerge = append(envsToMerge, parentTask.Environment)
+	}
+	envsToMerge = append(envsToMerge, inventory.TaskModule(taskId).Environment)
+	return utils2.ExpandMergeEnvs(envsToMerge...)
 }

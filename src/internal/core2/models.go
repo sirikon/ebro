@@ -46,12 +46,3 @@ type Import struct {
 	Environment *Environment
 	Module      *Module
 }
-
-type Environment struct {
-	Values []EnvironmentValue
-}
-
-type EnvironmentValue struct {
-	Key   string
-	Value string
-}
