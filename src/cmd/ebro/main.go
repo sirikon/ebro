@@ -4,18 +4,14 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"reflect"
 
 	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
 
 	"github.com/sirikon/ebro/internal/cli"
-	"github.com/sirikon/ebro/internal/config"
+	"github.com/sirikon/ebro/internal/config2"
 	"github.com/sirikon/ebro/internal/core"
-	"github.com/sirikon/ebro/internal/inventory"
-	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/querying"
-	"github.com/sirikon/ebro/internal/runner"
 )
 
 func main() {
@@ -36,78 +32,92 @@ func main() {
 	workingDirectory := getWorkingDirectory()
 	rootFile := rootFilePath(workingDirectory, arguments)
 
-	indexedRootModule, err := config.ParseRootModule(rootFile)
+	inventory, err := config2.Load(config2.LoadCtx{
+		WorkingDirectory: workingDirectory,
+		RootFile:         rootFile,
+	})
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
-	baseEnvironment := core.NewEnvironment(
-		core.EnvironmentValue{Key: "EBRO_BIN", Value: arguments.Bin},
-		core.EnvironmentValue{Key: "EBRO_ROOT", Value: workingDirectory},
-		core.EnvironmentValue{Key: "EBRO_ROOT_FILE", Value: rootFile},
-	)
-
-	inv, err := inventory.MakeInventory(indexedRootModule, baseEnvironment)
+	bytes, err := yaml.Marshal(inventory)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
+	fmt.Print(string(bytes))
 
-	// -inventory
-	if arguments.Command == cli.CommandInventory {
-		var result any = inv.Tasks
-		inventoryQuery := buildInventoryQuery(arguments)
-		if inventoryQuery != nil {
-			result = inventoryQuery(inv.Tasks)
-		}
+	// indexedRootModule, err := config.ParseRootModule(rootFile)
+	// if err != nil {
+	// 	cli.ExitWithError(err)
+	// }
 
-		if reflect.TypeOf(result).Kind() == reflect.String {
-			fmt.Println(result)
-			return
-		}
+	// baseEnvironment := core.NewEnvironment(
+	// 	core.EnvironmentValue{Key: "EBRO_BIN", Value: arguments.Bin},
+	// 	core.EnvironmentValue{Key: "EBRO_ROOT", Value: workingDirectory},
+	// 	core.EnvironmentValue{Key: "EBRO_ROOT_FILE", Value: rootFile},
+	// )
 
-		bytes, err := yaml.Marshal(result)
-		if err != nil {
-			cli.ExitWithError(err)
-		}
-		fmt.Print(string(bytes))
-		return
-	}
+	// inv, err := inventory.MakeInventory(indexedRootModule, baseEnvironment)
+	// if err != nil {
+	// 	cli.ExitWithError(err)
+	// }
 
-	// -list
-	if arguments.Command == cli.CommandList {
-		for taskId := range inv.TasksSorted() {
-			fmt.Println(taskId)
-		}
-		return
-	}
+	// // -inventory
+	// if arguments.Command == cli.CommandInventory {
+	// 	var result any = inv.Tasks
+	// 	inventoryQuery := buildInventoryQuery(arguments)
+	// 	if inventoryQuery != nil {
+	// 		result = inventoryQuery(inv.Tasks)
+	// 	}
 
-	targets, err := config.NormalizeTargets(indexedRootModule, arguments.Targets)
-	if err != nil {
-		cli.ExitWithError(err)
-	}
+	// 	if reflect.TypeOf(result).Kind() == reflect.String {
+	// 		fmt.Println(result)
+	// 		return
+	// 	}
 
-	plan, err := planner.MakePlan(inv, targets)
-	if err != nil {
-		cli.ExitWithError(err)
-	}
+	// 	bytes, err := yaml.Marshal(result)
+	// 	if err != nil {
+	// 		cli.ExitWithError(err)
+	// 	}
+	// 	fmt.Print(string(bytes))
+	// 	return
+	// }
 
-	// -plan
-	if arguments.Command == cli.CommandPlan {
-		for _, step := range plan {
-			fmt.Println(step)
-		}
-		return
-	}
+	// // -list
+	// if arguments.Command == cli.CommandList {
+	// 	for taskId := range inv.TasksSorted() {
+	// 		fmt.Println(taskId)
+	// 	}
+	// 	return
+	// }
 
-	err = lock()
-	if err != nil {
-		cli.ExitWithError(err)
-	}
+	// targets, err := config.NormalizeTargets(indexedRootModule, arguments.Targets)
+	// if err != nil {
+	// 	cli.ExitWithError(err)
+	// }
 
-	err = runner.Run(inv, plan, *arguments.GetFlagBool(cli.FlagForce))
-	if err != nil {
-		cli.ExitWithError(err)
-	}
+	// plan, err := planner.MakePlan(inv, targets)
+	// if err != nil {
+	// 	cli.ExitWithError(err)
+	// }
+
+	// // -plan
+	// if arguments.Command == cli.CommandPlan {
+	// 	for _, step := range plan {
+	// 		fmt.Println(step)
+	// 	}
+	// 	return
+	// }
+
+	// err = lock()
+	// if err != nil {
+	// 	cli.ExitWithError(err)
+	// }
+
+	// err = runner.Run(inv, plan, *arguments.GetFlagBool(cli.FlagForce))
+	// if err != nil {
+	// 	cli.ExitWithError(err)
+	// }
 }
 
 func getWorkingDirectory() string {
