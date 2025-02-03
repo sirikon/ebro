@@ -1,6 +1,8 @@
 package loader
 
 import (
+	"fmt"
+
 	"github.com/sirikon/ebro/internal/core2"
 )
 
@@ -25,7 +27,7 @@ func Load(workingDirectory string, rootFile string) (*core2.Inventory, error) {
 
 	for _, phase := range phases {
 		if err := phase(); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("loading: %w", err)
 		}
 	}
 

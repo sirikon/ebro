@@ -11,19 +11,19 @@ import (
 
 func (ctx *loadCtx) parsingPhase() error {
 	var err error
-	if ctx.inventory.RootModule, err = parseModuleFile(ctx.rootFile); err != nil {
+	if ctx.inventory.RootModule, err = parseModuleFile(ctx.rootFile, []string{}); err != nil {
 		return fmt.Errorf("parsing: %w", err)
 	}
 	return nil
 }
 
-func parseModuleFile(filePath string) (*core2.Module, error) {
-	file, err := parser.ParseFile(filePath, parser.ParseComments)
+func parseModuleFile(filePath string, modulePath []string) (*core2.Module, error) {
+	file, err := parser.ParseFile(filePath, 0)
 	if err != nil {
 		return nil, fmt.Errorf("parsing file: %w", err)
 	}
 
-	result, err := parseModule(file.Docs[0].Body)
+	result, err := parseModule(file.Docs[0].Body, modulePath)
 	if err != nil {
 		return nil, fmt.Errorf("parsing module: %w", err)
 	}
@@ -31,7 +31,7 @@ func parseModuleFile(filePath string) (*core2.Module, error) {
 	return result, nil
 }
 
-func parseModule(node ast.Node) (*core2.Module, error) {
+func parseModule(node ast.Node, modulePath []string) (*core2.Module, error) {
 	var err error
 	module := core2.NewModule()
 
@@ -45,7 +45,7 @@ func parseModule(node ast.Node) (*core2.Module, error) {
 		case "environment":
 		case "imports":
 		case "tasks":
-			module.Tasks, err = parseTasks(value)
+			module.Tasks, err = parseTasks(value, modulePath)
 		case "modules":
 		default:
 			return nil, fmt.Errorf("unexpected key %v", key)
@@ -58,7 +58,7 @@ func parseModule(node ast.Node) (*core2.Module, error) {
 	return module, nil
 }
 
-func parseTasks(node ast.Node) (map[string]*core2.Task, error) {
+func parseTasks(node ast.Node, modulePath []string) (map[string]*core2.Task, error) {
 	var err error
 	tasks := map[string]*core2.Task{}
 
@@ -67,18 +67,19 @@ func parseTasks(node ast.Node) (map[string]*core2.Task, error) {
 		return nil, err
 	}
 
-	for key, value := range mapping {
-		if tasks[key], err = parseTask(value); err != nil {
-			return nil, fmt.Errorf("parsing task %v: %w", key, err)
+	for name, value := range mapping {
+		if tasks[name], err = parseTask(value, modulePath, name); err != nil {
+			return nil, fmt.Errorf("parsing task %v: %w", name, err)
 		}
-		tasks[key].Name = key
 	}
 
 	return tasks, nil
 }
 
-func parseTask(node ast.Node) (*core2.Task, error) {
+func parseTask(node ast.Node, modulePath []string, name string) (*core2.Task, error) {
 	task := &core2.Task{}
+	task.Name = name
+	task.Id = core2.NewTaskId(modulePath, name)
 
 	mapping, err := parseStringMapping(node)
 	if err != nil {
