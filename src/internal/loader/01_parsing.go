@@ -15,7 +15,7 @@ func (ctx *loadCtx) parsingPhase() error {
 	if ctx.inventory.RootModule, err = parseModuleFile(ctx.rootFile, ctx.workingDirectory, []string{}); err != nil {
 		return fmt.Errorf("parsing: %w", err)
 	}
-
+	ctx.inventory.RefreshIndex()
 	return nil
 }
 
@@ -89,6 +89,9 @@ func parseImports(node ast.Node, workingDirectory string, modulePath []string) (
 	}
 
 	for name, value := range mapping {
+		if err = core2.ValidateName(name); err != nil {
+			return nil, fmt.Errorf("validating import name %v: %w", name, err)
+		}
 		if imports[name], err = parseImport(value, workingDirectory, append(modulePath, name)); err != nil {
 			return nil, fmt.Errorf("parsing task %v: %w", name, err)
 		}
@@ -142,6 +145,9 @@ func parseModules(node ast.Node, workingDirectory string, modulePath []string) (
 	}
 
 	for name, value := range mapping {
+		if err = core2.ValidateName(name); err != nil {
+			return nil, fmt.Errorf("validating module name %v: %w", name, err)
+		}
 		if modules[name], err = parseModule(value, workingDirectory, append(modulePath, name)); err != nil {
 			return nil, fmt.Errorf("parsing module %v: %w", name, err)
 		}
@@ -160,6 +166,9 @@ func parseTasks(node ast.Node, modulePath []string) (map[string]*core2.Task, err
 	}
 
 	for name, value := range mapping {
+		if err = core2.ValidateName(name); err != nil {
+			return nil, fmt.Errorf("validating task name %v: %w", name, err)
+		}
 		if tasks[name], err = parseTask(value, modulePath, name); err != nil {
 			return nil, fmt.Errorf("parsing task %v: %w", name, err)
 		}

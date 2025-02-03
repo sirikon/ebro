@@ -32,7 +32,25 @@ func (inv *Inventory) generateIndex(module *Module) {
 	}
 }
 
-func (inv *Inventory) GetTask(taskId TaskId) *Task {
+func (inv *Inventory) FindTask(taskReference TaskReference) *Task {
+	if taskReference.IsRelative {
+		panic("cannot call getTask with a relative taskReference")
+	}
+
+	taskId := taskReference.TaskId()
+	if task, ok := inv.TaskIndex[taskId]; ok {
+		return task
+	}
+
+	taskId = taskReference.Concat("default").TaskId()
+	if task, ok := inv.TaskIndex[taskId]; ok {
+		return task
+	}
+
+	return nil
+}
+
+func (inv *Inventory) Task(taskId TaskId) *Task {
 	if task, ok := inv.TaskIndex[taskId]; ok {
 		return task
 	}
@@ -45,11 +63,11 @@ func (inv *Inventory) RemoveTask(taskId TaskId) {
 	delete(inv.TaskIndex, taskId)
 }
 
-func (inv *Inventory) AllTasks() iter.Seq2[TaskId, *Task] {
+func (inv *Inventory) Tasks() iter.Seq[*Task] {
 	taskIds := slices.Sorted(maps.Keys(inv.TaskIndex))
-	return func(yield func(TaskId, *Task) bool) {
+	return func(yield func(*Task) bool) {
 		for _, taskId := range taskIds {
-			if !yield(taskId, inv.TaskIndex[taskId]) {
+			if !yield(inv.TaskIndex[taskId]) {
 				return
 			}
 		}

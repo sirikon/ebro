@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"slices"
 
 	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
@@ -37,7 +38,7 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	bytes, err := yaml.Marshal(inventory)
+	bytes, err := yaml.Marshal(slices.Collect(inventory.Tasks()))
 	if err != nil {
 		cli.ExitWithError(err)
 	}

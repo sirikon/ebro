@@ -1,27 +1,17 @@
 package core2
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
 
 type TaskId string
 
-var nameValidCharsRe = `[a-zA-Z0-9-_\.]`
-var NameRe = regexp.MustCompile("^" + nameValidCharsRe + "+$")
 var TaskIdRe = regexp.MustCompile("^(:" + nameValidCharsRe + "+)+$")
 
-func ValidateName(name string) error {
-	if !NameRe.MatchString(name) {
-		return fmt.Errorf("name does not match the following regex: %v", NameRe.String())
-	}
-	return nil
-}
-
-func NewTaskId(moduleTrail []string, taskName string) TaskId {
+func NewTaskId(modulePath []string, taskName string) TaskId {
 	chunks := []string{""}
-	chunks = append(chunks, moduleTrail...)
+	chunks = append(chunks, modulePath...)
 	chunks = append(chunks, taskName)
 	result := TaskId(strings.Join(chunks, ":"))
 	result.MustBeValid()
@@ -34,7 +24,7 @@ func (tid TaskId) MustBeValid() {
 	}
 }
 
-func (tid TaskId) ModuleTrail() []string {
+func (tid TaskId) ModulePath() []string {
 	parts := tid.parts()
 	return parts[:len(parts)-1]
 }
