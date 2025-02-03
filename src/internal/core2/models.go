@@ -13,18 +13,6 @@ type Module struct {
 	Environment      *Environment
 }
 
-func NewModule() *Module {
-	return &Module{
-		Path:    []string{},
-		Imports: map[string]*Import{},
-		Tasks:   map[string]*Task{},
-		Modules: map[string]*Module{},
-
-		WorkingDirectory: "",
-		Environment:      NewEnvironment(),
-	}
-}
-
 type TaskId string
 
 func NewTaskId(modulePath []string, taskName string) TaskId {
@@ -47,7 +35,7 @@ type Task struct {
 	RequiredBy    []string
 	RequiredByIds []TaskId
 
-	Abstract   bool
+	Abstract   *bool
 	Extends    []string
 	ExtendsIds []TaskId
 
@@ -69,6 +57,7 @@ type When struct {
 type Import struct {
 	From        string
 	Environment *Environment
+	Module      *Module
 }
 
 type Environment struct {
@@ -78,10 +67,4 @@ type Environment struct {
 type EnvironmentValue struct {
 	Key   string
 	Value string
-}
-
-func NewEnvironment() *Environment {
-	return &Environment{
-		Values: []EnvironmentValue{},
-	}
 }

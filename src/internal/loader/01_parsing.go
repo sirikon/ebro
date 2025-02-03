@@ -3,6 +3,7 @@ package loader
 import (
 	"fmt"
 	"iter"
+	"path"
 
 	"github.com/goccy/go-yaml/ast"
 	"github.com/goccy/go-yaml/parser"
@@ -11,19 +12,20 @@ import (
 
 func (ctx *loadCtx) parsingPhase() error {
 	var err error
-	if ctx.inventory.RootModule, err = parseModuleFile(ctx.rootFile, []string{}); err != nil {
+	if ctx.inventory.RootModule, err = parseModuleFile(ctx.rootFile, ctx.workingDirectory, []string{}); err != nil {
 		return fmt.Errorf("parsing: %w", err)
 	}
+
 	return nil
 }
 
-func parseModuleFile(filePath string, modulePath []string) (*core2.Module, error) {
+func parseModuleFile(filePath string, workingDirectory string, modulePath []string) (*core2.Module, error) {
 	file, err := parser.ParseFile(filePath, 0)
 	if err != nil {
 		return nil, fmt.Errorf("parsing file: %w", err)
 	}
 
-	result, err := parseModule(file.Docs[0].Body, modulePath)
+	result, err := parseModule(file.Docs[0].Body, workingDirectory, modulePath)
 	if err != nil {
 		return nil, fmt.Errorf("parsing module: %w", err)
 	}
@@ -31,9 +33,9 @@ func parseModuleFile(filePath string, modulePath []string) (*core2.Module, error
 	return result, nil
 }
 
-func parseModule(node ast.Node, modulePath []string) (*core2.Module, error) {
+func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*core2.Module, error) {
 	var err error
-	module := core2.NewModule()
+	module := &core2.Module{}
 
 	mapping, err := parseStringToAstMapping(node)
 	if err != nil {
@@ -42,12 +44,16 @@ func parseModule(node ast.Node, modulePath []string) (*core2.Module, error) {
 
 	for key, value := range mapping {
 		switch key {
+		case "working_directory":
+			module.WorkingDirectory, err = parseString(value)
 		case "environment":
+			module.Environment, err = parseEnvironment(value)
 		case "imports":
+			module.Imports, err = parseImports(value, workingDirectory, modulePath)
 		case "tasks":
 			module.Tasks, err = parseTasks(value, modulePath)
 		case "modules":
-			module.Modules, err = parseModules(value, modulePath)
+			module.Modules, err = parseModules(value, workingDirectory, modulePath)
 		default:
 			return nil, fmt.Errorf("unexpected key %v", key)
 		}
@@ -56,10 +62,77 @@ func parseModule(node ast.Node, modulePath []string) (*core2.Module, error) {
 		}
 	}
 
+	if module.Imports != nil {
+		if module.Modules == nil {
+			module.Modules = map[string]*core2.Module{}
+		}
+		for importName, importObj := range module.Imports {
+			if _, ok := module.Modules[importName]; ok {
+				return nil, fmt.Errorf("cannot import module %v because there is already a module called equally", importName)
+			}
+			module.Modules[importName] = importObj.Module
+		}
+	}
+
+	module.Imports = nil
+
 	return module, nil
 }
 
-func parseModules(node ast.Node, modulePath []string) (map[string]*core2.Module, error) {
+func parseImports(node ast.Node, workingDirectory string, modulePath []string) (map[string]*core2.Import, error) {
+	var err error
+	imports := map[string]*core2.Import{}
+
+	mapping, err := parseStringToAstMapping(node)
+	if err != nil {
+		return nil, err
+	}
+
+	for name, value := range mapping {
+		if imports[name], err = parseImport(value, workingDirectory, append(modulePath, name)); err != nil {
+			return nil, fmt.Errorf("parsing task %v: %w", name, err)
+		}
+	}
+
+	return imports, nil
+}
+
+func parseImport(node ast.Node, workingDirectory string, modulePath []string) (*core2.Import, error) {
+	var err error
+	importObj := &core2.Import{}
+
+	mapping, err := parseStringToAstMapping(node)
+	if err != nil {
+		return nil, err
+	}
+
+	for key, value := range mapping {
+		switch key {
+		case "from":
+			importObj.From, err = parseString(value)
+		case "environment":
+			importObj.Environment, err = parseEnvironment(value)
+		default:
+			return nil, fmt.Errorf("unexpected key %v", key)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("parsing value of %v: %w", key, err)
+		}
+	}
+
+	if !path.IsAbs(importObj.From) {
+		importObj.From = path.Join(workingDirectory, importObj.From)
+	}
+
+	importObj.Module, err = parseModuleFile(path.Join(importObj.From, "Ebro.yaml"), importObj.From, modulePath)
+	if err != nil {
+		return nil, fmt.Errorf("importing: %w", err)
+	}
+
+	return importObj, nil
+}
+
+func parseModules(node ast.Node, workingDirectory string, modulePath []string) (map[string]*core2.Module, error) {
 	var err error
 	modules := map[string]*core2.Module{}
 
@@ -69,8 +142,8 @@ func parseModules(node ast.Node, modulePath []string) (map[string]*core2.Module,
 	}
 
 	for name, value := range mapping {
-		if modules[name], err = parseModule(value, append(modulePath, name)); err != nil {
-			return nil, fmt.Errorf("parsing task %v: %w", name, err)
+		if modules[name], err = parseModule(value, workingDirectory, append(modulePath, name)); err != nil {
+			return nil, fmt.Errorf("parsing module %v: %w", name, err)
 		}
 	}
 
@@ -108,12 +181,20 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core2.Task, er
 
 	for key, value := range mapping {
 		switch key {
+		case "working_directory":
+			task.WorkingDirectory, err = parseString(value)
+		case "if_tasks_exist":
+			task.IfTasksExist, err = parseStringSequence(value)
 		case "labels":
 			task.Labels, err = parseTaskLabels(value)
 		case "requires":
 			task.Requires, err = parseStringSequence(value)
 		case "required_by":
 			task.RequiredBy, err = parseStringSequence(value)
+		case "abstract":
+			task.Abstract, err = parseBoolPtr(value)
+		case "extends":
+			task.Extends, err = parseStringSequence(value)
 		case "script":
 			task.Script, err = parseString(value)
 		case "interactive":
@@ -121,6 +202,9 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core2.Task, er
 		case "quiet":
 			task.Quiet, err = parseBoolPtr(value)
 		case "when":
+			task.When, err = parseWhen(value)
+		case "environment":
+			task.Environment, err = parseEnvironment(value)
 		default:
 			return nil, fmt.Errorf("unexpected key %v", key)
 		}
@@ -147,6 +231,56 @@ func parseTaskLabels(node ast.Node) (map[string]string, error) {
 	}
 
 	return result, nil
+}
+
+func parseWhen(node ast.Node) (*core2.When, error) {
+	var err error
+	when := &core2.When{}
+
+	mapping, err := parseStringToAstMapping(node)
+	if err != nil {
+		return nil, err
+	}
+
+	for key, value := range mapping {
+		switch key {
+		case "output_changes":
+			when.OutputChanges, err = parseString(value)
+		case "check_fails":
+			when.CheckFails, err = parseString(value)
+		default:
+			return nil, fmt.Errorf("unexpected key %v", key)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("parsing value of %v: %w", key, err)
+		}
+	}
+
+	return when, nil
+}
+
+func parseEnvironment(node ast.Node) (*core2.Environment, error) {
+	var err error
+	environment := &core2.Environment{
+		Values: []core2.EnvironmentValue{},
+	}
+
+	mapping, err := parseStringToAstMapping(node)
+	if err != nil {
+		return nil, err
+	}
+
+	for key, value := range mapping {
+		if value.Type() != ast.StringType {
+			return nil, fmt.Errorf("wrong type for value of %v in mapping: %v", key, value)
+		}
+		environment.Values = append(environment.Values, core2.EnvironmentValue{
+			Key:   key,
+			Value: value.(*ast.StringNode).Value,
+		})
+	}
+
+	return environment, nil
 }
 
 func parseStringSequence(node ast.Node) ([]string, error) {

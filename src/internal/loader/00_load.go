@@ -23,6 +23,7 @@ func Load(workingDirectory string, rootFile string) (*core2.Inventory, error) {
 
 	phases := []phase{
 		ctx.parsingPhase,
+		ctx.purgingPhase,
 	}
 
 	for _, phase := range phases {
