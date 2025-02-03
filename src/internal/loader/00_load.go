@@ -1,0 +1,33 @@
+package loader
+
+import (
+	"github.com/sirikon/ebro/internal/core2"
+)
+
+type loadCtx struct {
+	workingDirectory string
+	rootFile         string
+	inventory        *core2.Inventory
+}
+
+type phase = func() error
+
+func Load(workingDirectory string, rootFile string) (*core2.Inventory, error) {
+	ctx := &loadCtx{
+		workingDirectory: workingDirectory,
+		rootFile:         rootFile,
+		inventory:        core2.NewInventory(),
+	}
+
+	phases := []phase{
+		ctx.parsingPhase,
+	}
+
+	for _, phase := range phases {
+		if err := phase(); err != nil {
+			return nil, err
+		}
+	}
+
+	return ctx.inventory, nil
+}

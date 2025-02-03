@@ -9,8 +9,8 @@ import (
 	"github.com/gofrs/flock"
 
 	"github.com/sirikon/ebro/internal/cli"
-	"github.com/sirikon/ebro/internal/config2"
 	"github.com/sirikon/ebro/internal/core"
+	"github.com/sirikon/ebro/internal/loader"
 	"github.com/sirikon/ebro/internal/querying"
 )
 
@@ -32,10 +32,7 @@ func main() {
 	workingDirectory := getWorkingDirectory()
 	rootFile := rootFilePath(workingDirectory, arguments)
 
-	inventory, err := config2.Load(config2.LoadCtx{
-		WorkingDirectory: workingDirectory,
-		RootFile:         rootFile,
-	})
+	inventory, err := loader.Load(workingDirectory, rootFile)
 	if err != nil {
 		cli.ExitWithError(err)
 	}

@@ -1,4 +1,4 @@
-package config2
+package loader
 
 import (
 	"fmt"
@@ -8,6 +8,14 @@ import (
 	"github.com/goccy/go-yaml/parser"
 	"github.com/sirikon/ebro/internal/core2"
 )
+
+func (ctx *loadCtx) parsingPhase() error {
+	var err error
+	if ctx.inventory.RootModule, err = parseModuleFile(ctx.rootFile); err != nil {
+		return fmt.Errorf("parsing: %w", err)
+	}
+	return nil
+}
 
 func parseModuleFile(filePath string) (*core2.Module, error) {
 	file, err := parser.ParseFile(filePath, parser.ParseComments)
