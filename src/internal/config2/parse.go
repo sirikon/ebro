@@ -37,12 +37,13 @@ func parseModule(node ast.Node) (*core2.Module, error) {
 		case "environment":
 		case "imports":
 		case "tasks":
-			if module.Tasks, err = parseTasks(value); err != nil {
-				return nil, err
-			}
+			module.Tasks, err = parseTasks(value)
 		case "modules":
 		default:
 			return nil, fmt.Errorf("unexpected key %v", key)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("parsing value of %v", key)
 		}
 	}
 
