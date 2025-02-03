@@ -1,7 +1,5 @@
 package core2
 
-import "strings"
-
 type Module struct {
 	Path []string
 
@@ -11,17 +9,6 @@ type Module struct {
 
 	WorkingDirectory string
 	Environment      *Environment
-}
-
-type TaskId string
-
-func NewTaskId(modulePath []string, taskName string) TaskId {
-	chunks := []string{""}
-	chunks = append(chunks, modulePath...)
-	chunks = append(chunks, taskName)
-	result := TaskId(strings.Join(chunks, ":"))
-	// result.MustBeValid()
-	return result
 }
 
 type Task struct {
