@@ -1,0 +1,290 @@
+args: -i
+args: -inventory
+---
+:apt:default:
+  working_directory: {{WORKDIR}}/apt/wd
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :apt:default
+    EBRO_TASK_MODULE: :apt
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/apt/wd
+  script: |
+    echo 'Installing apt packages'
+    cat "${EBRO_ROOT}/.cache/apt/packages/"*
+  when:
+    output_changes: cat "${EBRO_ROOT}/.cache/apt/packages/"*
+:apt:pre-config:
+  working_directory: {{WORKDIR}}/apt/wd
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :apt:pre-config
+    EBRO_TASK_MODULE: :apt
+    EBRO_TASK_NAME: pre-config
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/apt/wd
+  script: mkdir -p "${EBRO_ROOT}/.cache/apt/packages"
+  when:
+    check_fails: test -d "${EBRO_ROOT}/.cache/apt/packages"
+:bash:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :bash
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: bash
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  script: bash
+  interactive: true
+:caddy:default:
+  working_directory: {{WORKDIR}}/caddy
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :caddy:default
+    EBRO_TASK_MODULE: :caddy
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/caddy
+  requires:
+  - :caddy:package
+:caddy:package:
+  working_directory: {{WORKDIR}}/caddy
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :caddy:package
+    EBRO_TASK_MODULE: :caddy
+    EBRO_TASK_NAME: package
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/caddy
+  requires:
+  - :caddy:package-apt-config
+:caddy:package-apt-config:
+  working_directory: {{WORKDIR}}/caddy
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :caddy:package-apt-config
+    EBRO_TASK_MODULE: :caddy
+    EBRO_TASK_NAME: package-apt-config
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/caddy
+  requires:
+  - :apt:pre-config
+  required_by:
+  - :apt:default
+  script: echo caddy > "${EBRO_ROOT}/.cache/apt/packages/caddy.txt"
+  when:
+    check_fails: test -f "${EBRO_ROOT}/.cache/apt/packages/caddy.txt"
+    output_changes: echo caddy
+:default:
+  labels:
+    default: "true"
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :default
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  requires:
+  - :apt:default
+  - :docker:default
+  - :caddy:default
+  script: |
+    echo "Done!"
+:docker:default:
+  labels:
+    docker.version: 2.0.0
+  working_directory: {{WORKDIR}}/docker
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    DOCKER_VERSION: 2.0.0
+    DOCKER_APT_VERSION: 2.0.0-1-apt
+    EBRO_TASK_ID: :docker:default
+    EBRO_TASK_MODULE: :docker
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker
+  requires:
+  - :docker:package
+:docker:package:
+  working_directory: {{WORKDIR}}/docker
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    DOCKER_VERSION: 2.0.0
+    DOCKER_APT_VERSION: 2.0.0-1-apt
+    EBRO_TASK_ID: :docker:package
+    EBRO_TASK_MODULE: :docker
+    EBRO_TASK_NAME: package
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker
+  requires:
+  - :docker:package-apt-config
+:docker:package-apt-config:
+  working_directory: {{WORKDIR}}/docker
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    DOCKER_VERSION: 2.0.0
+    DOCKER_APT_VERSION: 2.0.0-1-apt
+    EBRO_TASK_ID: :docker:package-apt-config
+    EBRO_TASK_MODULE: :docker
+    EBRO_TASK_NAME: package-apt-config
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker
+  requires:
+  - :apt:pre-config
+  required_by:
+  - :apt:default
+  script: echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
+  when:
+    check_fails: test -f "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
+    output_changes: echo "docker==${DOCKER_APT_VERSION}"
+:docker:plugins:default:
+  working_directory: {{WORKDIR}}/docker_plugins
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    DOCKER_VERSION: 2.0.0
+    DOCKER_APT_VERSION: 2.0.0-1-apt
+    EBRO_TASK_ID: :docker:plugins:default
+    EBRO_TASK_MODULE: :docker:plugins
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker_plugins
+  script: echo Hello
+:farm:chicken:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :farm:chicken
+    EBRO_TASK_MODULE: :farm
+    EBRO_TASK_NAME: chicken
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  requires:
+  - :farm:egg
+  script: echo Chicken ready
+:farm:egg:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :farm:egg
+    EBRO_TASK_MODULE: :farm
+    EBRO_TASK_NAME: egg
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  script: echo 'Egg ready'
+:farm:tractor:default:
+  working_directory: {{WORKDIR}}/tractor
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :farm:tractor:default
+    EBRO_TASK_MODULE: :farm:tractor
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/tractor
+  script: echo "Tractor is here"
+:ignored:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :ignored
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: ignored
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  required_by:
+  - :default
+  script: echo 'I should be ignored'
+---
+
+
+args: -l
+---
+:apt:default
+:apt:pre-config
+:bash
+:caddy:default
+:caddy:package
+:caddy:package-apt-config
+:default
+:docker:default
+:docker:package
+:docker:package-apt-config
+:docker:plugins:default
+:farm:chicken
+:farm:egg
+:farm:tractor:default
+:ignored
+---
+
+
+args: -i --query 'joins(tasks | filter(.labels.default == "true") | map(.id), "\n")'
+exit_code: 1
+---
+███ ERROR: compiling query expression: unknown name joins (1:1)
+ | joins(tasks | filter(.labels.default == "true") | map(.id), "\n")
+ | ^
+---
+
+
+args: -i --query 'join(tasks | filter(.labels.default == "true") | map(.id), "\n")'
+exit_code: 0
+---
+:default
+---
+
+
+args: -i --query 'join(tasks | filter(.module == ":apt") | map(.id), "\n")'
+exit_code: 0
+---
+:apt:default
+:apt:pre-config
+---
+
+
+args: -i --query  'join(tasks | filter(.id == ":apt:default") | map(.id), "\n")'
+exit_code: 0
+---
+:apt:default
+---
+
+
+args: -i --query  'join(tasks | filter(.name == "default") | map(.id), "\n")'
+exit_code: 0
+---
+:apt:default
+:caddy:default
+:default
+:docker:default
+:docker:plugins:default
+:farm:tractor:default
+---
+
+
+args: -i --query  'tasks | filter(.name == "default") | map(.id)'
+exit_code: 0
+---
+- :apt:default
+- :caddy:default
+- :default
+- :docker:default
+- :docker:plugins:default
+- :farm:tractor:default
+---

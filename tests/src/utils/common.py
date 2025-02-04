@@ -81,10 +81,10 @@ class EbroTestCase(unittest.TestCase):
     def assertStdoutStrict(self, first: str, second: str):
         self.assertEqual(second, first)
 
-    def ebro(self, *args, env=dict()):
+    def ebro(self, *args, cwd=None, env=dict()):
         result = run(
             [self.bin, *args],
-            cwd=self.workdir,
+            cwd=cwd or self.workdir,
             stdout=PIPE,
             stderr=STDOUT,
             env=environ | dict(GOCOVERDIR=join(getcwd(), ".coverage")) | env,

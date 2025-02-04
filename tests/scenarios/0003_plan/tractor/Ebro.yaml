@@ -1,0 +1,3 @@
+tasks:
+  default:
+    script: echo "Tractor is here"

@@ -1,0 +1,14 @@
+tasks:
+  default:
+    requires: [package]
+
+  package:
+    requires: [package-apt-config]
+
+  package-apt-config:
+    requires: [":apt:pre-config"]
+    required_by: [":apt"]
+    script: echo caddy > "${EBRO_ROOT}/.cache/apt/packages/caddy.txt"
+    when:
+      check_fails: test -f "${EBRO_ROOT}/.cache/apt/packages/caddy.txt"
+      output_changes: echo caddy

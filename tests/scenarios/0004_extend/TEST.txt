@@ -1,0 +1,139 @@
+exit_code: 0
+---
+███ [:default] running
+Hello
+---
+
+
+
+args: default b
+exit_code: 0
+---
+███ [:c] running
+I'm C
+███ [:d] running
+I'm D
+███ [:b] running
+It's BAR
+███ [:default] running
+Hello
+---
+
+
+
+args: -i
+exit_code: 0
+---
+:b:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    FOO: It's FOO
+    BAR: It's BAR
+    EBRO_TASK_ID: :b
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: b
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  requires:
+  - :d
+  - :c
+  required_by:
+  - :default
+  script: echo $BAR
+  when:
+    check_fails: exit 2
+    output_changes: echo test
+:c:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :c
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: c
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  script: echo "I'm C"
+:d:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :d
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: d
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  script: echo "I'm D"
+:default:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :default
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  script: echo Hello
+:multi-c:
+  working_directory: {{WORKDIR}}
+  environment:
+    A: "1"
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    B: "22"
+    C: "3"
+    EBRO_TASK_ID: :multi-c
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: multi-c
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+    D: "44"
+  script: echo multi-b
+  quiet: true
+:y:
+  labels:
+    label.A: "1"
+    label.B: "2"
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :y
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: "y"
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+    A: "1"
+    B: "2"
+  script: echo y
+  quiet: true
+  when:
+    check_fails: exit 1
+    output_changes: echo test2
+:z:
+  labels:
+    label.A: "1"
+    label.B: "22"
+    label.C: "33"
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    A: "1"
+    EBRO_TASK_ID: :z
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: z
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+    B: "22"
+    C: "3"
+  script: echo z
+  quiet: false
+  when:
+    check_fails: exit 1
+    output_changes: echo test2
+---

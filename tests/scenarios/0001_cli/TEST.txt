@@ -1,0 +1,69 @@
+args: -h
+args: -help
+exit_code: 0
+---
+
+  ebro [--flags...] [targets...]
+    # Run everything
+    flags:
+      --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+      --force       Ignore when.* conditionals and dont skip any task. default: false
+    targets:
+      defaults to [default]
+
+
+  ebro -inventory [--flags...]
+    or -i
+    # Display complete inventory of tasks with their definitive configuration in YAML format
+    flags:
+      --file value   Specify the file that should be loaded as root module. default: Ebro.yaml
+      --query value  Query the inventory using an `expr` expression
+
+
+  ebro -list [--flags...]
+    or -l
+    # Display only the names of all the tasks in the inventory
+    flags:
+      --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+
+
+  ebro -plan [--flags...] [targets...]
+    or -p
+    # Display the execution plan
+    flags:
+      --file value  Specify the file that should be loaded as root module. default: Ebro.yaml
+    targets:
+      defaults to [default]
+
+
+  ebro -version
+    or -v
+    # Display ebro's version information in YAML format
+
+
+  ebro -help
+    or -h
+    # Display this help message
+
+---
+
+
+args: -invent
+exit_code: 1
+---
+███ ERROR: unknown command: invent
+---
+
+
+args: -plan --invent
+exit_code: 1
+---
+███ ERROR: unknown flag: invent
+---
+
+
+args: --file
+exit_code: 1
+---
+███ ERROR: expected value after --file flag
+---

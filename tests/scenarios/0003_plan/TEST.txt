@@ -1,0 +1,26 @@
+args: -p
+args: -plan
+---
+:apt:pre-config
+:caddy:package-apt-config
+:docker:package-apt-config
+:apt:default
+:caddy:package
+:docker:package
+:caddy:default
+:docker:default
+:default
+---
+
+
+args: -plan farm:chicken
+---
+:farm:egg
+:farm:chicken
+---
+
+
+args: -plan farm:egg
+---
+:farm:egg
+---
