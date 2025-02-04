@@ -25,6 +25,7 @@ func Load(workingDirectory string, rootFile string) (*core2.Inventory, error) {
 		ctx.parsingPhase,
 		ctx.purgingPhase,
 		ctx.referenceResolvingPhase,
+		ctx.workdirResolvingPhase,
 		ctx.extendingPhase,
 	}
 

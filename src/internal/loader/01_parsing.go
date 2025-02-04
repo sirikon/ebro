@@ -36,6 +36,7 @@ func parseModuleFile(filePath string, workingDirectory string, modulePath []stri
 func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*core2.Module, error) {
 	var err error
 	module := &core2.Module{}
+	module.Path = modulePath
 
 	mapping, err := parseStringToAstMapping(node)
 	if err != nil {
@@ -75,6 +76,10 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 	}
 
 	module.Imports = nil
+
+	if !path.IsAbs(module.WorkingDirectory) {
+		module.WorkingDirectory = path.Join(workingDirectory, module.WorkingDirectory)
+	}
 
 	return module, nil
 }

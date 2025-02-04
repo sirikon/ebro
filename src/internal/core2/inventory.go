@@ -4,12 +4,14 @@ import (
 	"iter"
 	"maps"
 	"slices"
+	"strings"
 )
 
 type Inventory struct {
-	RootModule  *Module
-	TaskIndex   map[TaskId]*Task
-	ModuleIndex map[TaskId]*Module
+	RootModule      *Module
+	TaskIndex       map[TaskId]*Task
+	TaskModuleIndex map[TaskId]*Module
+	ModuleIndex     map[string]*Module
 }
 
 func NewInventory() *Inventory {
@@ -18,14 +20,16 @@ func NewInventory() *Inventory {
 
 func (inv *Inventory) RefreshIndex() {
 	inv.TaskIndex = map[TaskId]*Task{}
-	inv.ModuleIndex = map[TaskId]*Module{}
+	inv.TaskModuleIndex = map[TaskId]*Module{}
+	inv.ModuleIndex = map[string]*Module{}
 	inv.generateIndex(inv.RootModule)
 }
 
 func (inv *Inventory) generateIndex(module *Module) {
+	inv.ModuleIndex[strings.Join(module.Path, ":")] = module
 	for _, task := range module.Tasks {
 		inv.TaskIndex[task.Id] = task
-		inv.ModuleIndex[task.Id] = module
+		inv.TaskModuleIndex[task.Id] = module
 	}
 	for _, module := range module.Modules {
 		inv.generateIndex(module)
@@ -58,16 +62,10 @@ func (inv *Inventory) Task(taskId TaskId) *Task {
 }
 
 func (inv *Inventory) TaskModule(taskId TaskId) *Module {
-	if module, ok := inv.ModuleIndex[taskId]; ok {
+	if module, ok := inv.TaskModuleIndex[taskId]; ok {
 		return module
 	}
 	return nil
-}
-
-func (inv *Inventory) RemoveTask(taskId TaskId) {
-	delete(inv.ModuleIndex[taskId].Tasks, taskId.TaskName())
-	delete(inv.ModuleIndex, taskId)
-	delete(inv.TaskIndex, taskId)
 }
 
 func (inv *Inventory) Tasks() iter.Seq[*Task] {
@@ -79,4 +77,25 @@ func (inv *Inventory) Tasks() iter.Seq[*Task] {
 			}
 		}
 	}
+}
+
+func (inv *Inventory) WalkUpModulePath(taskId TaskId) iter.Seq[*Module] {
+	modulePath := taskId.ModulePath()
+	return func(yield func(*Module) bool) {
+		for {
+			if !yield(inv.ModuleIndex[strings.Join(modulePath, ":")]) {
+				return
+			}
+			if len(modulePath) == 0 {
+				return
+			}
+			modulePath = modulePath[:len(modulePath)-1]
+		}
+	}
+}
+
+func (inv *Inventory) RemoveTask(taskId TaskId) {
+	delete(inv.TaskModuleIndex[taskId].Tasks, taskId.TaskName())
+	delete(inv.TaskModuleIndex, taskId)
+	delete(inv.TaskIndex, taskId)
 }

@@ -1,12 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
-	"slices"
 
-	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
 
 	"github.com/sirikon/ebro/internal/cli"
@@ -38,7 +37,7 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	bytes, err := yaml.Marshal(slices.Collect(inventory.Tasks()))
+	bytes, err := json.Marshal(inventory)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
