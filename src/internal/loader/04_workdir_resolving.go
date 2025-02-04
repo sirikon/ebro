@@ -12,6 +12,7 @@ func (ctx *loadCtx) workdirResolvingPhase() error {
 			workDirs = append(workDirs, module.WorkingDirectory)
 		}
 		slices.Reverse(workDirs)
+
 		currentWorkDir := ""
 		for _, workDir := range workDirs {
 			if path.IsAbs(workDir) {
@@ -20,6 +21,7 @@ func (ctx *loadCtx) workdirResolvingPhase() error {
 				currentWorkDir = path.Join(currentWorkDir, workDir)
 			}
 		}
+
 		task.WorkingDirectory = currentWorkDir
 	}
 	return nil
