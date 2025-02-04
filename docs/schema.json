@@ -72,7 +72,7 @@
             "type": "object"
           },
           "requires": {
-            "description": "List of task names that need to execute before this one does.\n\nTasks are added to the execution plan when referenced by `requires`.\n\nIt is possible to reference tasks from submodules by writing the full path of the task (module and task name) with each name separated with a colon (`:`). Example: `submodule:task`.\n\nIt's also possible to reference tasks by their absolute path by prepending the whole path with another colon (`:`). Example: `:module:submodule:task`.\n\nFinally, it's possible to optionally refer to a task in case it exists, but ignore the reference if it doesn't. You can do this by adding a question mark (`?`) at the end. Example: `:module:submodule:task?`",
+            "description": "List of task names (or expressions resolving to task names) that need to execute before this one does.\n\nTasks are added to the execution plan when referenced by `requires`.\n\nTo reference tasks from submodules, write the full path of the task (module and task name) with each name separated with a colon (`:`). Example: `submodule:task`.\n\nTo reference tasks by their absolute path, prepend the whole path with another colon (`:`). Example: `:module:submodule:task`.\n\nTo optionally refer to a task in case it exists, but ignore the reference if it doesn't, add a question mark (`?`) at the end. Example: `:module:submodule:task?`.\n\nTo reference tasks based on an expression, define an object with the key `$` and put the expression as its value. Example: `$: 'tasks | filter(\"something\" in .labels) | map(.id)'`",
             "type": "array",
             "items": {
               "oneOf": [
@@ -92,10 +92,23 @@
             }
           },
           "required_by": {
-            "description": "List of task names that require this task to be executed before those. The opposite of `requires`.\n\nTasks are not planned to run due to being referenced by `required_by`. This just serves to indicate that the referenced tasks, if planned to run, need to run **after** this one.\n\nIt is possible to reference tasks from submodules by writing the full path of the task (module and task name) with each name separated with a colon (`:`). Example: `submodule:task`.\n\nIt's also possible to reference tasks by their absolute path by prepending the whole path with another colon (`:`). Example: `:module:submodule:task`.",
+            "description": "List of task names (or expressions resolving to task names) that require this task to be executed before those. The opposite of `requires`.\n\nTasks are not planned to run due to being referenced by `required_by`. This just serves to indicate that the referenced tasks, if planned to run, need to run **after** this one.\n\nTo reference tasks from submodules, write the full path of the task (module and task name) with each name separated with a colon (`:`). Example: `submodule:task`.\n\nTo reference tasks by their absolute path, prepend the whole path with another colon (`:`). Example: `:module:submodule:task`.\n\nTo optionally refer to a task in case it exists, but ignore the reference if it doesn't, add a question mark (`?`) at the end. Example: `:module:submodule:task?`.\n\nTo reference tasks based on an expression, define an object with the key `$` and put the expression as its value. Example: `$: 'tasks | filter(\"something\" in .labels) | map(.id)'`",
             "type": "array",
             "items": {
-              "type": "string"
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "$": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
             }
           },
           "script": {

@@ -333,7 +333,9 @@ ebro -help
   # Display this help message
 ```
 
-### Querying the inventory
+## Queries
+
+### In `-inventory`
 
 The `-inventory` (or `-i`) command supports a flag called `--query` for using an [Expr expression](https://expr-lang.org/docs/language-definition) that transforms the output at your will:
 
@@ -361,7 +363,6 @@ Here is the environment available during the expression execution apart from [Ex
   - `name`: (`string`) Task's name (ex: `name`)
   - `labels`: (`string` -> `string` dictionary)
   - `working_directory`: (`string`)
-  - `extends`: (`string` array)
   - `environment`: (`string` -> `string` dictionary)
   - `requires`: (`string` array)
   - `required_by`: (`string` array)
@@ -371,6 +372,12 @@ Here is the environment available during the expression execution apart from [Ex
   - `when`: Object with the following properties:
     - `check_fails`: (`string`)
     - `output_changes`: (`string`)
+
+### In `requires` and `required_by`
+
+The task properties [`requires`](#the-ebroyaml-format__tasks.requires) and [`required_by`](#the-ebroyaml-format__tasks.required_by) also support querying by expression, but with a difference: The Task properties `requires` and `required_by` are not available in the expression environment.
+
+It is not possible to define `requires` or `required_by` based on the value of other tasks' `requires` or `required_by`.
 
 ## The `Ebro.yaml` format
 
