@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"slices"
 
 	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
@@ -59,7 +58,22 @@ func main() {
 		// 	return
 		// }
 
-		bytes, err := yaml.Marshal(slices.Collect(inventory.Tasks()))
+		inventoryView := InventoryView{}
+		for task := range inventory.Tasks() {
+			inventoryView[task.Id] = TaskView{
+				Labels:           task.Labels,
+				WorkingDirectory: task.WorkingDirectory,
+				Environment:      task.Environment.YamlMapSlice(),
+				Requires:         taskIdsToView(task.RequiresIds),
+				RequiredBy:       taskIdsToView(task.RequiredByIds),
+				Script:           task.Script,
+				Interactive:      task.Interactive,
+				Quiet:            task.Quiet,
+				When:             whenToView(task.When),
+			}
+		}
+
+		bytes, err := yaml.Marshal(inventoryView)
 		if err != nil {
 			cli.ExitWithError(err)
 		}
@@ -145,4 +159,44 @@ func buildInventoryQuery(arguments cli.ExecutionArguments) func(map[core.TaskId]
 		return query
 	}
 	return nil
+}
+
+type InventoryView map[core2.TaskId]TaskView
+
+type TaskView struct {
+	Labels           map[string]string `yaml:"labels,omitempty"`
+	WorkingDirectory string            `yaml:"working_directory,omitempty"`
+	Environment      yaml.MapSlice     `yaml:"environment,omitempty"`
+	Requires         []string          `yaml:"requires,omitempty"`
+	RequiredBy       []string          `yaml:"required_by,omitempty"`
+	Script           string            `yaml:"script,omitempty"`
+	Interactive      *bool             `yaml:"interactive,omitempty"`
+	Quiet            *bool             `yaml:"quiet,omitempty"`
+	When             *WhenView         `yaml:"when,omitempty"`
+}
+
+type WhenView struct {
+	CheckFails    string `yaml:"check_fails,omitempty"`
+	OutputChanges string `yaml:"output_changes,omitempty"`
+}
+
+func taskIdsToView(taskIds []core2.TaskId) []string {
+	if taskIds == nil {
+		return nil
+	}
+	result := []string{}
+	for _, taskId := range taskIds {
+		result = append(result, string(taskId))
+	}
+	return result
+}
+
+func whenToView(when *core2.When) *WhenView {
+	if when == nil {
+		return nil
+	}
+	return &WhenView{
+		CheckFails:    when.CheckFails,
+		OutputChanges: when.OutputChanges,
+	}
 }

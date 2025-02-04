@@ -124,7 +124,9 @@ func resolveTaskEnvironment(inventory *core2.Inventory, baseEnvironment *core2.E
 		parentTask := inventory.Task(parentTaskName)
 		envsToMerge = append(envsToMerge, parentTask.Environment)
 	}
-	envsToMerge = append(envsToMerge, inventory.TaskModule(taskId).Environment)
+	for module := range inventory.WalkUpModulePath(task.Id) {
+		envsToMerge = append(envsToMerge, module.Environment)
+	}
 	envsToMerge = append(envsToMerge, baseEnvironment)
 	return utils2.ExpandMergeEnvs(envsToMerge...)
 }

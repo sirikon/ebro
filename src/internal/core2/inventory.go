@@ -36,22 +36,22 @@ func (inv *Inventory) generateIndex(module *Module) {
 	}
 }
 
-func (inv *Inventory) FindTask(taskReference TaskReference) *Task {
+func (inv *Inventory) FindTask(taskReference TaskReference) (*TaskId, *Task) {
 	if taskReference.IsRelative {
 		panic("cannot call getTask with a relative taskReference")
 	}
 
 	taskId := taskReference.TaskId()
 	if task, ok := inv.TaskIndex[taskId]; ok {
-		return task
+		return &taskId, task
 	}
 
 	taskId = taskReference.Concat("default").TaskId()
 	if task, ok := inv.TaskIndex[taskId]; ok {
-		return task
+		return &taskId, task
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (inv *Inventory) Task(taskId TaskId) *Task {

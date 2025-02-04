@@ -1,5 +1,7 @@
 package core2
 
+import "github.com/goccy/go-yaml"
+
 type Environment struct {
 	Values []EnvironmentValue
 }
@@ -41,4 +43,15 @@ func (env *Environment) Set(key, value string) {
 		Key:   key,
 		Value: value,
 	})
+}
+
+func (env *Environment) YamlMapSlice() yaml.MapSlice {
+	result := yaml.MapSlice{}
+	if env.Values == nil {
+		return result
+	}
+	for _, envVal := range env.Values {
+		result = append(result, yaml.MapItem{Key: envVal.Key, Value: envVal.Value})
+	}
+	return result
 }

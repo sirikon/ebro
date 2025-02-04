@@ -31,8 +31,8 @@ func (ctx *loadCtx) purgingPhase() error {
 			purge := false
 			for _, t := range task.IfTasksExist {
 				ref := core2.MustParseTaskReference(t).Absolute(taskId.ModulePath())
-				task := ctx.inventory.FindTask(ref)
-				if task == nil {
+				taskId, _ := ctx.inventory.FindTask(ref)
+				if taskId == nil {
 					purge = true
 				}
 			}

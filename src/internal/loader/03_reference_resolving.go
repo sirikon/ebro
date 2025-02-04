@@ -36,8 +36,8 @@ func resolveReferences(inventory *core2.Inventory, task *core2.Task, taskReferen
 			ref = ref.Absolute(task.Id.ModulePath())
 		}
 
-		referencedTask := inventory.FindTask(ref)
-		if referencedTask == nil {
+		referencedTaskId, _ := inventory.FindTask(ref)
+		if referencedTaskId == nil {
 			if ref.IsOptional {
 				continue
 			} else {
@@ -45,7 +45,7 @@ func resolveReferences(inventory *core2.Inventory, task *core2.Task, taskReferen
 			}
 		}
 
-		result = append(result, ref.TaskId())
+		result = append(result, *referencedTaskId)
 	}
 	return result, nil
 }

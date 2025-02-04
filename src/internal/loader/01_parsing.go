@@ -35,7 +35,9 @@ func parseModuleFile(filePath string, workingDirectory string, modulePath []stri
 
 func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*core2.Module, error) {
 	var err error
-	module := &core2.Module{}
+	module := &core2.Module{
+		Environment: &core2.Environment{Values: []core2.EnvironmentValue{}},
+	}
 	module.Path = modulePath
 
 	mapping, err := parseStringToAstMapping(node)
@@ -72,6 +74,9 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 				return nil, fmt.Errorf("cannot import module %v because there is already a module called equally", importName)
 			}
 			module.Modules[importName] = importObj.Module
+			module.Modules[importName].Environment = &core2.Environment{
+				Values: append(importObj.Environment.Values, module.Modules[importName].Environment.Values...),
+			}
 		}
 	}
 
@@ -107,7 +112,9 @@ func parseImports(node ast.Node, workingDirectory string, modulePath []string) (
 
 func parseImport(node ast.Node, workingDirectory string, modulePath []string) (*core2.Import, error) {
 	var err error
-	importObj := &core2.Import{}
+	importObj := &core2.Import{
+		Environment: &core2.Environment{Values: []core2.EnvironmentValue{}},
+	}
 
 	mapping, err := parseStringToAstMapping(node)
 	if err != nil {
