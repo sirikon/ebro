@@ -1,15 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path"
+	"slices"
 
+	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
 
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/core"
+	"github.com/sirikon/ebro/internal/core2"
 	"github.com/sirikon/ebro/internal/loader"
 	"github.com/sirikon/ebro/internal/querying"
 )
@@ -32,61 +34,46 @@ func main() {
 	workingDirectory := getWorkingDirectory()
 	rootFile := rootFilePath(workingDirectory, arguments)
 
-	inventory, err := loader.Load(workingDirectory, rootFile)
+	baseEnvironment := &core2.Environment{
+		Values: []core2.EnvironmentValue{
+			{Key: "EBRO_BIN", Value: arguments.Bin},
+			{Key: "EBRO_ROOT", Value: workingDirectory},
+			{Key: "EBRO_ROOT_FILE", Value: rootFile},
+		},
+	}
+
+	inventory, err := loader.Load(baseEnvironment, workingDirectory, rootFile)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
-	bytes, err := json.Marshal(inventory)
-	if err != nil {
-		cli.ExitWithError(err)
+	// -inventory
+	if arguments.Command == cli.CommandInventory {
+		// inventoryQuery := buildInventoryQuery(arguments)
+		// if inventoryQuery != nil {
+		// 	result = inventoryQuery(inv.Tasks)
+		// }
+
+		// if reflect.TypeOf(result).Kind() == reflect.String {
+		// 	fmt.Println(result)
+		// 	return
+		// }
+
+		bytes, err := yaml.Marshal(slices.Collect(inventory.Tasks()))
+		if err != nil {
+			cli.ExitWithError(err)
+		}
+		fmt.Print(string(bytes))
+		return
 	}
-	fmt.Print(string(bytes))
 
-	// indexedRootModule, err := config.ParseRootModule(rootFile)
-	// if err != nil {
-	// 	cli.ExitWithError(err)
-	// }
-
-	// baseEnvironment := core.NewEnvironment(
-	// 	core.EnvironmentValue{Key: "EBRO_BIN", Value: arguments.Bin},
-	// 	core.EnvironmentValue{Key: "EBRO_ROOT", Value: workingDirectory},
-	// 	core.EnvironmentValue{Key: "EBRO_ROOT_FILE", Value: rootFile},
-	// )
-
-	// inv, err := inventory.MakeInventory(indexedRootModule, baseEnvironment)
-	// if err != nil {
-	// 	cli.ExitWithError(err)
-	// }
-
-	// // -inventory
-	// if arguments.Command == cli.CommandInventory {
-	// 	var result any = inv.Tasks
-	// 	inventoryQuery := buildInventoryQuery(arguments)
-	// 	if inventoryQuery != nil {
-	// 		result = inventoryQuery(inv.Tasks)
-	// 	}
-
-	// 	if reflect.TypeOf(result).Kind() == reflect.String {
-	// 		fmt.Println(result)
-	// 		return
-	// 	}
-
-	// 	bytes, err := yaml.Marshal(result)
-	// 	if err != nil {
-	// 		cli.ExitWithError(err)
-	// 	}
-	// 	fmt.Print(string(bytes))
-	// 	return
-	// }
-
-	// // -list
-	// if arguments.Command == cli.CommandList {
-	// 	for taskId := range inv.TasksSorted() {
-	// 		fmt.Println(taskId)
-	// 	}
-	// 	return
-	// }
+	// -list
+	if arguments.Command == cli.CommandList {
+		for task := range inventory.Tasks() {
+			fmt.Println(task.Id)
+		}
+		return
+	}
 
 	// targets, err := config.NormalizeTargets(indexedRootModule, arguments.Targets)
 	// if err != nil {

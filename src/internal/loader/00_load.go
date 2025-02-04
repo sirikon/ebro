@@ -9,15 +9,17 @@ import (
 type loadCtx struct {
 	workingDirectory string
 	rootFile         string
+	baseEnvironment  *core2.Environment
 	inventory        *core2.Inventory
 }
 
 type phase = func() error
 
-func Load(workingDirectory string, rootFile string) (*core2.Inventory, error) {
+func Load(baseEnvironment *core2.Environment, workingDirectory string, rootFile string) (*core2.Inventory, error) {
 	ctx := &loadCtx{
 		workingDirectory: workingDirectory,
 		rootFile:         rootFile,
+		baseEnvironment:  baseEnvironment,
 		inventory:        core2.NewInventory(),
 	}
 
@@ -27,6 +29,7 @@ func Load(workingDirectory string, rootFile string) (*core2.Inventory, error) {
 		ctx.referenceResolvingPhase,
 		ctx.workdirResolvingPhase,
 		ctx.extendingPhase,
+		ctx.labelResolvingPhase,
 	}
 
 	for _, phase := range phases {

@@ -1,32 +1,32 @@
-# name: Build Ebro
-# on: [push]
-# jobs:
-#   build:
-#     permissions: write-all
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v4
-#       - name: Build
-#         run: ./meta/docker/build.sh dist
-#       - name: Set Python version
-#         id: python-version
-#         run: echo "PYTHON_VERSION=$(./meta/tool-version.sh python)" >> "$GITHUB_OUTPUT"
-#       - name: Set Poetry version
-#         id: poetry-version
-#         run: echo "POETRY_VERSION=$(./meta/tool-version.sh poetry)" >> "$GITHUB_OUTPUT"
-#       - uses: actions/setup-python@v5
-#         with:
-#           python-version: ${{ steps.python-version.outputs.PYTHON_VERSION }}
-#       - uses: abatilo/actions-poetry@v4
-#         with:
-#           poetry-version: ${{ steps.poetry-version.outputs.POETRY_VERSION }}
-#       - name: Test E2E
-#         run: |
-#           cp "./out/dist/$(cat ./out/dist/VERSION)/ebro-$(uname -s)__$(uname -m)" ./out/ebro
-#           ./meta/test-e2e.sh
-#       - name: Release
-#         if: startsWith(github.ref, 'refs/tags/')
-#         env:
-#           GH_TOKEN: ${{ github.token }}
-#         run: ./meta/release/github.sh
+name: Build Ebro
+on: [push]
+jobs:
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build
+        run: ./meta/docker/build.sh dist
+      - name: Set Python version
+        id: python-version
+        run: echo "PYTHON_VERSION=$(./meta/tool-version.sh python)" >> "$GITHUB_OUTPUT"
+      - name: Set Poetry version
+        id: poetry-version
+        run: echo "POETRY_VERSION=$(./meta/tool-version.sh poetry)" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ steps.python-version.outputs.PYTHON_VERSION }}
+      - uses: abatilo/actions-poetry@v4
+        with:
+          poetry-version: ${{ steps.poetry-version.outputs.POETRY_VERSION }}
+      - name: Test E2E
+        run: |
+          cp "./out/dist/$(cat ./out/dist/VERSION)/ebro-$(uname -s)__$(uname -m)" ./out/ebro
+          ./meta/test-e2e.sh
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./meta/release/github.sh

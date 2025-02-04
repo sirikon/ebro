@@ -28,7 +28,7 @@ func (ctx *loadCtx) extendingPhase() error {
 			extendTask(task, parentTask)
 		}
 
-		task.Environment, err = resolveTaskEnvironment(ctx.inventory, taskId)
+		task.Environment, err = resolveTaskEnvironment(ctx.inventory, ctx.baseEnvironment, taskId)
 		if err != nil {
 			return fmt.Errorf("resolving task %v environment: %w", taskId, err)
 		}
@@ -105,7 +105,7 @@ func extendTask(childTask *core2.Task, parentTask *core2.Task) {
 	}
 }
 
-func resolveTaskEnvironment(inventory *core2.Inventory, taskId core2.TaskId) (*core2.Environment, error) {
+func resolveTaskEnvironment(inventory *core2.Inventory, baseEnvironment *core2.Environment, taskId core2.TaskId) (*core2.Environment, error) {
 	task := inventory.Task(taskId)
 	envsToMerge := []*core2.Environment{
 		task.Environment,
@@ -125,5 +125,6 @@ func resolveTaskEnvironment(inventory *core2.Inventory, taskId core2.TaskId) (*c
 		envsToMerge = append(envsToMerge, parentTask.Environment)
 	}
 	envsToMerge = append(envsToMerge, inventory.TaskModule(taskId).Environment)
+	envsToMerge = append(envsToMerge, baseEnvironment)
 	return utils2.ExpandMergeEnvs(envsToMerge...)
 }
