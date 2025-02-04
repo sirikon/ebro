@@ -217,6 +217,7 @@ func mapTaskIdsToView(taskIds []core.TaskId) []string {
 	for _, taskId := range taskIds {
 		result = append(result, string(taskId))
 	}
+	slices.Sort(result)
 	return result
 }
 

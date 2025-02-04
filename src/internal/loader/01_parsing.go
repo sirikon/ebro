@@ -209,9 +209,9 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, err
 		case "labels":
 			task.Labels, err = parseTaskLabels(value)
 		case "requires":
-			task.Requires, err = parseStringSequence(value)
+			task.Requires, task.RequiresExpressions, err = parseTaskReferences(value)
 		case "required_by":
-			task.RequiredBy, err = parseStringSequence(value)
+			task.RequiredBy, task.RequiredByExpressions, err = parseTaskReferences(value)
 		case "abstract":
 			task.Abstract, err = parseBoolPtr(value)
 		case "extends":
@@ -306,6 +306,44 @@ func parseEnvironment(node ast.Node) (*core.Environment, error) {
 	}
 
 	return environment, nil
+}
+
+func parseTaskReferences(node ast.Node) ([]string, []string, error) {
+	refs := []string{}
+	expressions := []string{}
+
+	if node.Type() != ast.SequenceType {
+		return nil, nil, fmt.Errorf("wrong type: %v", node.Type())
+	}
+
+	sequence := node.(*ast.SequenceNode)
+	for i, value := range sequence.Values {
+		switch value.Type() {
+		case ast.StringType:
+			refs = append(refs, value.(*ast.StringNode).Value)
+		case ast.MappingType:
+			mapping, err := parseStringToAstMapping(value)
+			if err != nil {
+				return nil, nil, err
+			}
+			for key, value := range mapping {
+				switch key {
+				case "$":
+					expression, err := parseString(value)
+					if err != nil {
+						return nil, nil, err
+					}
+					expressions = append(expressions, expression)
+				default:
+					return nil, nil, fmt.Errorf("unexpected key '%v'", key)
+				}
+			}
+		default:
+			return nil, nil, fmt.Errorf("wrong type for item %v in sequence: %v", i, value)
+		}
+	}
+
+	return refs, expressions, nil
 }
 
 func parseStringSequence(node ast.Node) ([]string, error) {

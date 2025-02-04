@@ -12,7 +12,7 @@ type EnvironmentValue struct {
 }
 
 func (env *Environment) Get(key string) *string {
-	if env.Values == nil {
+	if env == nil || env.Values == nil {
 		return nil
 	}
 
@@ -47,7 +47,7 @@ func (env *Environment) Set(key, value string) {
 
 func (env *Environment) Map() map[string]string {
 	result := map[string]string{}
-	if env.Values == nil {
+	if env == nil || env.Values == nil {
 		return result
 	}
 	for _, envVal := range env.Values {

@@ -97,8 +97,8 @@ args: -inventory
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   requires:
   - :apt:default
-  - :docker:default
   - :caddy:default
+  - :docker:default
   script: |
     echo "Done!"
 :docker:default:

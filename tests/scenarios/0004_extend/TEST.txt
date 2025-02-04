@@ -37,8 +37,8 @@ exit_code: 0
     EBRO_TASK_NAME: b
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   requires:
-  - :d
   - :c
+  - :d
   required_by:
   - :default
   script: echo $BAR

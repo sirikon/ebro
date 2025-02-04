@@ -17,10 +17,12 @@ type Task struct {
 
 	IfTasksExist []string
 
-	Requires      []string
-	RequiresIds   []TaskId
-	RequiredBy    []string
-	RequiredByIds []TaskId
+	Requires              []string
+	RequiresExpressions   []string
+	RequiresIds           []TaskId
+	RequiredBy            []string
+	RequiredByExpressions []string
+	RequiredByIds         []TaskId
 
 	Abstract   *bool
 	Extends    []string

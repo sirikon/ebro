@@ -18,8 +18,12 @@ func NewTaskId(modulePath []string, taskName string) TaskId {
 	return result
 }
 
+func (tid TaskId) IsValid() bool {
+	return TaskIdRe.MatchString(string(tid))
+}
+
 func (tid TaskId) MustBeValid() {
-	if !TaskIdRe.MatchString(string(tid)) {
+	if !tid.IsValid() {
 		panic("TaskId ismalformed: " + string(tid))
 	}
 }
