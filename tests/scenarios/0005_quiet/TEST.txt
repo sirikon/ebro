@@ -1,0 +1,43 @@
+args: -i
+args: -inventory
+---
+:fails:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :fails
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: fails
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  script: echo 'oh no' && exit 1
+  quiet: true
+:works:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :works
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: works
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  script: echo hello
+  quiet: true
+---
+
+
+args: works
+---
+███ [:works] running
+---
+
+
+args: fails
+exit_code: 1
+---
+███ [:fails] running
+oh no
+███ ERROR: task :fails returned status code 1
+---

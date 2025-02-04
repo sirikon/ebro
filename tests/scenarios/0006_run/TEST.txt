@@ -1,0 +1,54 @@
+args: invent
+exit_code: 1
+---
+███ ERROR: task ':invent' does not exist
+---
+
+
+---
+███ [:apt:pre-config] running
+███ [:caddy:package-apt-config] running
+███ [:docker:package-apt-config] running
+███ [:apt:default] running
+Installing apt packages
+caddy
+docker==2.0.0-1-apt
+███ [:caddy:package] satisfied
+███ [:docker:package] satisfied
+███ [:caddy:default] satisfied
+███ [:docker:default] satisfied
+███ [:default] running
+Done!
+---
+
+
+---
+███ [:apt:pre-config] skipping
+███ [:caddy:package-apt-config] skipping
+███ [:docker:package-apt-config] skipping
+███ [:apt:default] skipping
+███ [:caddy:package] satisfied
+███ [:docker:package] satisfied
+███ [:caddy:default] satisfied
+███ [:docker:default] satisfied
+███ [:default] running
+Done!
+---
+
+
+args: --force
+---
+███ [:apt:pre-config] running
+███ [:caddy:package-apt-config] running
+███ [:docker:package-apt-config] running
+███ [:apt:default] running
+Installing apt packages
+caddy
+docker==2.0.0-1-apt
+███ [:caddy:package] satisfied
+███ [:docker:package] satisfied
+███ [:caddy:default] satisfied
+███ [:docker:default] satisfied
+███ [:default] running
+Done!
+---

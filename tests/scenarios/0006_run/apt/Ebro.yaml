@@ -1,0 +1,14 @@
+working_directory: wd
+
+tasks:
+  default:
+    script: |
+      echo 'Installing apt packages'
+      cat "${EBRO_ROOT}/.cache/apt/packages/"*
+    when:
+      output_changes: cat "${EBRO_ROOT}/.cache/apt/packages/"*
+
+  pre-config:
+    script: mkdir -p "${EBRO_ROOT}/.cache/apt/packages"
+    when:
+      check_fails: test -d "${EBRO_ROOT}/.cache/apt/packages"

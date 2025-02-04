@@ -70,5 +70,6 @@ class TestScenarios(EbroTestCase):
 
                         self.assertEqual(stdout, expected_output)
                         self.assertEqual(exit_code, expected_exit_code)
-                        run(["rm", "-rf", ".ebro"], cwd=scenarioPath, check=True)
-                        run(["rm", "-rf", ".cache"], cwd=scenarioPath, check=True)
+
+            run(["rm", "-rf", ".ebro"], cwd=scenarioPath, check=True)
+            run(["rm", "-rf", ".cache"], cwd=scenarioPath, check=True)

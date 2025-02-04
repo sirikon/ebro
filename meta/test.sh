@@ -3,7 +3,7 @@ set -euo pipefail
 
 function main {
   ./meta/test-unit.sh
-  ./meta/test-e2e.sh
+  ./meta/test-e2e.sh "$@"
 }
 
 function log {

@@ -1,0 +1,8 @@
+tasks:
+  works:
+    quiet: true
+    script: echo hello
+
+  fails:
+    quiet: true
+    script: echo 'oh no' && exit 1

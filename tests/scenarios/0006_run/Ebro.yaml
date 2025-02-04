@@ -1,0 +1,39 @@
+imports:
+  apt:
+    from: ./apt
+  docker:
+    from: ./docker
+    environment:
+      DOCKER_VERSION: "2.0.0"
+  caddy:
+    from: ./caddy
+
+tasks:
+  default:
+    labels:
+      default: "true"
+    requires: [apt, docker, caddy]
+    script: |
+      echo "Done!"
+
+  ignored:
+    required_by: [default]
+    script: echo 'I should be ignored'
+
+  bash:
+    script: bash
+    interactive: true
+
+modules:
+  farm:
+    imports:
+      tractor:
+        from: ./tractor
+
+    tasks:
+      chicken:
+        requires: [egg]
+        script: "echo Chicken ready"
+
+      egg:
+        script: echo 'Egg ready'
