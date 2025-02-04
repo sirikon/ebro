@@ -1,6 +1,7 @@
 ## New features
 
 - Added the environment variable `EBRO_ROOT_FILE` for all tasks. This points to the root `Ebro.yaml` file.
+- Added querying capabilities to `requires` and `required_by` fields.
 
 ## Bug fixes
 
