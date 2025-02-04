@@ -14,7 +14,6 @@ func (ctx *loadCtx) referenceResolvingPhase() error {
 	var err error
 
 	for task := range ctx.inventory.Tasks() {
-
 		if result, err := resolveExpressions(ctx.inventory, task.RequiresExpressions); err != nil {
 			return fmt.Errorf("resolving expressions in 'requires' for task '%v': %w", task.Id, err)
 		} else {
@@ -32,7 +31,6 @@ func (ctx *loadCtx) referenceResolvingPhase() error {
 		if task.RequiredByIds, err = core.ResolveReferences(ctx.inventory, task, task.RequiredBy); err != nil {
 			return fmt.Errorf("normalizing 'required_by' for task '%v': %w", task.Id, err)
 		}
-
 	}
 
 	return nil
