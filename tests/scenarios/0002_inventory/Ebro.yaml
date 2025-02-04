@@ -16,7 +16,7 @@ tasks:
       [
         apt,
         caddy,
-        $: 'tasks | filter(.labels["docker.version"] == "2.0.0") | map(.id)',
+        query: 'tasks | filter(.labels["docker.version"] == "2.0.0") | map(.id)',
       ]
     script: |
       echo "Done!"

@@ -328,7 +328,7 @@ func parseTaskReferences(node ast.Node) ([]string, []string, error) {
 			}
 			for key, value := range mapping {
 				switch key {
-				case "$":
+				case "query":
 					expression, err := parseString(value)
 					if err != nil {
 						return nil, nil, err
