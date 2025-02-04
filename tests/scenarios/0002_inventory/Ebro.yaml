@@ -12,7 +12,12 @@ tasks:
   default:
     labels:
       default: "true"
-    requires: [apt, caddy, $: tasks | filter("docker.version" in .labels) | map(.id)]
+    requires:
+      [
+        apt,
+        caddy,
+        $: 'tasks | filter(.labels["docker.version"] == "2.0.0") | map(.id)',
+      ]
     script: |
       echo "Done!"
 

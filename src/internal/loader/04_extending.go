@@ -13,6 +13,14 @@ import (
 )
 
 func (ctx *loadCtx) extendingPhase() error {
+	var err error
+
+	for task := range ctx.inventory.Tasks() {
+		if task.ExtendsIds, err = core.ResolveReferences(ctx.inventory, task, task.Extends); err != nil {
+			return fmt.Errorf("normalizing 'extends' for task '%v': %w", task.Id, err)
+		}
+	}
+
 	taskIds, err := resolveExtensionOrder(ctx.inventory)
 	if err != nil {
 		return fmt.Errorf("resolving extension order: %w", err)
@@ -31,7 +39,6 @@ func (ctx *loadCtx) extendingPhase() error {
 		if err != nil {
 			return fmt.Errorf("resolving task '%v' environment: %w", taskId, err)
 		}
-		task.Extends = nil
 	}
 
 	for task := range ctx.inventory.Tasks() {
@@ -67,8 +74,10 @@ func resolveExtensionOrder(inventory *core.Inventory) ([]core.TaskId, error) {
 }
 
 func extendTask(childTask *core.Task, parentTask *core.Task) {
-	childTask.RequiresIds = utils.Dedupe(slices.Concat(childTask.RequiresIds, parentTask.RequiresIds))
-	childTask.RequiredByIds = utils.Dedupe(slices.Concat(childTask.RequiredByIds, parentTask.RequiredByIds))
+	childTask.Requires = utils.Dedupe(slices.Concat(childTask.Requires, parentTask.Requires))
+	childTask.RequiresExpressions = utils.Dedupe(slices.Concat(childTask.RequiresExpressions, parentTask.RequiresExpressions))
+	childTask.RequiredBy = utils.Dedupe(slices.Concat(childTask.RequiredBy, parentTask.RequiredBy))
+	childTask.RequiredByExpressions = utils.Dedupe(slices.Concat(childTask.RequiredByExpressions, parentTask.RequiredByExpressions))
 
 	if childTask.Script == "" {
 		childTask.Script = parentTask.Script

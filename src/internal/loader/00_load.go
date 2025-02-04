@@ -24,10 +24,10 @@ func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile s
 	phases := []phase{
 		ctx.parsingPhase,
 		ctx.purgingPhase,
-		ctx.referenceResolvingPhase,
 		ctx.workdirResolvingPhase,
 		ctx.extendingPhase,
 		ctx.labelResolvingPhase,
+		ctx.referenceResolvingPhase,
 	}
 
 	for _, phase := range phases {

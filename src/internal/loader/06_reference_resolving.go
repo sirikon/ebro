@@ -20,22 +20,19 @@ func (ctx *loadCtx) referenceResolvingPhase() error {
 		} else {
 			task.Requires = append(task.Requires, result...)
 		}
+		if task.RequiresIds, err = core.ResolveReferences(ctx.inventory, task, task.Requires); err != nil {
+			return fmt.Errorf("normalizing 'requires' for task '%v': %w", task.Id, err)
+		}
 
 		if result, err := resolveExpressions(ctx.inventory, task.RequiredByExpressions); err != nil {
 			return fmt.Errorf("resolving expressions in 'required_by' for task '%v': %w", task.Id, err)
 		} else {
 			task.RequiredBy = append(task.RequiredBy, result...)
 		}
-
-		if task.RequiresIds, err = resolveReferences(ctx.inventory, task, task.Requires); err != nil {
-			return fmt.Errorf("normalizing 'requires' for task '%v': %w", task.Id, err)
-		}
-		if task.RequiredByIds, err = resolveReferences(ctx.inventory, task, task.RequiredBy); err != nil {
+		if task.RequiredByIds, err = core.ResolveReferences(ctx.inventory, task, task.RequiredBy); err != nil {
 			return fmt.Errorf("normalizing 'required_by' for task '%v': %w", task.Id, err)
 		}
-		if task.ExtendsIds, err = resolveReferences(ctx.inventory, task, task.Extends); err != nil {
-			return fmt.Errorf("normalizing 'extends' for task '%v': %w", task.Id, err)
-		}
+
 	}
 
 	return nil
@@ -61,32 +58,6 @@ func resolveExpressions(inventory *core.Inventory, expressions []string) ([]stri
 	return result, nil
 }
 
-func resolveReferences(inventory *core.Inventory, task *core.Task, taskReferences []string) ([]core.TaskId, error) {
-	result := []core.TaskId{}
-	for _, taskReference := range taskReferences {
-		if err := core.ValidateTaskReference(taskReference); err != nil {
-			return nil, fmt.Errorf("validating '%v': %w", taskReference, err)
-		}
-
-		ref := core.MustParseTaskReference(taskReference)
-		if ref.IsRelative {
-			ref = ref.Absolute(task.Id.ModulePath())
-		}
-
-		referencedTaskId, _ := inventory.FindTask(ref)
-		if referencedTaskId == nil {
-			if ref.IsOptional {
-				continue
-			} else {
-				return nil, fmt.Errorf("referenced task '%v' does not exist", ref.TaskId())
-			}
-		}
-
-		result = append(result, *referencedTaskId)
-	}
-	return result, nil
-}
-
 type ReferenceQueryEnvironment struct {
 	Tasks []Task `expr:"tasks"`
 }
@@ -97,7 +68,6 @@ type Task struct {
 	Name             string            `expr:"name"`
 	Labels           map[string]string `expr:"labels"`
 	WorkingDirectory string            `expr:"working_directory"`
-	Extends          []string          `expr:"extends"`
 	Environment      map[string]string `expr:"environment"`
 	Script           string            `expr:"script"`
 	Quiet            *bool             `expr:"quiet"`
@@ -127,21 +97,12 @@ func mapTask(task *core.Task) Task {
 		Name:             task.Name,
 		Labels:           task.Labels,
 		WorkingDirectory: task.WorkingDirectory,
-		Extends:          mapTaskIds(task.ExtendsIds),
 		Environment:      task.Environment.Map(),
 		Script:           task.Script,
 		Quiet:            task.Quiet,
 		Interactive:      task.Interactive,
 		When:             mapWhen(task.When),
 	}
-}
-
-func mapTaskIds(taskIds []core.TaskId) []string {
-	result := []string{}
-	for _, taskId := range taskIds {
-		result = append(result, string(taskId))
-	}
-	return result
 }
 
 func mapWhen(when *core.When) *When {

@@ -73,3 +73,29 @@ func (tp TaskReference) TaskId() TaskId {
 	}
 	return NewTaskId(tp.Path[:len(tp.Path)-1], tp.Path[len(tp.Path)-1])
 }
+
+func ResolveReferences(inventory *Inventory, task *Task, taskReferences []string) ([]TaskId, error) {
+	result := []TaskId{}
+	for _, taskReference := range taskReferences {
+		if err := ValidateTaskReference(taskReference); err != nil {
+			return nil, fmt.Errorf("validating '%v': %w", taskReference, err)
+		}
+
+		ref := MustParseTaskReference(taskReference)
+		if ref.IsRelative {
+			ref = ref.Absolute(task.Id.ModulePath())
+		}
+
+		referencedTaskId, _ := inventory.FindTask(ref)
+		if referencedTaskId == nil {
+			if ref.IsOptional {
+				continue
+			} else {
+				return nil, fmt.Errorf("referenced task '%v' does not exist", ref.TaskId())
+			}
+		}
+
+		result = append(result, *referencedTaskId)
+	}
+	return result, nil
+}
