@@ -1,7 +1,8 @@
 package core2
 
 type Module struct {
-	Path []string
+	Directory string
+	Path      []string
 
 	Imports map[string]*Import
 	Tasks   map[string]*Task

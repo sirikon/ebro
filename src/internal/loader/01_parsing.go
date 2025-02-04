@@ -25,12 +25,16 @@ func parseModuleFile(filePath string, workingDirectory string, modulePath []stri
 		return nil, fmt.Errorf("parsing file: %w", err)
 	}
 
-	result, err := parseModule(file.Docs[0].Body, workingDirectory, modulePath)
+	module, err := parseModule(file.Docs[0].Body, workingDirectory, modulePath)
 	if err != nil {
 		return nil, fmt.Errorf("parsing module: %w", err)
 	}
 
-	return result, nil
+	if !path.IsAbs(module.WorkingDirectory) {
+		module.WorkingDirectory = path.Join(workingDirectory, module.WorkingDirectory)
+	}
+
+	return module, nil
 }
 
 func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*core2.Module, error) {
@@ -81,10 +85,6 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 	}
 
 	module.Imports = nil
-
-	if !path.IsAbs(module.WorkingDirectory) {
-		module.WorkingDirectory = path.Join(workingDirectory, module.WorkingDirectory)
-	}
 
 	return module, nil
 }
