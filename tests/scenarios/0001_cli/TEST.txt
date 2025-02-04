@@ -67,3 +67,16 @@ exit_code: 1
 ---
 ███ ERROR: expected value after --file flag
 ---
+
+
+---
+███ [:default] running
+hello
+---
+
+
+args: --file Ebro.other.yml
+exit_code: 1
+---
+███ ERROR: parsing file: open {{WORKDIR}}/Ebro.other.yml: no such file or directory
+---
