@@ -51,26 +51,16 @@ func main() {
 
 	// -inventory
 	if arguments.Command == cli.CommandInventory {
-
-		inventoryView := InventoryView{}
-		for task := range inventory.Tasks() {
-			inventoryView[task.Id] = TaskView{
-				Labels:           task.Labels,
-				WorkingDirectory: task.WorkingDirectory,
-				Environment:      task.Environment.YamlMapSlice(),
-				Requires:         taskIdsToView(task.RequiresIds),
-				RequiredBy:       taskIdsToView(task.RequiredByIds),
-				Script:           task.Script,
-				Interactive:      task.Interactive,
-				Quiet:            task.Quiet,
-				When:             whenToView(task.When),
-			}
-		}
-		var result any = inventoryView
+		var result any = nil
 
 		inventoryQuery := buildInventoryQuery(arguments)
 		if inventoryQuery != nil {
-			result = inventoryQuery(slices.Collect(inventory.Tasks()))
+			result, err = inventoryQuery(slices.Collect(inventory.Tasks()))
+			if err != nil {
+				cli.ExitWithError(err)
+			}
+		} else {
+			result = mapInventoryToView(inventory)
 		}
 
 		if reflect.TypeOf(result).Kind() == reflect.String {
@@ -154,7 +144,7 @@ func lock() error {
 	return nil
 }
 
-func buildInventoryQuery(arguments cli.ExecutionArguments) func([]*core.Task) any {
+func buildInventoryQuery(arguments cli.ExecutionArguments) func([]*core.Task) (any, error) {
 	queryExpression := *arguments.GetFlagString(cli.FlagQuery)
 	if queryExpression != "" {
 		query, err := querying.BuildQuery(queryExpression)
@@ -197,7 +187,29 @@ type WhenView struct {
 	OutputChanges string `yaml:"output_changes,omitempty"`
 }
 
-func taskIdsToView(taskIds []core.TaskId) []string {
+func mapInventoryToView(inventory *core.Inventory) InventoryView {
+	inventoryView := InventoryView{}
+	for task := range inventory.Tasks() {
+		inventoryView[task.Id] = mapTaskToView(task)
+	}
+	return inventoryView
+}
+
+func mapTaskToView(task *core.Task) TaskView {
+	return TaskView{
+		Labels:           task.Labels,
+		WorkingDirectory: task.WorkingDirectory,
+		Environment:      task.Environment.YamlMapSlice(),
+		Requires:         mapTaskIdsToView(task.RequiresIds),
+		RequiredBy:       mapTaskIdsToView(task.RequiredByIds),
+		Script:           task.Script,
+		Interactive:      task.Interactive,
+		Quiet:            task.Quiet,
+		When:             mapWhenToView(task.When),
+	}
+}
+
+func mapTaskIdsToView(taskIds []core.TaskId) []string {
 	if taskIds == nil {
 		return nil
 	}
@@ -208,7 +220,7 @@ func taskIdsToView(taskIds []core.TaskId) []string {
 	return result
 }
 
-func whenToView(when *core.When) *WhenView {
+func mapWhenToView(when *core.When) *WhenView {
 	if when == nil {
 		return nil
 	}
