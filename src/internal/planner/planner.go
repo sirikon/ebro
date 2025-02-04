@@ -3,31 +3,30 @@ package planner
 import (
 	"fmt"
 
-	"github.com/sirikon/ebro/internal/core"
+	"github.com/sirikon/ebro/internal/core2"
 	"github.com/sirikon/ebro/internal/dag"
-	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/utils"
 
 	"github.com/goccy/go-yaml"
 )
 
-type Plan []core.TaskId
+type Plan []core2.TaskId
 
-func MakePlan(inv inventory.Inventory, targets []core.TaskId) (Plan, error) {
-	tasksToRun := utils.NewSet[core.TaskId]()
-	taskDag := dag.NewDag[core.TaskId]()
+func MakePlan(inv *core2.Inventory, targets []core2.TaskId) (Plan, error) {
+	tasksToRun := utils.NewSet[core2.TaskId]()
+	taskDag := dag.NewDag[core2.TaskId]()
 
 	tasksToRun.Add(targets...)
 
 	for i := 0; i < tasksToRun.Length(); i++ {
 		taskName := tasksToRun.Get(i)
-		task, ok := inv.Tasks[taskName]
-		if !ok {
+		task := inv.Task(taskName)
+		if task == nil {
 			return nil, fmt.Errorf("task %v does not exist", taskName)
 		}
-		tasksToRun.Add(task.Requires...)
-		taskDag.Link(taskName, task.Requires...)
-		for _, requiredByTaskName := range task.RequiredBy {
+		tasksToRun.Add(task.RequiresIds...)
+		taskDag.Link(taskName, task.RequiresIds...)
+		for _, requiredByTaskName := range task.RequiredByIds {
 			taskDag.Link(requiredByTaskName, taskName)
 		}
 	}
