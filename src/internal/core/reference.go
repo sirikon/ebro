@@ -73,21 +73,3 @@ func (tp TaskReference) TaskId() TaskId {
 	}
 	return NewTaskId(tp.Path[:len(tp.Path)-1], tp.Path[len(tp.Path)-1])
 }
-
-func (tp TaskReference) PathString() string {
-	chunks := []string{}
-	if !tp.IsRelative {
-		chunks = append(chunks, ":")
-	}
-	chunks = append(chunks, strings.Join(tp.Path, ":"))
-	return strings.Join(chunks, "")
-}
-
-func (tp TaskReference) String() string {
-	chunks := []string{}
-	chunks = append(chunks, tp.PathString())
-	if tp.IsOptional {
-		chunks = append(chunks, "?")
-	}
-	return strings.Join(chunks, "")
-}

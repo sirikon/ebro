@@ -61,13 +61,6 @@ func (inv *Inventory) Task(taskId TaskId) *Task {
 	return nil
 }
 
-func (inv *Inventory) TaskModule(taskId TaskId) *Module {
-	if module, ok := inv.TaskModuleIndex[taskId]; ok {
-		return module
-	}
-	return nil
-}
-
 func (inv *Inventory) Tasks() iter.Seq[*Task] {
 	taskIds := slices.Sorted(maps.Keys(inv.TaskIndex))
 	return func(yield func(*Task) bool) {

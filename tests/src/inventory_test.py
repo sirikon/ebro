@@ -253,6 +253,25 @@ class TestInventory(EbroTestCase):
                     """,
                 )
 
+    def test_inventory_with_malformed_query_fails(self):
+        commands = ["-inventory", "-i"]
+        for command in commands:
+            with self.subTest(command):
+                exit_code, stdout = self.ebro(
+                    command,
+                    "--query",
+                    'joins(tasks | filter(.labels.default == "true") | map(.id), "\\n")',
+                )
+                self.assertStdout(
+                    stdout,
+                    f"""
+███ ERROR: compiling query expression: unknown name joins (1:1)
+ | joins(tasks | filter(.labels.default == "true") | map(.id), "\\n")
+ | ^
+                    """,
+                )
+                self.assertEqual(exit_code, 1)
+
     def test_inventory_with_query_works(self):
         commands = ["-inventory", "-i"]
         for command in commands:
