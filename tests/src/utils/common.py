@@ -67,7 +67,7 @@ class EbroTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs) -> None:
         self.maxDiff = None
         self.workdir = normpath(join(getcwd(), "..", "playground"))
-        self.bin = normpath(join(getcwd(), "..", "out", "ebro"))
+        self.bin = normpath(join(getcwd(), "..", "out", "ebro-e2e"))
         super().__init__(*args, **kwargs)
 
     def setUp(self) -> None:
@@ -87,6 +87,6 @@ class EbroTestCase(unittest.TestCase):
             cwd=self.workdir,
             stdout=PIPE,
             stderr=STDOUT,
-            env=environ | env,
+            env=environ | dict(GOCOVERDIR=join(getcwd(), ".coverage")) | env,
         )
         return result.returncode, result.stdout.decode("utf-8")

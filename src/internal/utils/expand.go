@@ -16,7 +16,7 @@ func ExpandMergeEnvs(envs ...*core.Environment) (*core.Environment, error) {
 			continue
 		}
 
-		for envValue := range env.Values() {
+		for _, envValue := range env.Values {
 			expandedValue, err := ExpandString(envValue.Value, result)
 			if err != nil {
 				return nil, fmt.Errorf("expanding %v: %w", envValue.Value, err)

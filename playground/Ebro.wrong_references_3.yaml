@@ -1,0 +1,4 @@
+tasks:
+  default:
+    extends: [nonexistent]
+    script: echo "Hello"

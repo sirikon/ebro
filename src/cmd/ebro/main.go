@@ -5,14 +5,14 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"slices"
 
 	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
 
 	"github.com/sirikon/ebro/internal/cli"
-	"github.com/sirikon/ebro/internal/config"
 	"github.com/sirikon/ebro/internal/core"
-	"github.com/sirikon/ebro/internal/inventory"
+	"github.com/sirikon/ebro/internal/loader"
 	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/querying"
 	"github.com/sirikon/ebro/internal/runner"
@@ -36,28 +36,31 @@ func main() {
 	workingDirectory := getWorkingDirectory()
 	rootFile := rootFilePath(workingDirectory, arguments)
 
-	indexedRootModule, err := config.ParseRootModule(rootFile)
-	if err != nil {
-		cli.ExitWithError(err)
+	baseEnvironment := &core.Environment{
+		Values: []core.EnvironmentValue{
+			{Key: "EBRO_BIN", Value: arguments.Bin},
+			{Key: "EBRO_ROOT", Value: workingDirectory},
+			{Key: "EBRO_ROOT_FILE", Value: rootFile},
+		},
 	}
 
-	baseEnvironment := core.NewEnvironment(
-		core.EnvironmentValue{Key: "EBRO_BIN", Value: arguments.Bin},
-		core.EnvironmentValue{Key: "EBRO_ROOT", Value: workingDirectory},
-		core.EnvironmentValue{Key: "EBRO_ROOT_FILE", Value: rootFile},
-	)
-
-	inv, err := inventory.MakeInventory(indexedRootModule, baseEnvironment)
+	inventory, err := loader.Load(baseEnvironment, workingDirectory, rootFile)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
 	// -inventory
 	if arguments.Command == cli.CommandInventory {
-		var result any = inv.Tasks
+		var result any = nil
+
 		inventoryQuery := buildInventoryQuery(arguments)
 		if inventoryQuery != nil {
-			result = inventoryQuery(inv.Tasks)
+			result, err = inventoryQuery(slices.Collect(inventory.Tasks()))
+			if err != nil {
+				cli.ExitWithError(err)
+			}
+		} else {
+			result = mapInventoryToView(inventory)
 		}
 
 		if reflect.TypeOf(result).Kind() == reflect.String {
@@ -75,18 +78,18 @@ func main() {
 
 	// -list
 	if arguments.Command == cli.CommandList {
-		for taskId := range inv.TasksSorted() {
-			fmt.Println(taskId)
+		for task := range inventory.Tasks() {
+			fmt.Println(task.Id)
 		}
 		return
 	}
 
-	targets, err := config.NormalizeTargets(indexedRootModule, arguments.Targets)
+	targets, err := normalizeTargets(inventory, arguments.Targets)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
 
-	plan, err := planner.MakePlan(inv, targets)
+	plan, err := planner.MakePlan(inventory, targets)
 	if err != nil {
 		cli.ExitWithError(err)
 	}
@@ -104,7 +107,7 @@ func main() {
 		cli.ExitWithError(err)
 	}
 
-	err = runner.Run(inv, plan, *arguments.GetFlagBool(cli.FlagForce))
+	err = runner.Run(inventory, plan, *arguments.GetFlagBool(cli.FlagForce))
 	if err != nil {
 		cli.ExitWithError(err)
 	}
@@ -141,7 +144,7 @@ func lock() error {
 	return nil
 }
 
-func buildInventoryQuery(arguments cli.ExecutionArguments) func(map[core.TaskId]*core.Task) any {
+func buildInventoryQuery(arguments cli.ExecutionArguments) func([]*core.Task) (any, error) {
 	queryExpression := *arguments.GetFlagString(cli.FlagQuery)
 	if queryExpression != "" {
 		query, err := querying.BuildQuery(queryExpression)
@@ -151,4 +154,78 @@ func buildInventoryQuery(arguments cli.ExecutionArguments) func(map[core.TaskId]
 		return query
 	}
 	return nil
+}
+
+func normalizeTargets(inventory *core.Inventory, targets []string) ([]core.TaskId, error) {
+	result := []core.TaskId{}
+	for _, target := range targets {
+		taskId, _ := inventory.FindTask(core.MustParseTaskReference(target))
+		if taskId == nil {
+			return nil, fmt.Errorf("task '%v' does not exist", target)
+		}
+		result = append(result, *taskId)
+	}
+	return result, nil
+}
+
+type InventoryView map[core.TaskId]TaskView
+
+type TaskView struct {
+	Labels           map[string]string `yaml:"labels,omitempty"`
+	WorkingDirectory string            `yaml:"working_directory,omitempty"`
+	Environment      yaml.MapSlice     `yaml:"environment,omitempty"`
+	Requires         []string          `yaml:"requires,omitempty"`
+	RequiredBy       []string          `yaml:"required_by,omitempty"`
+	Script           string            `yaml:"script,omitempty"`
+	Interactive      *bool             `yaml:"interactive,omitempty"`
+	Quiet            *bool             `yaml:"quiet,omitempty"`
+	When             *WhenView         `yaml:"when,omitempty"`
+}
+
+type WhenView struct {
+	CheckFails    string `yaml:"check_fails,omitempty"`
+	OutputChanges string `yaml:"output_changes,omitempty"`
+}
+
+func mapInventoryToView(inventory *core.Inventory) InventoryView {
+	inventoryView := InventoryView{}
+	for task := range inventory.Tasks() {
+		inventoryView[task.Id] = mapTaskToView(task)
+	}
+	return inventoryView
+}
+
+func mapTaskToView(task *core.Task) TaskView {
+	return TaskView{
+		Labels:           task.Labels,
+		WorkingDirectory: task.WorkingDirectory,
+		Environment:      task.Environment.YamlMapSlice(),
+		Requires:         mapTaskIdsToView(task.RequiresIds),
+		RequiredBy:       mapTaskIdsToView(task.RequiredByIds),
+		Script:           task.Script,
+		Interactive:      task.Interactive,
+		Quiet:            task.Quiet,
+		When:             mapWhenToView(task.When),
+	}
+}
+
+func mapTaskIdsToView(taskIds []core.TaskId) []string {
+	if taskIds == nil {
+		return nil
+	}
+	result := []string{}
+	for _, taskId := range taskIds {
+		result = append(result, string(taskId))
+	}
+	return result
+}
+
+func mapWhenToView(when *core.When) *WhenView {
+	if when == nil {
+		return nil
+	}
+	return &WhenView{
+		CheckFails:    when.CheckFails,
+		OutputChanges: when.OutputChanges,
+	}
 }

@@ -11,7 +11,7 @@ imports:
 tasks:
   default:
     labels:
-      default: true
+      default: "true"
     requires: [apt, docker, caddy]
     script: |
       echo "Done!"

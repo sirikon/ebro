@@ -1,0 +1,4 @@
+tasks:
+  default:
+    required_by: [nonexistent]
+    script: echo "Hello"

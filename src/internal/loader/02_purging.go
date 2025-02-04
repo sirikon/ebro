@@ -1,20 +1,20 @@
-package config
+package loader
 
 import (
 	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/dag"
 )
 
-func PurgeModule(indexedModule *IndexedModule) {
+func (ctx *loadCtx) purgingPhase() error {
 	purgeDag := dag.NewDag[core.TaskId]()
 
 	targets := []core.TaskId{}
-	for taskId, task := range indexedModule.AllTasks() {
+	for task := range ctx.inventory.Tasks() {
 		if len(task.IfTasksExist) > 0 {
 			for _, t := range task.IfTasksExist {
-				parentTaskId := mustParseTaskReference(t).Absolute(taskId.ModuleTrail()).TaskId()
-				purgeDag.Link(taskId, parentTaskId)
-				targets = append(targets, taskId)
+				parentTaskId := core.MustParseTaskReference(t).Absolute(task.Id.ModulePath()).TaskId()
+				purgeDag.Link(task.Id, parentTaskId)
+				targets = append(targets, task.Id)
 			}
 		}
 	}
@@ -22,7 +22,7 @@ func PurgeModule(indexedModule *IndexedModule) {
 	taskIds, _ := purgeDag.Resolve(targets)
 
 	for _, taskId := range taskIds {
-		task := indexedModule.GetTask(taskId)
+		task := ctx.inventory.Task(taskId)
 		if task == nil {
 			continue
 		}
@@ -30,17 +30,19 @@ func PurgeModule(indexedModule *IndexedModule) {
 		if len(task.IfTasksExist) > 0 {
 			purge := false
 			for _, t := range task.IfTasksExist {
-				ref := mustParseTaskReference(t).Absolute(taskId.ModuleTrail())
-				taskId, _ := FindTask(indexedModule, ref)
+				ref := core.MustParseTaskReference(t).Absolute(taskId.ModulePath())
+				taskId, _ := ctx.inventory.FindTask(ref)
 				if taskId == nil {
 					purge = true
 				}
 			}
 			if purge {
-				indexedModule.RemoveTask(taskId)
+				ctx.inventory.RemoveTask(taskId)
 			} else {
 				task.IfTasksExist = []string{}
 			}
 		}
 	}
+
+	return nil
 }

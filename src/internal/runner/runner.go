@@ -14,15 +14,14 @@ import (
 	"mvdan.cc/sh/v3/syntax"
 
 	"github.com/sirikon/ebro/internal/core"
-	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/logger"
 	"github.com/sirikon/ebro/internal/planner"
 )
 
-func Run(inv inventory.Inventory, plan planner.Plan, force bool) error {
+func Run(inv *core.Inventory, plan planner.Plan, force bool) error {
 	for _, taskId := range plan {
-		task, ok := inv.Tasks[taskId]
-		if !ok {
+		task := inv.Task(taskId)
+		if task == nil {
 			return fmt.Errorf("task %v does not exist", taskId)
 		}
 
@@ -157,7 +156,7 @@ func runScript(script string, workingDirectory string, environment *core.Environ
 
 func environmentToString(environment *core.Environment) []string {
 	result := []string{}
-	for envValue := range environment.Values() {
+	for _, envValue := range environment.Values {
 		result = append(result, envValue.Key+"="+envValue.Value)
 	}
 	return result

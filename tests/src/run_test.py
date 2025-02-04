@@ -9,7 +9,7 @@ class TestRun(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: validating target ':invent': task does not exist
+            ███ ERROR: task ':invent' does not exist
             """,
         )
 
@@ -171,7 +171,7 @@ class TestRun(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: processing module: expanding module environment: expanding $(pwd): unexpected command substitution at 1:1
+            ███ ERROR: resolving task ':default' environment: expanding $(pwd): unexpected command substitution at 1:1
             """,
         )
 
@@ -180,7 +180,7 @@ class TestRun(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: validating root module: validating task name 'dëfault': name does not match the following regex: ^[a-zA-Z0-9-_\\.]+$
+            ███ ERROR: parsing module: parsing 'tasks': validating task name 'dëfault': name does not match the following regex: ^[a-zA-Z0-9-_\\.]+$
             """,
         )
         self.assertEqual(exit_code, 1)
@@ -190,7 +190,7 @@ class TestRun(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: validating root module: validating module name 'ñodule': name does not match the following regex: ^[a-zA-Z0-9-_\\.]+$
+            ███ ERROR: parsing module: parsing 'modules': validating module name 'ñodule': name does not match the following regex: ^[a-zA-Z0-9-_\.]+$
             """,
         )
         self.assertEqual(exit_code, 1)

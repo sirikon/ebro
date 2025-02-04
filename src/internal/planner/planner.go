@@ -5,7 +5,6 @@ import (
 
 	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/dag"
-	"github.com/sirikon/ebro/internal/inventory"
 	"github.com/sirikon/ebro/internal/utils"
 
 	"github.com/goccy/go-yaml"
@@ -13,7 +12,7 @@ import (
 
 type Plan []core.TaskId
 
-func MakePlan(inv inventory.Inventory, targets []core.TaskId) (Plan, error) {
+func MakePlan(inv *core.Inventory, targets []core.TaskId) (Plan, error) {
 	tasksToRun := utils.NewSet[core.TaskId]()
 	taskDag := dag.NewDag[core.TaskId]()
 
@@ -21,13 +20,13 @@ func MakePlan(inv inventory.Inventory, targets []core.TaskId) (Plan, error) {
 
 	for i := 0; i < tasksToRun.Length(); i++ {
 		taskName := tasksToRun.Get(i)
-		task, ok := inv.Tasks[taskName]
-		if !ok {
+		task := inv.Task(taskName)
+		if task == nil {
 			return nil, fmt.Errorf("task %v does not exist", taskName)
 		}
-		tasksToRun.Add(task.Requires...)
-		taskDag.Link(taskName, task.Requires...)
-		for _, requiredByTaskName := range task.RequiredBy {
+		tasksToRun.Add(task.RequiresIds...)
+		taskDag.Link(taskName, task.RequiresIds...)
+		for _, requiredByTaskName := range task.RequiredByIds {
 			taskDag.Link(requiredByTaskName, taskName)
 		}
 	}
