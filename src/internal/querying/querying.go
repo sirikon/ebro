@@ -2,8 +2,6 @@ package querying
 
 import (
 	"fmt"
-	"maps"
-	"slices"
 	"strings"
 
 	"github.com/expr-lang/expr"
@@ -36,24 +34,22 @@ type When struct {
 	OutputChanges string `expr:"output_changes"`
 }
 
-func BuildQuery(code string) (func(map[core.TaskId]*core.Task) any, error) {
+func BuildQuery(code string) (func([]*core.Task) any, error) {
 	program, err := expr.Compile(code, expr.Env(QueryEnv{}))
 	if err != nil {
 		return nil, fmt.Errorf("compiling query expression: %w", err)
 	}
 
-	return func(inv map[core.TaskId]*core.Task) any {
+	return func(tasks []*core.Task) any {
 		queryEnv := QueryEnv{
 			Tasks: []Task{},
 		}
 
-		taskIds := slices.Sorted(maps.Keys(inv))
-		for _, taskId := range taskIds {
-			task := inv[taskId]
+		for _, task := range tasks {
 			queryEnv.Tasks = append(queryEnv.Tasks, Task{
-				Id:               string(taskId),
-				Module:           ":" + strings.Join(taskId.ModulePath(), ":"),
-				Name:             taskId.TaskName(),
+				Id:               string(task.Id),
+				Module:           ":" + strings.Join(task.Id.ModulePath(), ":"),
+				Name:             task.Name,
 				Labels:           task.Labels,
 				WorkingDirectory: task.WorkingDirectory,
 				Extends:          taskIdListToStringList(task.ExtendsIds),

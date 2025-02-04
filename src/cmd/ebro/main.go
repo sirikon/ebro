@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"reflect"
+	"slices"
 
 	"github.com/goccy/go-yaml"
 	"github.com/gofrs/flock"
@@ -49,15 +51,6 @@ func main() {
 
 	// -inventory
 	if arguments.Command == cli.CommandInventory {
-		// inventoryQuery := buildInventoryQuery(arguments)
-		// if inventoryQuery != nil {
-		// 	result = inventoryQuery(inv.Tasks)
-		// }
-
-		// if reflect.TypeOf(result).Kind() == reflect.String {
-		// 	fmt.Println(result)
-		// 	return
-		// }
 
 		inventoryView := InventoryView{}
 		for task := range inventory.Tasks() {
@@ -73,8 +66,19 @@ func main() {
 				When:             whenToView(task.When),
 			}
 		}
+		var result any = inventoryView
 
-		bytes, err := yaml.Marshal(inventoryView)
+		inventoryQuery := buildInventoryQuery(arguments)
+		if inventoryQuery != nil {
+			result = inventoryQuery(slices.Collect(inventory.Tasks()))
+		}
+
+		if reflect.TypeOf(result).Kind() == reflect.String {
+			fmt.Println(result)
+			return
+		}
+
+		bytes, err := yaml.Marshal(result)
 		if err != nil {
 			cli.ExitWithError(err)
 		}
@@ -150,7 +154,7 @@ func lock() error {
 	return nil
 }
 
-func buildInventoryQuery(arguments cli.ExecutionArguments) func(map[core.TaskId]*core.Task) any {
+func buildInventoryQuery(arguments cli.ExecutionArguments) func([]*core.Task) any {
 	queryExpression := *arguments.GetFlagString(cli.FlagQuery)
 	if queryExpression != "" {
 		query, err := querying.BuildQuery(queryExpression)
