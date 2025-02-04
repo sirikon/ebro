@@ -36,25 +36,24 @@ class TestQuiet(EbroTestCase):
         )
         self.assertEqual(exit_code, 0)
 
+    def test_execution_is_correct_with_working_task(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.quiet.yaml", "works")
+        self.assertEqual(exit_code, 0)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:works] running
+            """,
+        )
 
-#     def test_execution_is_correct_with_working_task(self):
-#         exit_code, stdout = self.ebro("--file", "Ebro.quiet.yaml", "works")
-#         self.assertEqual(exit_code, 0)
-#         self.assertStdout(
-#             stdout,
-#             f"""
-#             ███ [:works] running
-#             """,
-#         )
-
-#     def test_execution_is_correct_with_failing_task(self):
-#         exit_code, stdout = self.ebro("--file", "Ebro.quiet.yaml", "fails")
-#         self.assertEqual(exit_code, 1)
-#         self.assertStdout(
-#             stdout,
-#             f"""
-#             ███ [:fails] running
-#             oh no
-#             ███ ERROR: task :fails returned status code 1
-#             """,
-#         )
+    def test_execution_is_correct_with_failing_task(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.quiet.yaml", "fails")
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:fails] running
+            oh no
+            ███ ERROR: task :fails returned status code 1
+            """,
+        )

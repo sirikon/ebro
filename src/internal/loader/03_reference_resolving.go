@@ -11,13 +11,13 @@ func (ctx *loadCtx) referenceResolvingPhase() error {
 
 	for task := range ctx.inventory.Tasks() {
 		if task.RequiresIds, err = resolveReferences(ctx.inventory, task, task.Requires); err != nil {
-			return fmt.Errorf("normalizing 'requires' for task %v: %w", task.Id, err)
+			return fmt.Errorf("normalizing 'requires' for task '%v': %w", task.Id, err)
 		}
 		if task.RequiredByIds, err = resolveReferences(ctx.inventory, task, task.RequiredBy); err != nil {
-			return fmt.Errorf("normalizing 'required_by' for task %v: %w", task.Id, err)
+			return fmt.Errorf("normalizing 'required_by' for task '%v': %w", task.Id, err)
 		}
 		if task.ExtendsIds, err = resolveReferences(ctx.inventory, task, task.Extends); err != nil {
-			return fmt.Errorf("normalizing 'extends' for task %v: %w", task.Id, err)
+			return fmt.Errorf("normalizing 'extends' for task '%v': %w", task.Id, err)
 		}
 	}
 
@@ -41,7 +41,7 @@ func resolveReferences(inventory *core.Inventory, task *core.Task, taskReference
 			if ref.IsOptional {
 				continue
 			} else {
-				return nil, fmt.Errorf("referenced task %v does not exist", ref.TaskId())
+				return nil, fmt.Errorf("referenced task '%v' does not exist", ref.TaskId())
 			}
 		}
 

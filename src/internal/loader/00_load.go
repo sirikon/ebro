@@ -1,8 +1,6 @@
 package loader
 
 import (
-	"fmt"
-
 	"github.com/sirikon/ebro/internal/core"
 )
 
@@ -34,7 +32,7 @@ func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile s
 
 	for _, phase := range phases {
 		if err := phase(); err != nil {
-			return nil, fmt.Errorf("loading: %w", err)
+			return nil, err
 		}
 	}
 

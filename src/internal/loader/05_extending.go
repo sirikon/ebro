@@ -29,7 +29,7 @@ func (ctx *loadCtx) extendingPhase() error {
 
 		task.Environment, err = resolveTaskEnvironment(ctx.inventory, ctx.baseEnvironment, taskId)
 		if err != nil {
-			return fmt.Errorf("resolving task %v environment: %w", taskId, err)
+			return fmt.Errorf("resolving task '%v' environment: %w", taskId, err)
 		}
 		task.Extends = nil
 	}

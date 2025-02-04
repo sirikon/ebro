@@ -13,7 +13,7 @@ import (
 func (ctx *loadCtx) parsingPhase() error {
 	var err error
 	if ctx.inventory.RootModule, err = parseModuleFile(ctx.rootFile, ctx.workingDirectory, []string{}); err != nil {
-		return fmt.Errorf("parsing: %w", err)
+		return err
 	}
 	ctx.inventory.RefreshIndex()
 	return nil
@@ -62,10 +62,10 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 		case "modules":
 			module.Modules, err = parseModules(value, workingDirectory, modulePath)
 		default:
-			return nil, fmt.Errorf("unexpected key %v", key)
+			return nil, fmt.Errorf("unexpected key '%v'", key)
 		}
 		if err != nil {
-			return nil, fmt.Errorf("parsing value of %v: %w", key, err)
+			return nil, fmt.Errorf("parsing '%v': %w", key, err)
 		}
 	}
 
@@ -103,7 +103,7 @@ func parseImports(node ast.Node, workingDirectory string, modulePath []string) (
 			return nil, fmt.Errorf("validating import name %v: %w", name, err)
 		}
 		if imports[name], err = parseImport(value, workingDirectory, append(modulePath, name)); err != nil {
-			return nil, fmt.Errorf("parsing task %v: %w", name, err)
+			return nil, fmt.Errorf("parsing import '%v': %w", name, err)
 		}
 	}
 
@@ -128,10 +128,10 @@ func parseImport(node ast.Node, workingDirectory string, modulePath []string) (*
 		case "environment":
 			importObj.Environment, err = parseEnvironment(value)
 		default:
-			return nil, fmt.Errorf("unexpected key %v", key)
+			return nil, fmt.Errorf("unexpected key '%v'", key)
 		}
 		if err != nil {
-			return nil, fmt.Errorf("parsing value of %v: %w", key, err)
+			return nil, fmt.Errorf("parsing '%v': %w", key, err)
 		}
 	}
 
@@ -158,10 +158,10 @@ func parseModules(node ast.Node, workingDirectory string, modulePath []string) (
 
 	for name, value := range mapping {
 		if err = core.ValidateName(name); err != nil {
-			return nil, fmt.Errorf("validating module name %v: %w", name, err)
+			return nil, fmt.Errorf("validating module name '%v': %w", name, err)
 		}
 		if modules[name], err = parseModule(value, workingDirectory, append(modulePath, name)); err != nil {
-			return nil, fmt.Errorf("parsing module %v: %w", name, err)
+			return nil, fmt.Errorf("parsing module '%v': %w", name, err)
 		}
 	}
 
@@ -179,10 +179,10 @@ func parseTasks(node ast.Node, modulePath []string) (map[string]*core.Task, erro
 
 	for name, value := range mapping {
 		if err = core.ValidateName(name); err != nil {
-			return nil, fmt.Errorf("validating task name %v: %w", name, err)
+			return nil, fmt.Errorf("validating task name '%v': %w", name, err)
 		}
 		if tasks[name], err = parseTask(value, modulePath, name); err != nil {
-			return nil, fmt.Errorf("parsing task %v: %w", name, err)
+			return nil, fmt.Errorf("parsing task '%v': %w", name, err)
 		}
 	}
 
@@ -227,11 +227,15 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, err
 		case "environment":
 			task.Environment, err = parseEnvironment(value)
 		default:
-			return nil, fmt.Errorf("unexpected key %v", key)
+			return nil, fmt.Errorf("unexpected key '%v'", key)
 		}
 		if err != nil {
-			return nil, fmt.Errorf("parsing value of %v: %w", key, err)
+			return nil, fmt.Errorf("parsing '%v': %w", key, err)
 		}
+	}
+
+	if len(task.Requires) == 0 && len(task.Extends) == 0 && task.Script == "" && (task.Abstract == nil || !*task.Abstract) {
+		return nil, fmt.Errorf("task has nothing to do (no requires, script, extends nor abstract)")
 	}
 
 	return task, nil
@@ -270,10 +274,10 @@ func parseWhen(node ast.Node) (*core.When, error) {
 		case "check_fails":
 			when.CheckFails, err = parseString(value)
 		default:
-			return nil, fmt.Errorf("unexpected key %v", key)
+			return nil, fmt.Errorf("unexpected key '%v'", key)
 		}
 		if err != nil {
-			return nil, fmt.Errorf("parsing value of %v: %w", key, err)
+			return nil, fmt.Errorf("parsing '%v': %w", key, err)
 		}
 	}
 

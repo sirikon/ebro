@@ -3,15 +3,15 @@ from utils.common import EbroTestCase
 
 class TestRun(EbroTestCase):
 
-    #     def test_unknown_tasks_are_handled_properly(self):
-    #         exit_code, stdout = self.ebro("invent")
-    #         self.assertEqual(exit_code, 1)
-    #         self.assertStdout(
-    #             stdout,
-    #             f"""
-    #             ███ ERROR: validating target ':invent': task does not exist
-    #             """,
-    #         )
+    def test_unknown_tasks_are_handled_properly(self):
+        exit_code, stdout = self.ebro("invent")
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ ERROR: task ':invent' does not exist
+            """,
+        )
 
     def test_execution_is_correct(self):
         exit_code, stdout = self.ebro()
@@ -165,35 +165,35 @@ class TestRun(EbroTestCase):
             """,
         )
 
-    #     def test_cmd_exec_in_env_is_not_allowed(self):
-    #         exit_code, stdout = self.ebro("--file", "Ebro.fail_on_env_cmd.yaml")
-    #         self.assertEqual(exit_code, 1)
-    #         self.assertStdout(
-    #             stdout,
-    #             f"""
-    #             ███ ERROR: processing module: expanding module environment: expanding $(pwd): unexpected command substitution at 1:1
-    #             """,
-    #         )
+    def test_cmd_exec_in_env_is_not_allowed(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.fail_on_env_cmd.yaml")
+        self.assertEqual(exit_code, 1)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ ERROR: resolving task ':default' environment: expanding $(pwd): unexpected command substitution at 1:1
+            """,
+        )
 
-    #     def test_bad_names_are_handled(self):
-    #         exit_code, stdout = self.ebro("--file", "Ebro.bad_names.yaml")
-    #         self.assertStdout(
-    #             stdout,
-    #             f"""
-    #             ███ ERROR: validating root module: validating task name 'dëfault': name does not match the following regex: ^[a-zA-Z0-9-_\\.]+$
-    #             """,
-    #         )
-    #         self.assertEqual(exit_code, 1)
+    def test_bad_names_are_handled(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.bad_names.yaml")
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ ERROR: parsing module: parsing 'tasks': validating task name 'dëfault': name does not match the following regex: ^[a-zA-Z0-9-_\\.]+$
+            """,
+        )
+        self.assertEqual(exit_code, 1)
 
-    #     def test_bad_names_are_handled_2(self):
-    #         exit_code, stdout = self.ebro("--file", "Ebro.bad_names_2.yaml")
-    #         self.assertStdout(
-    #             stdout,
-    #             f"""
-    #             ███ ERROR: validating root module: validating module name 'ñodule': name does not match the following regex: ^[a-zA-Z0-9-_\\.]+$
-    #             """,
-    #         )
-    #         self.assertEqual(exit_code, 1)
+    def test_bad_names_are_handled_2(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.bad_names_2.yaml")
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ ERROR: parsing module: parsing 'modules': validating module name 'ñodule': name does not match the following regex: ^[a-zA-Z0-9-_\.]+$
+            """,
+        )
+        self.assertEqual(exit_code, 1)
 
     def test_conditional_existence_works_1(self):
         exit_code, stdout = self.ebro(

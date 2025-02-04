@@ -171,7 +171,7 @@ func normalizeTargets(inventory *core.Inventory, targets []string) ([]core.TaskI
 	for _, target := range targets {
 		taskId, _ := inventory.FindTask(core.MustParseTaskReference(target))
 		if taskId == nil {
-			return nil, fmt.Errorf("task not found: %v", target)
+			return nil, fmt.Errorf("task '%v' does not exist", target)
 		}
 		result = append(result, *taskId)
 	}
