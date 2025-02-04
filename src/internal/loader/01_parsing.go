@@ -7,7 +7,7 @@ import (
 
 	"github.com/goccy/go-yaml/ast"
 	"github.com/goccy/go-yaml/parser"
-	"github.com/sirikon/ebro/internal/core2"
+	"github.com/sirikon/ebro/internal/core"
 )
 
 func (ctx *loadCtx) parsingPhase() error {
@@ -19,7 +19,7 @@ func (ctx *loadCtx) parsingPhase() error {
 	return nil
 }
 
-func parseModuleFile(filePath string, workingDirectory string, modulePath []string) (*core2.Module, error) {
+func parseModuleFile(filePath string, workingDirectory string, modulePath []string) (*core.Module, error) {
 	file, err := parser.ParseFile(filePath, 0)
 	if err != nil {
 		return nil, fmt.Errorf("parsing file: %w", err)
@@ -37,10 +37,10 @@ func parseModuleFile(filePath string, workingDirectory string, modulePath []stri
 	return module, nil
 }
 
-func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*core2.Module, error) {
+func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*core.Module, error) {
 	var err error
-	module := &core2.Module{
-		Environment: &core2.Environment{Values: []core2.EnvironmentValue{}},
+	module := &core.Module{
+		Environment: &core.Environment{Values: []core.EnvironmentValue{}},
 	}
 	module.Path = modulePath
 
@@ -71,14 +71,14 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 
 	if module.Imports != nil {
 		if module.Modules == nil {
-			module.Modules = map[string]*core2.Module{}
+			module.Modules = map[string]*core.Module{}
 		}
 		for importName, importObj := range module.Imports {
 			if _, ok := module.Modules[importName]; ok {
 				return nil, fmt.Errorf("cannot import module %v because there is already a module called equally", importName)
 			}
 			module.Modules[importName] = importObj.Module
-			module.Modules[importName].Environment = &core2.Environment{
+			module.Modules[importName].Environment = &core.Environment{
 				Values: append(importObj.Environment.Values, module.Modules[importName].Environment.Values...),
 			}
 		}
@@ -89,9 +89,9 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 	return module, nil
 }
 
-func parseImports(node ast.Node, workingDirectory string, modulePath []string) (map[string]*core2.Import, error) {
+func parseImports(node ast.Node, workingDirectory string, modulePath []string) (map[string]*core.Import, error) {
 	var err error
-	imports := map[string]*core2.Import{}
+	imports := map[string]*core.Import{}
 
 	mapping, err := parseStringToAstMapping(node)
 	if err != nil {
@@ -99,7 +99,7 @@ func parseImports(node ast.Node, workingDirectory string, modulePath []string) (
 	}
 
 	for name, value := range mapping {
-		if err = core2.ValidateName(name); err != nil {
+		if err = core.ValidateName(name); err != nil {
 			return nil, fmt.Errorf("validating import name %v: %w", name, err)
 		}
 		if imports[name], err = parseImport(value, workingDirectory, append(modulePath, name)); err != nil {
@@ -110,10 +110,10 @@ func parseImports(node ast.Node, workingDirectory string, modulePath []string) (
 	return imports, nil
 }
 
-func parseImport(node ast.Node, workingDirectory string, modulePath []string) (*core2.Import, error) {
+func parseImport(node ast.Node, workingDirectory string, modulePath []string) (*core.Import, error) {
 	var err error
-	importObj := &core2.Import{
-		Environment: &core2.Environment{Values: []core2.EnvironmentValue{}},
+	importObj := &core.Import{
+		Environment: &core.Environment{Values: []core.EnvironmentValue{}},
 	}
 
 	mapping, err := parseStringToAstMapping(node)
@@ -147,9 +147,9 @@ func parseImport(node ast.Node, workingDirectory string, modulePath []string) (*
 	return importObj, nil
 }
 
-func parseModules(node ast.Node, workingDirectory string, modulePath []string) (map[string]*core2.Module, error) {
+func parseModules(node ast.Node, workingDirectory string, modulePath []string) (map[string]*core.Module, error) {
 	var err error
-	modules := map[string]*core2.Module{}
+	modules := map[string]*core.Module{}
 
 	mapping, err := parseStringToAstMapping(node)
 	if err != nil {
@@ -157,7 +157,7 @@ func parseModules(node ast.Node, workingDirectory string, modulePath []string) (
 	}
 
 	for name, value := range mapping {
-		if err = core2.ValidateName(name); err != nil {
+		if err = core.ValidateName(name); err != nil {
 			return nil, fmt.Errorf("validating module name %v: %w", name, err)
 		}
 		if modules[name], err = parseModule(value, workingDirectory, append(modulePath, name)); err != nil {
@@ -168,9 +168,9 @@ func parseModules(node ast.Node, workingDirectory string, modulePath []string) (
 	return modules, nil
 }
 
-func parseTasks(node ast.Node, modulePath []string) (map[string]*core2.Task, error) {
+func parseTasks(node ast.Node, modulePath []string) (map[string]*core.Task, error) {
 	var err error
-	tasks := map[string]*core2.Task{}
+	tasks := map[string]*core.Task{}
 
 	mapping, err := parseStringToAstMapping(node)
 	if err != nil {
@@ -178,7 +178,7 @@ func parseTasks(node ast.Node, modulePath []string) (map[string]*core2.Task, err
 	}
 
 	for name, value := range mapping {
-		if err = core2.ValidateName(name); err != nil {
+		if err = core.ValidateName(name); err != nil {
 			return nil, fmt.Errorf("validating task name %v: %w", name, err)
 		}
 		if tasks[name], err = parseTask(value, modulePath, name); err != nil {
@@ -189,11 +189,11 @@ func parseTasks(node ast.Node, modulePath []string) (map[string]*core2.Task, err
 	return tasks, nil
 }
 
-func parseTask(node ast.Node, modulePath []string, name string) (*core2.Task, error) {
+func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, error) {
 	var err error
-	task := &core2.Task{}
+	task := &core.Task{}
 	task.Name = name
-	task.Id = core2.NewTaskId(modulePath, name)
+	task.Id = core.NewTaskId(modulePath, name)
 
 	mapping, err := parseStringToAstMapping(node)
 	if err != nil {
@@ -254,9 +254,9 @@ func parseTaskLabels(node ast.Node) (map[string]string, error) {
 	return result, nil
 }
 
-func parseWhen(node ast.Node) (*core2.When, error) {
+func parseWhen(node ast.Node) (*core.When, error) {
 	var err error
-	when := &core2.When{}
+	when := &core.When{}
 
 	mapping, err := parseStringToAstMapping(node)
 	if err != nil {
@@ -280,10 +280,10 @@ func parseWhen(node ast.Node) (*core2.When, error) {
 	return when, nil
 }
 
-func parseEnvironment(node ast.Node) (*core2.Environment, error) {
+func parseEnvironment(node ast.Node) (*core.Environment, error) {
 	var err error
-	environment := &core2.Environment{
-		Values: []core2.EnvironmentValue{},
+	environment := &core.Environment{
+		Values: []core.EnvironmentValue{},
 	}
 
 	mapping, err := parseStringToAstMapping(node)
@@ -295,7 +295,7 @@ func parseEnvironment(node ast.Node) (*core2.Environment, error) {
 		if value.Type() != ast.StringType {
 			return nil, fmt.Errorf("wrong type for value of %v in mapping: %v", key, value)
 		}
-		environment.Values = append(environment.Values, core2.EnvironmentValue{
+		environment.Values = append(environment.Values, core.EnvironmentValue{
 			Key:   key,
 			Value: value.(*ast.StringNode).Value,
 		})

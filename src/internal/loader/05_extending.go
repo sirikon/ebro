@@ -5,10 +5,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/sirikon/ebro/internal/core2"
+	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/dag"
 	"github.com/sirikon/ebro/internal/utils"
-	"github.com/sirikon/ebro/internal/utils2"
 
 	"github.com/goccy/go-yaml"
 )
@@ -44,9 +43,9 @@ func (ctx *loadCtx) extendingPhase() error {
 	return nil
 }
 
-func resolveExtensionOrder(inventory *core2.Inventory) ([]core2.TaskId, error) {
-	inheritanceDag := dag.NewDag[core2.TaskId]()
-	target := []core2.TaskId{}
+func resolveExtensionOrder(inventory *core.Inventory) ([]core.TaskId, error) {
+	inheritanceDag := dag.NewDag[core.TaskId]()
+	target := []core.TaskId{}
 
 	for task := range inventory.Tasks() {
 		target = append(target, task.Id)
@@ -67,7 +66,7 @@ func resolveExtensionOrder(inventory *core2.Inventory) ([]core2.TaskId, error) {
 	return result, nil
 }
 
-func extendTask(childTask *core2.Task, parentTask *core2.Task) {
+func extendTask(childTask *core.Task, parentTask *core.Task) {
 	childTask.RequiresIds = utils.Dedupe(slices.Concat(childTask.RequiresIds, parentTask.RequiresIds))
 	childTask.RequiredByIds = utils.Dedupe(slices.Concat(childTask.RequiredByIds, parentTask.RequiredByIds))
 
@@ -82,7 +81,7 @@ func extendTask(childTask *core2.Task, parentTask *core2.Task) {
 	}
 	if parentTask.When != nil {
 		if childTask.When == nil {
-			when := core2.When{}
+			when := core.When{}
 			childTask.When = &when
 		}
 		if childTask.When.CheckFails == "" {
@@ -105,12 +104,12 @@ func extendTask(childTask *core2.Task, parentTask *core2.Task) {
 	}
 }
 
-func resolveTaskEnvironment(inventory *core2.Inventory, baseEnvironment *core2.Environment, taskId core2.TaskId) (*core2.Environment, error) {
+func resolveTaskEnvironment(inventory *core.Inventory, baseEnvironment *core.Environment, taskId core.TaskId) (*core.Environment, error) {
 	task := inventory.Task(taskId)
-	envsToMerge := []*core2.Environment{
+	envsToMerge := []*core.Environment{
 		task.Environment,
 		{
-			Values: []core2.EnvironmentValue{
+			Values: []core.EnvironmentValue{
 				{Key: "EBRO_TASK_ID", Value: string(taskId)},
 				{Key: "EBRO_TASK_MODULE", Value: ":" + strings.Join(taskId.ModulePath(), ":")},
 				{Key: "EBRO_TASK_NAME", Value: taskId.TaskName()},
@@ -128,5 +127,5 @@ func resolveTaskEnvironment(inventory *core2.Inventory, baseEnvironment *core2.E
 		envsToMerge = append(envsToMerge, module.Environment)
 	}
 	envsToMerge = append(envsToMerge, baseEnvironment)
-	return utils2.ExpandMergeEnvs(envsToMerge...)
+	return utils.ExpandMergeEnvs(envsToMerge...)
 }

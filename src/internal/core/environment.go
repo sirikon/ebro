@@ -1,4 +1,4 @@
-package core2
+package core
 
 import "github.com/goccy/go-yaml"
 
@@ -43,6 +43,17 @@ func (env *Environment) Set(key, value string) {
 		Key:   key,
 		Value: value,
 	})
+}
+
+func (env *Environment) Map() map[string]string {
+	result := map[string]string{}
+	if env.Values == nil {
+		return result
+	}
+	for _, envVal := range env.Values {
+		result[envVal.Key] = envVal.Value
+	}
+	return result
 }
 
 func (env *Environment) YamlMapSlice() yaml.MapSlice {

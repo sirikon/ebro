@@ -8,10 +8,10 @@ import (
 	"os"
 	"path"
 
-	"github.com/sirikon/ebro/internal/core2"
+	"github.com/sirikon/ebro/internal/core"
 )
 
-func storeTaskOutputAndCheckIfChanged(taskId core2.TaskId, output []byte) (bool, error) {
+func storeTaskOutputAndCheckIfChanged(taskId core.TaskId, output []byte) (bool, error) {
 	changed := false
 
 	newHash, err := hashBytes(output)
@@ -47,7 +47,7 @@ func storeTaskOutputAndCheckIfChanged(taskId core2.TaskId, output []byte) (bool,
 	return changed, nil
 }
 
-func removeTaskOutput(taskId core2.TaskId) error {
+func removeTaskOutput(taskId core.TaskId) error {
 	outputPath := path.Join(".ebro", "output_tracking", string(taskId))
 	err := os.Remove(outputPath)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {

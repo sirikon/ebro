@@ -124,20 +124,19 @@ class TestInheritance(EbroTestCase):
         )
         self.assertEqual(exit_code, 0)
 
-
-#     def test_execution_is_correct(self):
-#         exit_code, stdout = self.ebro("--file", "Ebro.inheritance.yaml", "default", "b")
-#         self.assertEqual(exit_code, 0)
-#         self.assertStdout(
-#             stdout,
-#             f"""
-#             ███ [:c] running
-#             I'm C
-#             ███ [:d] running
-#             I'm D
-#             ███ [:b] running
-#             It's BAR
-#             ███ [:default] running
-#             Hello
-#             """,
-#         )
+    def test_execution_is_correct(self):
+        exit_code, stdout = self.ebro("--file", "Ebro.inheritance.yaml", "default", "b")
+        self.assertEqual(exit_code, 0)
+        self.assertStdout(
+            stdout,
+            f"""
+            ███ [:c] running
+            I'm C
+            ███ [:d] running
+            I'm D
+            ███ [:b] running
+            It's BAR
+            ███ [:default] running
+            Hello
+            """,
+        )

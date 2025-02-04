@@ -3,24 +3,24 @@ package loader
 import (
 	"fmt"
 
-	"github.com/sirikon/ebro/internal/core2"
+	"github.com/sirikon/ebro/internal/core"
 )
 
 type loadCtx struct {
 	workingDirectory string
 	rootFile         string
-	baseEnvironment  *core2.Environment
-	inventory        *core2.Inventory
+	baseEnvironment  *core.Environment
+	inventory        *core.Inventory
 }
 
 type phase = func() error
 
-func Load(baseEnvironment *core2.Environment, workingDirectory string, rootFile string) (*core2.Inventory, error) {
+func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile string) (*core.Inventory, error) {
 	ctx := &loadCtx{
 		workingDirectory: workingDirectory,
 		rootFile:         rootFile,
 		baseEnvironment:  baseEnvironment,
-		inventory:        core2.NewInventory(),
+		inventory:        core.NewInventory(),
 	}
 
 	phases := []phase{

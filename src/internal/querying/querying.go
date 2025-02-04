@@ -52,14 +52,14 @@ func BuildQuery(code string) (func(map[core.TaskId]*core.Task) any, error) {
 			task := inv[taskId]
 			queryEnv.Tasks = append(queryEnv.Tasks, Task{
 				Id:               string(taskId),
-				Module:           ":" + strings.Join(taskId.ModuleTrail(), ":"),
+				Module:           ":" + strings.Join(taskId.ModulePath(), ":"),
 				Name:             taskId.TaskName(),
 				Labels:           task.Labels,
 				WorkingDirectory: task.WorkingDirectory,
-				Extends:          taskIdListToStringList(task.Extends),
+				Extends:          taskIdListToStringList(task.ExtendsIds),
 				Environment:      task.Environment.Map(),
-				Requires:         taskIdListToStringList(task.Requires),
-				RequiredBy:       taskIdListToStringList(task.RequiredBy),
+				Requires:         taskIdListToStringList(task.RequiresIds),
+				RequiredBy:       taskIdListToStringList(task.RequiredByIds),
 				Script:           task.Script,
 				Quiet:            task.Quiet,
 				Interactive:      task.Interactive,

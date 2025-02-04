@@ -3,7 +3,7 @@ package loader
 import (
 	"fmt"
 
-	"github.com/sirikon/ebro/internal/core2"
+	"github.com/sirikon/ebro/internal/core"
 )
 
 func (ctx *loadCtx) referenceResolvingPhase() error {
@@ -24,14 +24,14 @@ func (ctx *loadCtx) referenceResolvingPhase() error {
 	return nil
 }
 
-func resolveReferences(inventory *core2.Inventory, task *core2.Task, taskReferences []string) ([]core2.TaskId, error) {
-	result := []core2.TaskId{}
+func resolveReferences(inventory *core.Inventory, task *core.Task, taskReferences []string) ([]core.TaskId, error) {
+	result := []core.TaskId{}
 	for _, taskReference := range taskReferences {
-		if err := core2.ValidateTaskReference(taskReference); err != nil {
+		if err := core.ValidateTaskReference(taskReference); err != nil {
 			return nil, fmt.Errorf("validating '%v': %w", taskReference, err)
 		}
 
-		ref := core2.MustParseTaskReference(taskReference)
+		ref := core.MustParseTaskReference(taskReference)
 		if ref.IsRelative {
 			ref = ref.Absolute(task.Id.ModulePath())
 		}

@@ -10,9 +10,10 @@ import (
 
 	"github.com/sirikon/ebro/internal/cli"
 	"github.com/sirikon/ebro/internal/core"
-	"github.com/sirikon/ebro/internal/core2"
 	"github.com/sirikon/ebro/internal/loader"
+	"github.com/sirikon/ebro/internal/planner"
 	"github.com/sirikon/ebro/internal/querying"
+	"github.com/sirikon/ebro/internal/runner"
 )
 
 func main() {
@@ -33,8 +34,8 @@ func main() {
 	workingDirectory := getWorkingDirectory()
 	rootFile := rootFilePath(workingDirectory, arguments)
 
-	baseEnvironment := &core2.Environment{
-		Values: []core2.EnvironmentValue{
+	baseEnvironment := &core.Environment{
+		Values: []core.EnvironmentValue{
 			{Key: "EBRO_BIN", Value: arguments.Bin},
 			{Key: "EBRO_ROOT", Value: workingDirectory},
 			{Key: "EBRO_ROOT_FILE", Value: rootFile},
@@ -89,33 +90,33 @@ func main() {
 		return
 	}
 
-	// targets, err := config.NormalizeTargets(indexedRootModule, arguments.Targets)
-	// if err != nil {
-	// 	cli.ExitWithError(err)
-	// }
+	targets, err := normalizeTargets(inventory, arguments.Targets)
+	if err != nil {
+		cli.ExitWithError(err)
+	}
 
-	// plan, err := planner.MakePlan(inv, targets)
-	// if err != nil {
-	// 	cli.ExitWithError(err)
-	// }
+	plan, err := planner.MakePlan(inventory, targets)
+	if err != nil {
+		cli.ExitWithError(err)
+	}
 
-	// // -plan
-	// if arguments.Command == cli.CommandPlan {
-	// 	for _, step := range plan {
-	// 		fmt.Println(step)
-	// 	}
-	// 	return
-	// }
+	// -plan
+	if arguments.Command == cli.CommandPlan {
+		for _, step := range plan {
+			fmt.Println(step)
+		}
+		return
+	}
 
-	// err = lock()
-	// if err != nil {
-	// 	cli.ExitWithError(err)
-	// }
+	err = lock()
+	if err != nil {
+		cli.ExitWithError(err)
+	}
 
-	// err = runner.Run(inv, plan, *arguments.GetFlagBool(cli.FlagForce))
-	// if err != nil {
-	// 	cli.ExitWithError(err)
-	// }
+	err = runner.Run(inventory, plan, *arguments.GetFlagBool(cli.FlagForce))
+	if err != nil {
+		cli.ExitWithError(err)
+	}
 }
 
 func getWorkingDirectory() string {
@@ -161,7 +162,19 @@ func buildInventoryQuery(arguments cli.ExecutionArguments) func(map[core.TaskId]
 	return nil
 }
 
-type InventoryView map[core2.TaskId]TaskView
+func normalizeTargets(inventory *core.Inventory, targets []string) ([]core.TaskId, error) {
+	result := []core.TaskId{}
+	for _, target := range targets {
+		taskId, _ := inventory.FindTask(core.MustParseTaskReference(target))
+		if taskId == nil {
+			return nil, fmt.Errorf("task not found: %v", target)
+		}
+		result = append(result, *taskId)
+	}
+	return result, nil
+}
+
+type InventoryView map[core.TaskId]TaskView
 
 type TaskView struct {
 	Labels           map[string]string `yaml:"labels,omitempty"`
@@ -180,7 +193,7 @@ type WhenView struct {
 	OutputChanges string `yaml:"output_changes,omitempty"`
 }
 
-func taskIdsToView(taskIds []core2.TaskId) []string {
+func taskIdsToView(taskIds []core.TaskId) []string {
 	if taskIds == nil {
 		return nil
 	}
@@ -191,7 +204,7 @@ func taskIdsToView(taskIds []core2.TaskId) []string {
 	return result
 }
 
-func whenToView(when *core2.When) *WhenView {
+func whenToView(when *core.When) *WhenView {
 	if when == nil {
 		return nil
 	}
