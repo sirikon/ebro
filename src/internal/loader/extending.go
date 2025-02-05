@@ -13,7 +13,6 @@ import (
 
 func (ctx *loadCtx) extendingPhase(taskId core.TaskId) error {
 	task := ctx.inventory.Task(taskId)
-	var err error
 
 	parentTasks := slices.Clone(task.ExtendsIds)
 	if len(parentTasks) > 0 {
@@ -25,11 +24,6 @@ func (ctx *loadCtx) extendingPhase(taskId core.TaskId) error {
 		extendTask(newTask, task)
 		task = newTask
 		ctx.inventory.SetTask(newTask)
-	}
-
-	task.Environment, err = resolveTaskEnvironment(ctx.inventory, ctx.baseEnvironment, task.Id)
-	if err != nil {
-		return fmt.Errorf("resolving task '%v' environment: %w", task.Id, err)
 	}
 
 	return nil
