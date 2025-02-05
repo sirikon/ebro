@@ -87,6 +87,11 @@ func (inv *Inventory) WalkUpModulePath(taskId TaskId) iter.Seq[*Module] {
 	}
 }
 
+func (inv *Inventory) SetTask(task *Task) {
+	inv.TaskModuleIndex[task.Id].Tasks[task.Id.TaskName()] = task
+	inv.TaskIndex[task.Id] = task
+}
+
 func (inv *Inventory) RemoveTask(taskId TaskId) {
 	delete(inv.TaskModuleIndex[taskId].Tasks, taskId.TaskName())
 	delete(inv.TaskModuleIndex, taskId)

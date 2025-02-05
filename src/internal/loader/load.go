@@ -12,7 +12,7 @@ type loadCtx struct {
 }
 
 type phase = func() error
-type taskPhase = func(*core.Task) error
+type taskPhase = func(core.TaskId) error
 
 func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile string) (*core.Inventory, error) {
 	ctx := &loadCtx{

@@ -12,14 +12,20 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
-func (ctx *loadCtx) extendingPhase(task *core.Task) error {
+func (ctx *loadCtx) extendingPhase(taskId core.TaskId) error {
+	task := ctx.inventory.Task(taskId)
 	var err error
 
 	parentTasks := slices.Clone(task.ExtendsIds)
-	slices.Reverse(parentTasks)
-	for _, parentTaskId := range parentTasks {
-		parentTask := ctx.inventory.Task(parentTaskId)
-		extendTask(task, parentTask)
+	if len(parentTasks) > 0 {
+		newTask := makeBaseTaskForExtending(task)
+		for _, parentTaskId := range parentTasks {
+			parentTask := ctx.inventory.Task(parentTaskId)
+			extendTask(newTask, parentTask)
+		}
+		extendTask(newTask, task)
+		task = newTask
+		ctx.inventory.SetTask(newTask)
 	}
 
 	task.Environment, err = resolveTaskEnvironment(ctx.inventory, ctx.baseEnvironment, task.Id)
@@ -37,9 +43,8 @@ func (ctx *loadCtx) perTaskByExtensionOrder(taskPhases ...taskPhase) phase {
 			return fmt.Errorf("resolving extension order: %w", err)
 		}
 		for _, taskId := range taskIds {
-			task := ctx.inventory.Task(taskId)
 			for _, taskPhase := range taskPhases {
-				if err := taskPhase(task); err != nil {
+				if err := taskPhase(taskId); err != nil {
 					return err
 				}
 			}
@@ -71,6 +76,22 @@ func resolveExtensionOrder(inventory *core.Inventory) ([]core.TaskId, error) {
 	return result, nil
 }
 
+func makeBaseTaskForExtending(task *core.Task) *core.Task {
+	newTask := task.Clone()
+	newTask.Requires = []string{}
+	newTask.RequiredByExpressions = []string{}
+	newTask.RequiresIds = []core.TaskId{}
+	newTask.RequiredBy = []string{}
+	newTask.RequiredByExpressions = []string{}
+	newTask.RequiredByIds = []core.TaskId{}
+	newTask.Script = ""
+	newTask.Quiet = nil
+	newTask.Interactive = nil
+	newTask.When = nil
+	newTask.Labels = nil
+	return newTask
+}
+
 func extendTask(childTask *core.Task, parentTask *core.Task) {
 	childTask.Requires = utils.Dedupe(slices.Concat(childTask.Requires, parentTask.Requires))
 	childTask.RequiresExpressions = utils.Dedupe(slices.Concat(childTask.RequiresExpressions, parentTask.RequiresExpressions))
@@ -79,13 +100,13 @@ func extendTask(childTask *core.Task, parentTask *core.Task) {
 	childTask.RequiredByExpressions = utils.Dedupe(slices.Concat(childTask.RequiredByExpressions, parentTask.RequiredByExpressions))
 	childTask.RequiredByIds = utils.Dedupe(slices.Concat(childTask.RequiredByIds, parentTask.RequiredByIds))
 
-	if childTask.Script == "" {
+	if parentTask.Script != "" {
 		childTask.Script = parentTask.Script
 	}
-	if childTask.Quiet == nil {
+	if parentTask.Quiet != nil {
 		childTask.Quiet = parentTask.Quiet
 	}
-	if childTask.Interactive == nil {
+	if parentTask.Interactive != nil {
 		childTask.Interactive = parentTask.Interactive
 	}
 	if parentTask.When != nil {
@@ -93,10 +114,10 @@ func extendTask(childTask *core.Task, parentTask *core.Task) {
 			when := core.When{}
 			childTask.When = &when
 		}
-		if childTask.When.CheckFails == "" {
+		if parentTask.When.CheckFails != "" {
 			childTask.When.CheckFails = parentTask.When.CheckFails
 		}
-		if childTask.When.OutputChanges == "" {
+		if parentTask.When.OutputChanges != "" {
 			childTask.When.OutputChanges = parentTask.When.OutputChanges
 		}
 	}
@@ -106,9 +127,7 @@ func extendTask(childTask *core.Task, parentTask *core.Task) {
 			childTask.Labels = map[string]string{}
 		}
 		for key, val := range parentTask.Labels {
-			if _, ok := childTask.Labels[key]; !ok {
-				childTask.Labels[key] = val
-			}
+			childTask.Labels[key] = val
 		}
 	}
 }

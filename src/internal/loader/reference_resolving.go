@@ -29,7 +29,8 @@ func (ctx *loadCtx) requirementExpressionReferenceResolvingPhase() error {
 	return nil
 }
 
-func (ctx *loadCtx) requirementReferenceResolvingPhase(task *core.Task) error {
+func (ctx *loadCtx) requirementReferenceResolvingPhase(taskId core.TaskId) error {
+	task := ctx.inventory.Task(taskId)
 	var err error
 
 	if task.RequiresIds, err = core.ResolveReferences(ctx.inventory, task, task.Requires); err != nil {

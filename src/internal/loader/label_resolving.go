@@ -7,7 +7,8 @@ import (
 	"github.com/sirikon/ebro/internal/utils"
 )
 
-func (ctx *loadCtx) labelResolvingPhase(task *core.Task) error {
+func (ctx *loadCtx) labelResolvingPhase(taskId core.TaskId) error {
+	task := ctx.inventory.Task(taskId)
 	var err error
 
 	for label, value := range task.Labels {

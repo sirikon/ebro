@@ -57,12 +57,29 @@ func (env *Environment) Map() map[string]string {
 }
 
 func (env *Environment) YamlMapSlice() yaml.MapSlice {
+	if env == nil {
+		return nil
+	}
 	result := yaml.MapSlice{}
 	if env.Values == nil {
 		return result
 	}
 	for _, envVal := range env.Values {
 		result = append(result, yaml.MapItem{Key: envVal.Key, Value: envVal.Value})
+	}
+	return result
+}
+
+func (env *Environment) Clone() *Environment {
+	if env == nil {
+		return nil
+	}
+	result := &Environment{}
+	if env.Values == nil {
+		return result
+	}
+	for _, envVal := range env.Values {
+		result.Values = append(result.Values, EnvironmentValue{Key: envVal.Key, Value: envVal.Value})
 	}
 	return result
 }
