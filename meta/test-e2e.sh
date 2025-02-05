@@ -2,8 +2,18 @@
 set -euo pipefail
 
 function main {
-  log "Building ebro for e2e tests"
-  ./meta/build-e2e.sh
+  enable_coverage="false"
+  if [ "${1:-}" == "coverage" ]; then
+    enable_coverage="true"
+  fi
+
+  if [ "${EBRO_BIN:-}" == "" ]; then
+    EBRO_BIN="$(pwd)/out/ebro-e2e"
+    export EBRO_BIN
+    log "Building ebro for e2e tests"
+    ./meta/build-e2e.sh
+  fi
+
   log "Running e2e tests"
   ./meta/python/ensure-venv.sh
   export PYTHONPATH=src
@@ -12,10 +22,13 @@ function main {
     mkdir -p .coverage
     rm -rf .coverage/*
     ./../meta/python/_/.venv/bin/python -m unittest discover src "*_test.py"
-    go tool covdata textfmt -i=.coverage -o=.coverage-profile
+    if [ "$enable_coverage" == "true" ]; then
+      log "Collecting coverage data"
+      go tool covdata textfmt -i=.coverage -o=.coverage-profile
+    fi
   )
 
-  if [ "${1:-}" == "coverage" ]; then
+  if [ "$enable_coverage" == "true" ]; then
     (
       cd src
       go tool cover -html=../tests/.coverage-profile

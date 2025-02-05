@@ -9,7 +9,7 @@ class EbroTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs) -> None:
         self.maxDiff = None
         self.workdir = normpath(join(getcwd(), "..", "playground"))
-        self.bin = normpath(join(getcwd(), "..", "out", "ebro-e2e"))
+        self.bin = environ.get("EBRO_BIN")
         super().__init__(*args, **kwargs)
 
     def setUp(self) -> None:
