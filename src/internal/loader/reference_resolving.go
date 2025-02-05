@@ -8,36 +8,62 @@ import (
 
 	"github.com/expr-lang/expr"
 	"github.com/sirikon/ebro/internal/core"
+	"github.com/sirikon/ebro/internal/utils"
 )
 
-func (ctx *loadCtx) referenceResolvingPhase() error {
-	var err error
-
+func (ctx *loadCtx) requirementExpressionReferenceResolvingPhase() error {
 	for task := range ctx.inventory.Tasks() {
 		if result, err := resolveExpressions(ctx.inventory, task.RequiresExpressions); err != nil {
 			return fmt.Errorf("resolving expressions in 'requires' for task '%v': %w", task.Id, err)
 		} else {
-			task.Requires = append(task.Requires, result...)
-		}
-		if task.RequiresIds, err = core.ResolveReferences(ctx.inventory, task, task.Requires); err != nil {
-			return fmt.Errorf("normalizing 'requires' for task '%v': %w", task.Id, err)
+			task.RequiresIds = utils.Dedupe(append(task.RequiresIds, result...))
 		}
 
 		if result, err := resolveExpressions(ctx.inventory, task.RequiredByExpressions); err != nil {
 			return fmt.Errorf("resolving expressions in 'required_by' for task '%v': %w", task.Id, err)
 		} else {
-			task.RequiredBy = append(task.RequiredBy, result...)
-		}
-		if task.RequiredByIds, err = core.ResolveReferences(ctx.inventory, task, task.RequiredBy); err != nil {
-			return fmt.Errorf("normalizing 'required_by' for task '%v': %w", task.Id, err)
+			task.RequiredByIds = utils.Dedupe(append(task.RequiredByIds, result...))
 		}
 	}
 
 	return nil
 }
 
-func resolveExpressions(inventory *core.Inventory, expressions []string) ([]string, error) {
-	result := []string{}
+func (ctx *loadCtx) requirementReferenceResolvingPhase(task *core.Task) error {
+	var err error
+
+	if task.RequiresIds, err = core.ResolveReferences(ctx.inventory, task, task.Requires); err != nil {
+		return fmt.Errorf("normalizing 'requires' for task '%v': %w", task.Id, err)
+	}
+
+	if task.RequiredByIds, err = core.ResolveReferences(ctx.inventory, task, task.RequiredBy); err != nil {
+		return fmt.Errorf("normalizing 'required_by' for task '%v': %w", task.Id, err)
+	}
+
+	return nil
+}
+
+func (ctx *loadCtx) extensionReferenceResolvingPhase() error {
+	var err error
+	for task := range ctx.inventory.Tasks() {
+		if task.ExtendsIds, err = core.ResolveReferences(ctx.inventory, task, task.Extends); err != nil {
+			return fmt.Errorf("normalizing 'extends' for task '%v': %w", task.Id, err)
+		}
+	}
+	return nil
+}
+
+func (ctx *loadCtx) abstractPurgingPhase() error {
+	for task := range ctx.inventory.Tasks() {
+		if task.Abstract != nil && *task.Abstract {
+			ctx.inventory.RemoveTask(task.Id)
+		}
+	}
+	return nil
+}
+
+func resolveExpressions(inventory *core.Inventory, expressions []string) ([]core.TaskId, error) {
+	result := []core.TaskId{}
 	for _, expression := range expressions {
 		query, err := buildReferenceQuery(expression)
 		if err != nil {
@@ -50,7 +76,19 @@ func resolveExpressions(inventory *core.Inventory, expressions []string) ([]stri
 		}
 		ids := queryResult.([]interface{})
 		for _, id := range ids {
-			result = append(result, id.(string))
+			if reflect.TypeOf(id).Kind() != reflect.String {
+				return nil, fmt.Errorf("wrong type returned from expression: %v", id)
+			}
+			refStr := id.(string)
+			if err = core.ValidateTaskReference(refStr); err != nil {
+				return nil, fmt.Errorf("checking %v: %w", refStr, err)
+			}
+			ref := core.MustParseTaskReference(refStr)
+			if ref.IsRelative || ref.IsOptional {
+				return nil, fmt.Errorf("checking %v: only task IDs are accepted, not relative or optional references", refStr)
+			}
+
+			result = append(result, ref.TaskId())
 		}
 	}
 	return result, nil

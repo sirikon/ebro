@@ -12,6 +12,7 @@ type loadCtx struct {
 }
 
 type phase = func() error
+type taskPhase = func(*core.Task) error
 
 func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile string) (*core.Inventory, error) {
 	ctx := &loadCtx{
@@ -23,11 +24,16 @@ func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile s
 
 	phases := []phase{
 		ctx.parsingPhase,
-		ctx.purgingPhase,
+		ctx.conditionalExistencePurgingPhase,
 		ctx.workdirResolvingPhase,
-		ctx.extendingPhase,
-		ctx.labelResolvingPhase,
-		ctx.referenceResolvingPhase,
+		ctx.extensionReferenceResolvingPhase,
+		ctx.perTaskByExtensionOrder(
+			ctx.requirementReferenceResolvingPhase,
+			ctx.extendingPhase,
+			ctx.labelResolvingPhase,
+		),
+		ctx.abstractPurgingPhase,
+		ctx.requirementExpressionReferenceResolvingPhase,
 	}
 
 	for _, phase := range phases {

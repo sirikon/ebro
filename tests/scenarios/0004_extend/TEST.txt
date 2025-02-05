@@ -78,6 +78,24 @@ exit_code: 0
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   script: echo Hello
+:extern-a:
+  labels:
+    better_meal: chicken with pasta
+    meal: beef with rice
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    PROTEIN: chicken
+    SALAD: "no"
+    EBRO_TASK_ID: :extern-a
+    EBRO_TASK_MODULE: ":"
+    EBRO_TASK_NAME: extern-a
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+    CARBS: pasta
+  requires:
+  - :other:only-exists-in-other
 :multi-c:
   working_directory: {{WORKDIR}}
   environment:
@@ -94,6 +112,33 @@ exit_code: 0
     D: "44"
   script: echo multi-b
   quiet: true
+:other:default:
+  labels:
+    meal: beef with rice
+  working_directory: {{WORKDIR}}/other
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :other:default
+    EBRO_TASK_MODULE: :other
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/other
+    PROTEIN: beef
+    CARBS: rice
+  requires:
+  - :other:only-exists-in-other
+:other:only-exists-in-other:
+  working_directory: {{WORKDIR}}/other
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_TASK_ID: :other:only-exists-in-other
+    EBRO_TASK_MODULE: :other
+    EBRO_TASK_NAME: only-exists-in-other
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/other
+  script: echo hello
 :y:
   labels:
     label.A: "1"

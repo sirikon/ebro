@@ -5,7 +5,7 @@ import (
 	"github.com/sirikon/ebro/internal/dag"
 )
 
-func (ctx *loadCtx) purgingPhase() error {
+func (ctx *loadCtx) conditionalExistencePurgingPhase() error {
 	purgeDag := dag.NewDag[core.TaskId]()
 
 	targets := []core.TaskId{}

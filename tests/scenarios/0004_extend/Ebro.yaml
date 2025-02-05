@@ -77,4 +77,8 @@ tasks:
       D: "44"
 
   extern-a:
-    extends: [other]
+    extends: [other, other:abstract]
+    environment:
+      CARBS: pasta
+    labels:
+      better_meal: ${PROTEIN} with ${CARBS}
