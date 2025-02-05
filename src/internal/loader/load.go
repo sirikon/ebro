@@ -30,6 +30,7 @@ func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile s
 		ctx.perTaskByExtensionOrder(
 			ctx.requirementReferenceResolvingPhase,
 			ctx.extendingPhase,
+			ctx.environmentResolvingPhase,
 			ctx.labelResolvingPhase,
 		),
 		ctx.abstractPurgingPhase,

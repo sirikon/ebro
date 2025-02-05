@@ -3,7 +3,6 @@ package loader
 import (
 	"fmt"
 	"slices"
-	"strings"
 
 	"github.com/sirikon/ebro/internal/core"
 	"github.com/sirikon/ebro/internal/dag"
@@ -34,46 +33,6 @@ func (ctx *loadCtx) extendingPhase(taskId core.TaskId) error {
 	}
 
 	return nil
-}
-
-func (ctx *loadCtx) perTaskByExtensionOrder(taskPhases ...taskPhase) phase {
-	return func() error {
-		taskIds, err := resolveExtensionOrder(ctx.inventory)
-		if err != nil {
-			return fmt.Errorf("resolving extension order: %w", err)
-		}
-		for _, taskId := range taskIds {
-			for _, taskPhase := range taskPhases {
-				if err := taskPhase(taskId); err != nil {
-					return err
-				}
-			}
-		}
-		return nil
-	}
-}
-
-func resolveExtensionOrder(inventory *core.Inventory) ([]core.TaskId, error) {
-	inheritanceDag := dag.NewDag[core.TaskId]()
-	target := []core.TaskId{}
-
-	for task := range inventory.Tasks() {
-		target = append(target, task.Id)
-		inheritanceDag.Link(task.Id, task.ExtendsIds...)
-	}
-
-	result, remains := inheritanceDag.Resolve(target)
-	if remains != nil {
-		remainsData, err := yaml.Marshal(remains)
-		if err != nil {
-			return nil, fmt.Errorf("inheritance order resolution could not complete. error while turning dependency index to yaml: %w", err)
-		}
-		return nil, fmt.Errorf("inheritance order resolution could not complete. "+
-			"there could be a cyclic dependency. "+
-			"here is the list of tasks and their inheritance data:\n%s", string(remainsData))
-	}
-
-	return result, nil
 }
 
 func makeBaseTaskForExtending(task *core.Task) *core.Task {
@@ -132,28 +91,42 @@ func extendTask(childTask *core.Task, parentTask *core.Task) {
 	}
 }
 
-func resolveTaskEnvironment(inventory *core.Inventory, baseEnvironment *core.Environment, taskId core.TaskId) (*core.Environment, error) {
-	task := inventory.Task(taskId)
-	envsToMerge := []*core.Environment{
-		task.Environment,
-		{
-			Values: []core.EnvironmentValue{
-				{Key: "EBRO_TASK_ID", Value: string(taskId)},
-				{Key: "EBRO_TASK_MODULE", Value: ":" + strings.Join(taskId.ModulePath(), ":")},
-				{Key: "EBRO_TASK_NAME", Value: taskId.TaskName()},
-				{Key: "EBRO_TASK_WORKING_DIRECTORY", Value: task.WorkingDirectory},
-			},
-		},
+func (ctx *loadCtx) perTaskByExtensionOrder(taskPhases ...taskPhase) phase {
+	return func() error {
+		taskIds, err := resolveExtensionOrder(ctx.inventory)
+		if err != nil {
+			return fmt.Errorf("resolving extension order: %w", err)
+		}
+		for _, taskId := range taskIds {
+			for _, taskPhase := range taskPhases {
+				if err := taskPhase(taskId); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
 	}
-	parentTasks := slices.Clone(task.ExtendsIds)
-	slices.Reverse(parentTasks)
-	for _, parentTaskName := range parentTasks {
-		parentTask := inventory.Task(parentTaskName)
-		envsToMerge = append(envsToMerge, parentTask.Environment)
+}
+
+func resolveExtensionOrder(inventory *core.Inventory) ([]core.TaskId, error) {
+	inheritanceDag := dag.NewDag[core.TaskId]()
+	target := []core.TaskId{}
+
+	for task := range inventory.Tasks() {
+		target = append(target, task.Id)
+		inheritanceDag.Link(task.Id, task.ExtendsIds...)
 	}
-	for module := range inventory.WalkUpModulePath(task.Id) {
-		envsToMerge = append(envsToMerge, module.Environment)
+
+	result, remains := inheritanceDag.Resolve(target)
+	if remains != nil {
+		remainsData, err := yaml.Marshal(remains)
+		if err != nil {
+			return nil, fmt.Errorf("inheritance order resolution could not complete. error while turning dependency index to yaml: %w", err)
+		}
+		return nil, fmt.Errorf("inheritance order resolution could not complete. "+
+			"there could be a cyclic dependency. "+
+			"here is the list of tasks and their inheritance data:\n%s", string(remainsData))
 	}
-	envsToMerge = append(envsToMerge, baseEnvironment)
-	return utils.ExpandMergeEnvs(envsToMerge...)
+
+	return result, nil
 }
