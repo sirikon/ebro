@@ -1,0 +1,5 @@
+tasks:
+  default:
+    requires: [only-exists-in-other]
+  only-exists-in-other:
+    script: echo hello

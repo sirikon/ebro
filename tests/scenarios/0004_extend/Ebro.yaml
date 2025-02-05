@@ -1,3 +1,7 @@
+imports:
+  other:
+    from: ./other
+
 tasks:
   default:
     script: echo Hello
@@ -71,3 +75,6 @@ tasks:
     extends: [multi-a, multi-b]
     environment:
       D: "44"
+
+  extern-a:
+    extends: [other]
