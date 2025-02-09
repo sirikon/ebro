@@ -3,7 +3,16 @@
   {% for property in d %}
   <li>
     <code><b><a class="x-anchorlink" id="the-ebroyaml-format__{{trail}}{{property}}" href="#the-ebroyaml-format__{{trail}}{{property}}">{{property}}</a></b></code>
+    {% if "oneOf" in d[property] %}
+    (
+    {% for item in d[property].oneOf %}
+    {% if loop.index > 1 %}or{% endif %}
+    <code>{{item.type}}</code>
+    {% endfor %}
+    )
+    {% else %}
     (<code>{{d[property].type}}</code>)
+    {% endif %}
     {{d[property].description|markdown|safe}}
     {% if d[property].type == 'object' and d[property].properties %}
     {{- properties(d[property].properties, trail + property + '.') -}}
