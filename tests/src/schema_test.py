@@ -14,7 +14,12 @@ class TestSchema(unittest.TestCase):
         files = flatten(
             [
                 glob.glob(p, recursive=True)
-                for p in ["../playground/**/Ebro.*.yaml", "../playground/**/Ebro.yaml"]
+                for p in [
+                    "../playground/**/Ebro.*.yaml",
+                    "../playground/**/Ebro.yaml",
+                    "scenarios/**/Ebro.*.yaml",
+                    "scenarios/**/Ebro.yaml",
+                ]
             ],
         )
 

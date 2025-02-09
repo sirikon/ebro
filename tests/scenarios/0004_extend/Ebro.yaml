@@ -20,7 +20,9 @@ tasks:
     extends: [a]
     requires: [d]
     required_by: [default]
-    script: echo $BAR
+    script:
+      - echo $BAR
+      - echo "The End"
     when:
       check_fails: exit 2
       output_changes: echo test

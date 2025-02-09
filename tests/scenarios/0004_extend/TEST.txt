@@ -16,6 +16,7 @@ I'm D
 ███ [:b] running
 It's FOO
 It's BAR
+The End
 ███ [:default] running
 Hello
 ---
@@ -45,6 +46,7 @@ exit_code: 0
   script:
   - echo $FOO
   - echo $BAR
+  - echo "The End"
   when:
     check_fails: exit 2
     output_changes: echo test
