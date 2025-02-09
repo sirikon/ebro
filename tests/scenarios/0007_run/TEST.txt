@@ -52,3 +52,11 @@ docker==2.0.0-1-apt
 ███ [:default] running
 Done!
 ---
+
+
+
+args: --file Ebro.nounset.yaml
+exit_code: 1
+---
+███ ERROR: resolving task ':default' environment: expanding ${SOMETHING_NONEXISTENT}: SOMETHING_NONEXISTENT: unbound variable
+---

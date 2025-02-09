@@ -3,9 +3,11 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/sirikon/ebro/internal/core"
-	"mvdan.cc/sh/v3/shell"
+	"mvdan.cc/sh/v3/expand"
+	"mvdan.cc/sh/v3/syntax"
 )
 
 func ExpandMergeEnvs(envs ...*core.Environment) (*core.Environment, error) {
@@ -28,10 +30,21 @@ func ExpandMergeEnvs(envs ...*core.Environment) (*core.Environment, error) {
 }
 
 func ExpandString(s string, env *core.Environment) (string, error) {
-	return shell.Expand(s, func(s string) string {
+	// This function is a re-implementation of shell.Expand just to be able to
+	// change the default configuration (NoUnset).
+
+	p := syntax.NewParser()
+	word, err := p.Document(strings.NewReader(s))
+	if err != nil {
+		return "", err
+	}
+
+	cfg := &expand.Config{NoUnset: true, Env: expand.FuncEnviron(func(s string) string {
 		if val := env.Get(s); val != nil {
 			return *val
 		}
 		return os.Getenv(s)
-	})
+	})}
+
+	return expand.Document(cfg, word)
 }

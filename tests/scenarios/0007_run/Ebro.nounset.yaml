@@ -1,0 +1,5 @@
+tasks:
+  default:
+    environment:
+      SOMETHING_NONEXISTENT: "${SOMETHING_NONEXISTENT}"
+    script: echo 'This should not happen'
