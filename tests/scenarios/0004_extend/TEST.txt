@@ -199,7 +199,7 @@ exit_code: 0
 
 
 
-args: --file Ebro.workdir.yaml
+args: --file Ebro.context-inherited-in-scripts.yaml
 ---
 ███ [:default] running
 {{WORKDIR}}/other
