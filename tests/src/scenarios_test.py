@@ -14,6 +14,9 @@ class TestScenarios(EbroTestCase):
         for scenario in scenarios:
             scenarioPath = join(getcwd(), "scenarios", scenario)
 
+            run(["rm", "-rf", ".ebro"], cwd=scenarioPath, check=True)
+            run(["rm", "-rf", ".cache"], cwd=scenarioPath, check=True)
+
             with open(join(scenarioPath, "TEST.txt"), "r") as f:
                 test_data = f.readlines()
 
@@ -70,6 +73,3 @@ class TestScenarios(EbroTestCase):
 
                         self.assertEqual(stdout, expected_output)
                         self.assertEqual(exit_code, expected_exit_code)
-
-            run(["rm", "-rf", ".ebro"], cwd=scenarioPath, check=True)
-            run(["rm", "-rf", ".cache"], cwd=scenarioPath, check=True)
