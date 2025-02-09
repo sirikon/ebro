@@ -1,5 +1,6 @@
 environment:
-  DOCKER_APT_VERSION: "${DOCKER_VERSION:-1.0.0}-1-apt"
+  DOCKER_VERSION: "${DOCKER_VERSION:-1.0.0}"
+  DOCKER_APT_VERSION: "${DOCKER_VERSION}-1-apt"
 
 imports:
   plugins:
@@ -8,7 +9,7 @@ imports:
 tasks:
   default:
     labels:
-      docker.version: "${DOCKER_VERSION:-1.0.0}"
+      docker.version: "${DOCKER_VERSION}"
     requires: [package]
 
   package:
