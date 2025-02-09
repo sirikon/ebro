@@ -39,12 +39,15 @@ func ExpandString(s string, env *core.Environment) (string, error) {
 		return "", err
 	}
 
-	cfg := &expand.Config{NoUnset: true, Env: expand.FuncEnviron(func(s string) string {
-		if val := env.Get(s); val != nil {
-			return *val
-		}
-		return os.Getenv(s)
-	})}
+	cfg := &expand.Config{
+		NoUnset: true,
+		Env: expand.FuncEnviron(func(s string) string {
+			if val := env.Get(s); val != nil {
+				return *val
+			}
+			return os.Getenv(s)
+		}),
+	}
 
 	return expand.Document(cfg, word)
 }
