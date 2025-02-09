@@ -112,7 +112,7 @@
             }
           },
           "script": {
-            "description": "Bash script of the task. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).\n\nIt can be a sequence of strings instead of a single string, in which case each item of the sequence will be executed in order.",
+            "description": "Bash script of the task. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).\n\nIt can be defined as a sequence of strings instead of a single string, in which case each item of the sequence will be executed in order.",
             "oneOf": [
               {
                 "type": "string"

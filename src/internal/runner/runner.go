@@ -126,8 +126,6 @@ func logLine(taskId core.TaskId, message string) string {
 }
 
 func runScript(scripts []string, workingDirectory string, environment *core.Environment, stdin io.Reader, stdout io.Writer, stderr io.Writer) (uint8, error) {
-	script_header := []string{"set -euo pipefail"}
-
 	runner, err := interp.New(
 		interp.Env(expand.ListEnviron(append(os.Environ(), environmentToString(environment)...)...)),
 		interp.Dir(workingDirectory),
@@ -137,8 +135,22 @@ func runScript(scripts []string, workingDirectory string, environment *core.Envi
 		return 1, fmt.Errorf("runner creation failed: %w", err)
 	}
 
+	header_file, err := syntax.NewParser().Parse(strings.NewReader("set -euo pipefail"), "")
+	if err != nil {
+		return 1, fmt.Errorf("parsing script: %w", err)
+	}
+
+	err = runner.Run(context.TODO(), header_file)
+	if err != nil {
+		if status, ok := interp.IsExitStatus(err); ok {
+			return status, fmt.Errorf("error while applying header: %w", err)
+		} else {
+			return 1, fmt.Errorf("error while applying header: %w", err)
+		}
+	}
+
 	for _, script := range scripts {
-		file, err := syntax.NewParser().Parse(strings.NewReader(strings.Join(script_header, "\n")+"\n"+script), "")
+		file, err := syntax.NewParser().Parse(strings.NewReader(script), "")
 		if err != nil {
 			return 1, fmt.Errorf("parsing script: %w", err)
 		}
