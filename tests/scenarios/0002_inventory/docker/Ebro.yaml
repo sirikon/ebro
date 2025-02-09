@@ -20,7 +20,9 @@ tasks:
     required_by: [":apt"]
     script: echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
     when:
-      check_fails: test -f "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
+      check_fails:
+        - test -f "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
+        - docker --version
       output_changes: echo "docker==${DOCKER_APT_VERSION}"
 
   package-apk-config:
@@ -29,5 +31,7 @@ tasks:
     required_by: [":apk"]
     script: echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apk/packages/docker.txt"
     when:
-      check_fails: test -f "${EBRO_ROOT}/.cache/apk/packages/docker.txt"
+      check_fails:
+        - test -f "${EBRO_ROOT}/.cache/apk/packages/docker.txt"
+        - docker --version
       output_changes: echo "docker==${DOCKER_APT_VERSION}"

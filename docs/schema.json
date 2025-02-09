@@ -61,7 +61,7 @@
             "type": "boolean"
           },
           "extends": {
-            "description": "References other tasks and extends them, which effectively means merging their properties with the properties of the referenced task. Here's the merging strategy for each property:\n\n- `labels`: Merged. Child task values take precedence over parent task values.\n- `working_directory`: Untouched.\n- `abstract`: Untouched.\n- `environment`: Merged. Child task values take precedence over parent task values.\n- `requires`: Merged and deduped.\n- `required_by`: Merged and deduped.\n- `script`: Concatenated. Child's script goes after parent's script.\n- `quiet`: If present, child task value takes precedence over parent task value.\n- `interactive`: If present, child task value takes precedence over parent task value.\n- `when.check_fails`: If present, child task value takes precedence over parent task value.\n- `when.output_changes`: If present, child task value takes precedence over parent task value.",
+            "description": "References other tasks and extends them, which effectively means merging their properties with the properties of the referenced task. Here's the merging strategy for each property:\n\n- `labels`: Merged. Child task values take precedence over parent task values.\n- `working_directory`: Untouched.\n- `abstract`: Untouched.\n- `environment`: Merged. Child task values take precedence over parent task values.\n- `requires`: Merged and deduped.\n- `required_by`: Merged and deduped.\n- `script`: Concatenated. Child's values go after parent's values.\n- `quiet`: If present, child task value takes precedence over parent task value.\n- `interactive`: If present, child task value takes precedence over parent task value.\n- `when.check_fails`: Concatenated. Child's values go after parent's values.\n- `when.output_changes`: Concatenated. Child's values go after parent's values.",
             "type": "array",
             "items": {
               "type": "string"
@@ -139,12 +139,32 @@
             "additionalProperties": false,
             "properties": {
               "check_fails": {
-                "description": "Bash script. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).\n\nAfter execution, the exit code will be checked. If it succeeded (exit code 0), the task is skipped. If it fails (exit code different than 0), the task is executed.",
-                "type": "string"
+                "description": "Bash script. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).\n\nAfter execution, the exit code will be checked. If it succeeded (exit code 0), the task is skipped. If it fails (exit code different than 0), the task is executed.\n\nIt can be defined as a sequence of strings instead of a single string, in which case each item of the sequence will be executed in order.",
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
               },
               "output_changes": {
-                "description": "Bash script. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).\n\nAfter execution, the output (stdout and stderr, combined) will be compared with the output of the last time it executed and the task succeeded. If the output is the same, the task is skipped. If the output is different, the task is executed. If there is no previous output stored, the task is executed.",
-                "type": "string"
+                "description": "Bash script. `set -euo pipefail` is always prepended to the script. Interpreted by [mvdan/sh](https://github.com/mvdan/sh).\n\nAfter execution, the output (stdout and stderr, combined) will be compared with the output of the last time it executed and the task succeeded. If the output is the same, the task is skipped. If the output is different, the task is executed. If there is no previous output stored, the task is executed.\n\nIt can be defined as a sequence of strings instead of a single string, in which case each item of the sequence will be executed in order.",
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
               }
             }
           }

@@ -34,10 +34,10 @@ func Run(inv *core.Inventory, plan planner.Plan, force bool) error {
 		if task.When != nil && !force {
 			skip = true
 
-			if task.When.CheckFails != "" {
+			if len(task.When.CheckFails) > 0 {
 				output := bytes.Buffer{}
 				outputWriter := bufio.NewWriter(&output)
-				status, err := runScript([]string{task.When.CheckFails}, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
+				status, err := runScript(task.When.CheckFails, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
 				if err != nil {
 					return fmt.Errorf("running task %v when.check_fails: %w", taskId, err)
 				}
@@ -50,10 +50,10 @@ func Run(inv *core.Inventory, plan planner.Plan, force bool) error {
 				}
 			}
 
-			if task.When.OutputChanges != "" {
+			if len(task.When.OutputChanges) > 0 {
 				output := bytes.Buffer{}
 				outputWriter := bufio.NewWriter(&output)
-				status, err := runScript([]string{task.When.OutputChanges}, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
+				status, err := runScript(task.When.OutputChanges, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
 				if err != nil {
 					return fmt.Errorf("running task %v when.output_changes: %w", taskId, err)
 				}

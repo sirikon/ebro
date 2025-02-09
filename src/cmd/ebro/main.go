@@ -183,8 +183,8 @@ type TaskView struct {
 }
 
 type WhenView struct {
-	CheckFails    string `yaml:"check_fails,omitempty"`
-	OutputChanges string `yaml:"output_changes,omitempty"`
+	CheckFails    []string `yaml:"check_fails,omitempty"`
+	OutputChanges []string `yaml:"output_changes,omitempty"`
 }
 
 func mapInventoryToView(inventory *core.Inventory) InventoryView {

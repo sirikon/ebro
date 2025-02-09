@@ -65,12 +65,8 @@ func extendTask(childTask *core.Task, parentTask *core.Task) {
 			when := core.When{}
 			childTask.When = &when
 		}
-		if parentTask.When.CheckFails != "" {
-			childTask.When.CheckFails = parentTask.When.CheckFails
-		}
-		if parentTask.When.OutputChanges != "" {
-			childTask.When.OutputChanges = parentTask.When.OutputChanges
-		}
+		childTask.When.CheckFails = append(childTask.When.CheckFails, parentTask.When.CheckFails...)
+		childTask.When.OutputChanges = append(childTask.When.OutputChanges, parentTask.When.OutputChanges...)
 	}
 
 	if parentTask.Labels != nil {

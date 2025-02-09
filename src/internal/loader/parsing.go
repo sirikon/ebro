@@ -270,9 +270,9 @@ func parseWhen(node ast.Node) (*core.When, error) {
 	for key, value := range mapping {
 		switch key {
 		case "output_changes":
-			when.OutputChanges, err = parseString(value)
+			when.OutputChanges, err = parseScript(value)
 		case "check_fails":
-			when.CheckFails, err = parseString(value)
+			when.CheckFails, err = parseScript(value)
 		default:
 			return nil, fmt.Errorf("unexpected key '%v'", key)
 		}

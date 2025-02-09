@@ -113,8 +113,8 @@ type Task struct {
 }
 
 type When struct {
-	CheckFails    string `expr:"check_fails"`
-	OutputChanges string `expr:"output_changes"`
+	CheckFails    []string `expr:"check_fails"`
+	OutputChanges []string `expr:"output_changes"`
 }
 
 func buildQueryEnvironment(tasks []*core.Task) ReferenceQueryEnvironment {

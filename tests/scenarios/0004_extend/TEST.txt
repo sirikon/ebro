@@ -48,8 +48,11 @@ exit_code: 0
   - echo $BAR
   - echo "The End"
   when:
-    check_fails: exit 2
-    output_changes: echo test
+    check_fails:
+    - exit 1
+    - exit 2
+    output_changes:
+    - echo test
 :c:
   working_directory: {{WORKDIR}}
   environment:
@@ -169,8 +172,10 @@ exit_code: 0
   - echo y
   quiet: true
   when:
-    check_fails: exit 1
-    output_changes: echo test2
+    check_fails:
+    - exit 1
+    output_changes:
+    - echo test2
 :z:
   labels:
     label.A: "1"
@@ -193,8 +198,10 @@ exit_code: 0
   - echo z
   quiet: false
   when:
-    check_fails: exit 1
-    output_changes: echo test2
+    check_fails:
+    - exit 1
+    output_changes:
+    - echo test2
 ---
 
 

@@ -16,7 +16,8 @@ args: -inventory
     echo 'Installing apt packages'
     cat "${EBRO_ROOT}/.cache/apt/packages/"*
   when:
-    output_changes: cat "${EBRO_ROOT}/.cache/apt/packages/"*
+    output_changes:
+    - cat "${EBRO_ROOT}/.cache/apt/packages/"*
 :apt:pre-config:
   working_directory: {{WORKDIR}}/apt/wd
   environment:
@@ -30,7 +31,8 @@ args: -inventory
   script:
   - mkdir -p "${EBRO_ROOT}/.cache/apt/packages"
   when:
-    check_fails: test -d "${EBRO_ROOT}/.cache/apt/packages"
+    check_fails:
+    - test -d "${EBRO_ROOT}/.cache/apt/packages"
 :bash:
   working_directory: {{WORKDIR}}
   environment:
@@ -85,8 +87,10 @@ args: -inventory
   script:
   - echo caddy > "${EBRO_ROOT}/.cache/apt/packages/caddy.txt"
   when:
-    check_fails: test -f "${EBRO_ROOT}/.cache/apt/packages/caddy.txt"
-    output_changes: echo caddy
+    check_fails:
+    - test -f "${EBRO_ROOT}/.cache/apt/packages/caddy.txt"
+    output_changes:
+    - echo caddy
 :default:
   labels:
     default: "true"
@@ -155,8 +159,11 @@ args: -inventory
   script:
   - echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
   when:
-    check_fails: test -f "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
-    output_changes: echo "docker==${DOCKER_APT_VERSION}"
+    check_fails:
+    - test -f "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
+    - docker --version
+    output_changes:
+    - echo "docker==${DOCKER_APT_VERSION}"
 :docker:plugins:default:
   working_directory: {{WORKDIR}}/docker_plugins
   environment:

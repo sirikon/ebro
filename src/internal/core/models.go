@@ -44,8 +44,8 @@ type Task struct {
 }
 
 type When struct {
-	CheckFails    string
-	OutputChanges string
+	CheckFails    []string
+	OutputChanges []string
 }
 
 type Import struct {
