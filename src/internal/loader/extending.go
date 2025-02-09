@@ -37,7 +37,7 @@ func makeBaseTaskForExtending(task *core.Task) *core.Task {
 	newTask.RequiredBy = []string{}
 	newTask.RequiredByExpressions = []string{}
 	newTask.RequiredByIds = []core.TaskId{}
-	newTask.Script = ""
+	newTask.Script = []string{}
 	newTask.Quiet = nil
 	newTask.Interactive = nil
 	newTask.When = nil
@@ -53,7 +53,7 @@ func extendTask(childTask *core.Task, parentTask *core.Task) {
 	childTask.RequiredByExpressions = utils.Dedupe(slices.Concat(childTask.RequiredByExpressions, parentTask.RequiredByExpressions))
 	childTask.RequiredByIds = utils.Dedupe(slices.Concat(childTask.RequiredByIds, parentTask.RequiredByIds))
 
-	if parentTask.Script != "" {
+	if len(parentTask.Script) > 0 {
 		childTask.Script = parentTask.Script
 	}
 	if parentTask.Quiet != nil {

@@ -11,7 +11,8 @@ args: -inventory
     EBRO_TASK_MODULE: :apt
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/apt/wd
-  script: |
+  script:
+  - |
     echo 'Installing apt packages'
     cat "${EBRO_ROOT}/.cache/apt/packages/"*
   when:
@@ -26,7 +27,8 @@ args: -inventory
     EBRO_TASK_MODULE: :apt
     EBRO_TASK_NAME: pre-config
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/apt/wd
-  script: mkdir -p "${EBRO_ROOT}/.cache/apt/packages"
+  script:
+  - mkdir -p "${EBRO_ROOT}/.cache/apt/packages"
   when:
     check_fails: test -d "${EBRO_ROOT}/.cache/apt/packages"
 :bash:
@@ -39,7 +41,8 @@ args: -inventory
     EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: bash
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
-  script: bash
+  script:
+  - bash
   interactive: true
 :caddy:default:
   working_directory: {{WORKDIR}}/caddy
@@ -79,7 +82,8 @@ args: -inventory
   - :apt:pre-config
   required_by:
   - :apt:default
-  script: echo caddy > "${EBRO_ROOT}/.cache/apt/packages/caddy.txt"
+  script:
+  - echo caddy > "${EBRO_ROOT}/.cache/apt/packages/caddy.txt"
   when:
     check_fails: test -f "${EBRO_ROOT}/.cache/apt/packages/caddy.txt"
     output_changes: echo caddy
@@ -99,7 +103,8 @@ args: -inventory
   - :apt:default
   - :caddy:default
   - :docker:default
-  script: |
+  script:
+  - |
     echo "Done!"
 :docker:default:
   labels:
@@ -147,7 +152,8 @@ args: -inventory
   - :apt:pre-config
   required_by:
   - :apt:default
-  script: echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
+  script:
+  - echo "docker==${DOCKER_APT_VERSION}" > "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
   when:
     check_fails: test -f "${EBRO_ROOT}/.cache/apt/packages/docker.txt"
     output_changes: echo "docker==${DOCKER_APT_VERSION}"
@@ -163,7 +169,8 @@ args: -inventory
     EBRO_TASK_MODULE: :docker:plugins
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker_plugins
-  script: echo Hello
+  script:
+  - echo Hello
 :farm:chicken:
   working_directory: {{WORKDIR}}
   environment:
@@ -176,7 +183,8 @@ args: -inventory
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   requires:
   - :farm:egg
-  script: echo Chicken ready
+  script:
+  - echo Chicken ready
 :farm:egg:
   working_directory: {{WORKDIR}}
   environment:
@@ -187,7 +195,8 @@ args: -inventory
     EBRO_TASK_MODULE: :farm
     EBRO_TASK_NAME: egg
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
-  script: echo 'Egg ready'
+  script:
+  - echo 'Egg ready'
 :farm:tractor:default:
   working_directory: {{WORKDIR}}/tractor
   environment:
@@ -198,7 +207,8 @@ args: -inventory
     EBRO_TASK_MODULE: :farm:tractor
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/tractor
-  script: echo "Tractor is here"
+  script:
+  - echo "Tractor is here"
 :ignored:
   working_directory: {{WORKDIR}}
   environment:
@@ -211,7 +221,8 @@ args: -inventory
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   required_by:
   - :default
-  script: echo 'I should be ignored'
+  script:
+  - echo 'I should be ignored'
 ---
 
 

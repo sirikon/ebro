@@ -20,7 +20,7 @@ type Task struct {
 	Environment      map[string]string `expr:"environment"`
 	Requires         []string          `expr:"requires"`
 	RequiredBy       []string          `expr:"required_by"`
-	Script           string            `expr:"script"`
+	Script           []string          `expr:"script"`
 	Quiet            *bool             `expr:"quiet"`
 	Interactive      *bool             `expr:"interactive"`
 	When             *When             `expr:"when"`

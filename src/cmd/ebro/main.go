@@ -176,7 +176,7 @@ type TaskView struct {
 	Environment      yaml.MapSlice     `yaml:"environment,omitempty"`
 	Requires         []string          `yaml:"requires,omitempty"`
 	RequiredBy       []string          `yaml:"required_by,omitempty"`
-	Script           string            `yaml:"script,omitempty"`
+	Script           []string          `yaml:"script,omitempty"`
 	Interactive      *bool             `yaml:"interactive,omitempty"`
 	Quiet            *bool             `yaml:"quiet,omitempty"`
 	When             *WhenView         `yaml:"when,omitempty"`

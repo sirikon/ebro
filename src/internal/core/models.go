@@ -39,7 +39,7 @@ type Task struct {
 
 	Quiet       *bool
 	Interactive *bool
-	Script      string
+	Script      []string
 	When        *When
 }
 

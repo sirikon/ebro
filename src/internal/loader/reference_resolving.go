@@ -106,7 +106,7 @@ type Task struct {
 	Labels           map[string]string `expr:"labels"`
 	WorkingDirectory string            `expr:"working_directory"`
 	Environment      map[string]string `expr:"environment"`
-	Script           string            `expr:"script"`
+	Script           []string          `expr:"script"`
 	Quiet            *bool             `expr:"quiet"`
 	Interactive      *bool             `expr:"interactive"`
 	When             *When             `expr:"when"`

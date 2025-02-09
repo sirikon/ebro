@@ -41,7 +41,8 @@ exit_code: 0
   - :d
   required_by:
   - :default
-  script: echo $BAR
+  script:
+  - echo $BAR
   when:
     check_fails: exit 2
     output_changes: echo test
@@ -55,7 +56,8 @@ exit_code: 0
     EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: c
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
-  script: echo "I'm C"
+  script:
+  - echo "I'm C"
 :d:
   working_directory: {{WORKDIR}}
   environment:
@@ -66,7 +68,8 @@ exit_code: 0
     EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: d
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
-  script: echo "I'm D"
+  script:
+  - echo "I'm D"
 :default:
   working_directory: {{WORKDIR}}
   environment:
@@ -77,7 +80,8 @@ exit_code: 0
     EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
-  script: echo Hello
+  script:
+  - echo Hello
 :extern-a:
   labels:
     better_meal: chicken with pasta
@@ -110,7 +114,8 @@ exit_code: 0
     EBRO_TASK_NAME: multi-c
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
     D: "44"
-  script: echo multi-b
+  script:
+  - echo multi-b
   quiet: true
 :other:default:
   labels:
@@ -138,7 +143,8 @@ exit_code: 0
     EBRO_TASK_MODULE: :other
     EBRO_TASK_NAME: only-exists-in-other
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/other
-  script: echo hello
+  script:
+  - echo hello
 :y:
   labels:
     label.A: "1"
@@ -154,7 +160,8 @@ exit_code: 0
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
     A: "1"
     B: "2"
-  script: echo y
+  script:
+  - echo y
   quiet: true
   when:
     check_fails: exit 1
@@ -176,7 +183,8 @@ exit_code: 0
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
     B: "22"
     C: "3"
-  script: echo z
+  script:
+  - echo z
   quiet: false
   when:
     check_fails: exit 1

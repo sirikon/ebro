@@ -217,7 +217,7 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, err
 		case "extends":
 			task.Extends, err = parseStringSequence(value)
 		case "script":
-			task.Script, err = parseString(value)
+			task.Script, err = parseScript(value)
 		case "interactive":
 			task.Interactive, err = parseBoolPtr(value)
 		case "quiet":
@@ -234,7 +234,7 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, err
 		}
 	}
 
-	if len(task.Requires) == 0 && len(task.Extends) == 0 && task.Script == "" && (task.Abstract == nil || !*task.Abstract) {
+	if len(task.Requires) == 0 && len(task.Extends) == 0 && len(task.Script) == 0 && (task.Abstract == nil || !*task.Abstract) {
 		return nil, fmt.Errorf("task has nothing to do (no requires, script, extends nor abstract)")
 	}
 
@@ -355,13 +355,30 @@ func parseStringSequence(node ast.Node) ([]string, error) {
 
 	sequence := node.(*ast.SequenceNode)
 	for i, value := range sequence.Values {
-		if value.Type() != ast.StringType {
+		switch value.Type() {
+		case ast.StringType:
+			result = append(result, value.(*ast.StringNode).Value)
+		case ast.LiteralType:
+			result = append(result, value.(*ast.LiteralNode).Value.Value)
+		default:
 			return nil, fmt.Errorf("wrong type for item %v in sequence: %v", i, value)
 		}
-		result = append(result, value.(*ast.StringNode).Value)
 	}
 
 	return result, nil
+}
+
+func parseScript(node ast.Node) ([]string, error) {
+	switch node.Type() {
+	case ast.StringType:
+		return []string{node.(*ast.StringNode).Value}, nil
+	case ast.LiteralType:
+		return []string{node.(*ast.LiteralNode).Value.Value}, nil
+	case ast.SequenceType:
+		return parseStringSequence(node)
+	default:
+		return nil, fmt.Errorf("wrong type: %v", node.Type())
+	}
 }
 
 func parseString(node ast.Node) (string, error) {
