@@ -196,3 +196,12 @@ exit_code: 0
     check_fails: exit 1
     output_changes: echo test2
 ---
+
+
+
+args: --file Ebro.workdir.yaml
+---
+███ [:default] running
+{{WORKDIR}}/other
+[BAR]
+---

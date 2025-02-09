@@ -1,0 +1,7 @@
+tasks:
+  parent:
+    abstract: true
+    script: export FOO=BAR && cd other
+  default:
+    extends: [parent]
+    script: pwd && echo "[${FOO:-}]"

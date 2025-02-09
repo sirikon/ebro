@@ -37,7 +37,7 @@ func Run(inv *core.Inventory, plan planner.Plan, force bool) error {
 			if task.When.CheckFails != "" {
 				output := bytes.Buffer{}
 				outputWriter := bufio.NewWriter(&output)
-				status, err := runScript(task.When.CheckFails, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
+				status, err := runScript([]string{task.When.CheckFails}, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
 				if err != nil {
 					return fmt.Errorf("running task %v when.check_fails: %w", taskId, err)
 				}
@@ -53,7 +53,7 @@ func Run(inv *core.Inventory, plan planner.Plan, force bool) error {
 			if task.When.OutputChanges != "" {
 				output := bytes.Buffer{}
 				outputWriter := bufio.NewWriter(&output)
-				status, err := runScript(task.When.OutputChanges, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
+				status, err := runScript([]string{task.When.OutputChanges}, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
 				if err != nil {
 					return fmt.Errorf("running task %v when.output_changes: %w", taskId, err)
 				}
@@ -86,13 +86,10 @@ func Run(inv *core.Inventory, plan planner.Plan, force bool) error {
 			logger.Info(logLine(taskId, "running"))
 			output := bytes.Buffer{}
 			outputWriter := bufio.NewWriter(&output)
-			for _, script := range task.Script {
-				status, err = runScript(script, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
-				outputWriter.Flush()
-				if err != nil || status != 0 {
-					fmt.Print(output.String())
-					break
-				}
+			status, err = runScript(task.Script, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
+			outputWriter.Flush()
+			if err != nil || status != 0 {
+				fmt.Print(output.String())
 			}
 		} else {
 			logger.Notice(logLine(taskId, "running"))
@@ -100,12 +97,7 @@ func Run(inv *core.Inventory, plan planner.Plan, force bool) error {
 			if task.Interactive != nil && *task.Interactive {
 				stdin = os.Stdin
 			}
-			for _, script := range task.Script {
-				status, err = runScript(script, task.WorkingDirectory, task.Environment, stdin, os.Stdout, os.Stdout)
-				if err != nil || status != 0 {
-					break
-				}
-			}
+			status, err = runScript(task.Script, task.WorkingDirectory, task.Environment, stdin, os.Stdout, os.Stdout)
 		}
 
 		var final_err error
@@ -133,13 +125,8 @@ func logLine(taskId core.TaskId, message string) string {
 	return "[" + string(taskId) + "] " + message
 }
 
-func runScript(script string, workingDirectory string, environment *core.Environment, stdin io.Reader, stdout io.Writer, stderr io.Writer) (uint8, error) {
+func runScript(scripts []string, workingDirectory string, environment *core.Environment, stdin io.Reader, stdout io.Writer, stderr io.Writer) (uint8, error) {
 	script_header := []string{"set -euo pipefail"}
-
-	file, err := syntax.NewParser().Parse(strings.NewReader(strings.Join(script_header, "\n")+"\n"+script), "")
-	if err != nil {
-		return 1, fmt.Errorf("parsing script: %w", err)
-	}
 
 	runner, err := interp.New(
 		interp.Env(expand.ListEnviron(append(os.Environ(), environmentToString(environment)...)...)),
@@ -150,16 +137,23 @@ func runScript(script string, workingDirectory string, environment *core.Environ
 		return 1, fmt.Errorf("runner creation failed: %w", err)
 	}
 
-	err = runner.Run(context.TODO(), file)
-	if err == nil {
-		return 0, nil
+	for _, script := range scripts {
+		file, err := syntax.NewParser().Parse(strings.NewReader(strings.Join(script_header, "\n")+"\n"+script), "")
+		if err != nil {
+			return 1, fmt.Errorf("parsing script: %w", err)
+		}
+
+		err = runner.Run(context.TODO(), file)
+		if err != nil {
+			if status, ok := interp.IsExitStatus(err); ok {
+				return status, nil
+			} else {
+				return 1, fmt.Errorf("runner returned error: %w", err)
+			}
+		}
 	}
 
-	if status, ok := interp.IsExitStatus(err); ok {
-		return status, nil
-	} else {
-		return 1, fmt.Errorf("runner returned error: %w", err)
-	}
+	return 0, nil
 }
 
 func environmentToString(environment *core.Environment) []string {
