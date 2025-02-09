@@ -53,9 +53,7 @@ func extendTask(childTask *core.Task, parentTask *core.Task) {
 	childTask.RequiredByExpressions = utils.Dedupe(slices.Concat(childTask.RequiredByExpressions, parentTask.RequiredByExpressions))
 	childTask.RequiredByIds = utils.Dedupe(slices.Concat(childTask.RequiredByIds, parentTask.RequiredByIds))
 
-	if len(parentTask.Script) > 0 {
-		childTask.Script = parentTask.Script
-	}
+	childTask.Script = append(childTask.Script, parentTask.Script...)
 	if parentTask.Quiet != nil {
 		childTask.Quiet = parentTask.Quiet
 	}

@@ -86,10 +86,13 @@ func Run(inv *core.Inventory, plan planner.Plan, force bool) error {
 			logger.Info(logLine(taskId, "running"))
 			output := bytes.Buffer{}
 			outputWriter := bufio.NewWriter(&output)
-			status, err = runScript(task.Script[0], task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
-			outputWriter.Flush()
-			if err != nil || status != 0 {
-				fmt.Print(output.String())
+			for _, script := range task.Script {
+				status, err = runScript(script, task.WorkingDirectory, task.Environment, nil, outputWriter, outputWriter)
+				outputWriter.Flush()
+				if err != nil || status != 0 {
+					fmt.Print(output.String())
+					break
+				}
 			}
 		} else {
 			logger.Notice(logLine(taskId, "running"))
@@ -97,7 +100,12 @@ func Run(inv *core.Inventory, plan planner.Plan, force bool) error {
 			if task.Interactive != nil && *task.Interactive {
 				stdin = os.Stdin
 			}
-			status, err = runScript(task.Script[0], task.WorkingDirectory, task.Environment, stdin, os.Stdout, os.Stdout)
+			for _, script := range task.Script {
+				status, err = runScript(script, task.WorkingDirectory, task.Environment, stdin, os.Stdout, os.Stdout)
+				if err != nil || status != 0 {
+					break
+				}
+			}
 		}
 
 		var final_err error

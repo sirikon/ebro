@@ -14,6 +14,7 @@ I'm C
 ███ [:d] running
 I'm D
 ███ [:b] running
+It's FOO
 It's BAR
 ███ [:default] running
 Hello
@@ -42,6 +43,7 @@ exit_code: 0
   required_by:
   - :default
   script:
+  - echo $FOO
   - echo $BAR
   when:
     check_fails: exit 2
@@ -115,6 +117,7 @@ exit_code: 0
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
     D: "44"
   script:
+  - echo multi-a
   - echo multi-b
   quiet: true
 :other:default:
@@ -184,6 +187,7 @@ exit_code: 0
     B: "22"
     C: "3"
   script:
+  - echo y
   - echo z
   quiet: false
   when:
