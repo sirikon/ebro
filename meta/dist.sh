@@ -15,9 +15,7 @@ function main {
   mkdir -p "out/dist/${EBRO_VERSION}"
 
   sed -E "s/^.*# gen:EBRO_VERSION$/EBRO_VERSION=\"${EBRO_VERSION}\"/" <scripts/ebrow >"out/dist/${EBRO_VERSION}/ebrow"
-  GOOS=linux GOARCH=arm64 build "Linux__aarch64"
-  GOOS=linux GOARCH=amd64 build "Linux__x86_64"
-  GOOS=darwin GOARCH=arm64 build "Darwin__arm64"
+  build-all
   sed -i -E "/^ +# gen:EBRO_SUMS/d" "out/dist/${EBRO_VERSION}/ebrow"
 
   echo "$EBRO_VERSION" >out/dist/VERSION
@@ -25,6 +23,13 @@ function main {
     echo "$EBRO_RELEASE" >out/dist/RELEASE
     echo "$EBRO_COMMIT" >out/dist/RELEASE_COMMIT
   fi
+}
+
+function build-all {
+  # GOOS=xxx GOARCH=xxx build "$(uname -s)__$(uname -m)"
+  GOOS=linux GOARCH=arm64 build "Linux__aarch64"
+  GOOS=linux GOARCH=amd64 build "Linux__x86_64"
+  GOOS=darwin GOARCH=arm64 build "Darwin__arm64"
 }
 
 function build {
