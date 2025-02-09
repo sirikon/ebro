@@ -11,7 +11,7 @@ function main {
     EBRO_BIN="$(pwd)/out/ebro-e2e"
     export EBRO_BIN
     log "Building ebro for e2e tests"
-    ./meta/build-e2e.sh
+    ./meta/build.sh -cover
   fi
 
   log "Running e2e tests"
@@ -19,8 +19,10 @@ function main {
   export PYTHONPATH=src
   (
     cd tests
-    mkdir -p .coverage
-    rm -rf .coverage/*
+    if [ "$enable_coverage" == "true" ]; then
+      mkdir -p .coverage
+      rm -rf .coverage/*
+    fi
     ./../meta/python/_/.venv/bin/python -m unittest discover src "*_test.py"
     if [ "$enable_coverage" == "true" ]; then
       log "Collecting coverage data"

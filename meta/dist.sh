@@ -2,7 +2,6 @@
 set -euo pipefail
 
 EBRO_COMMIT="$(git rev-parse --verify HEAD)"
-export EBRO_COMMIT
 EBRO_VERSION="nightly_$EBRO_COMMIT"
 EBRO_RELEASE=""
 if [ "$(git tag --points-at "$EBRO_COMMIT" | wc -l)" == "1" ]; then
@@ -30,22 +29,18 @@ function main {
 function build {
   variant="$1"
   filename="ebro-${variant}"
-  dest="$(pwd)/out/dist/${EBRO_VERSION}/${filename}"
-  timestamp="$(date +%s)"
+  EBRO_BIN="$(pwd)/out/dist/${EBRO_VERSION}/${filename}"
+
   echo "Building ${GOOS} ${GOARCH}"
-  mkdir -p "$(dirname "$dest")"
   (
-    cd src
-    CGO_ENABLED=0 go build \
-      -ldflags \
-      "-X github.com/sirikon/ebro/internal/constants.version=${EBRO_VERSION} \
-            -X github.com/sirikon/ebro/internal/constants.commit=${EBRO_COMMIT} \
-            -X github.com/sirikon/ebro/internal/constants.timestamp=${timestamp}" \
-      -o "$dest" \
-      cmd/ebro/main.go
+    export EBRO_BIN
+    export EBRO_VERSION
+    export EBRO_COMMIT
+    ./meta/build.sh
   )
+
   (
-    cd "$(dirname "$dest")"
+    cd "$(dirname "$EBRO_BIN")"
     sha256sum "$filename" >"$filename.sha256"
     hash="$(sed -E 's/^([a-z0-9]+).*$/\1/' <"$filename.sha256")"
     sed -i -E "s/^( +)# gen:EBRO_SUMS/\1[\"$variant\"]=\"${hash}\"\n\1# gen:EBRO_SUMS/" "ebrow"

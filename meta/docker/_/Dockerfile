@@ -17,10 +17,10 @@ RUN ./meta/test-unit.sh
 
 
 FROM go-base AS dist
-COPY meta/build-dist.sh ./meta/build-dist.sh
+COPY meta/dist.sh ./meta/dist.sh
 COPY scripts ./scripts
 COPY .git ./.git
-RUN ./meta/build-dist.sh
+RUN ./meta/dist.sh
 RUN mv ./out /out
 
 
