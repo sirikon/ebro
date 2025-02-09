@@ -17,6 +17,7 @@ RUN ./meta/test-unit.sh
 
 
 FROM go-base AS dist
+COPY meta/build.sh ./meta/build.sh
 COPY meta/dist.sh ./meta/dist.sh
 COPY scripts ./scripts
 COPY .git ./.git
