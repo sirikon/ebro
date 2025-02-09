@@ -3,6 +3,7 @@ set -euo pipefail
 
 EBRO_COMMIT="$(git rev-parse --verify HEAD)"
 EBRO_VERSION="nightly_$EBRO_COMMIT"
+EBRO_TIMESTAMP="$(date +%s)"
 EBRO_RELEASE=""
 if [ "$(git tag --points-at "$EBRO_COMMIT" | wc -l)" == "1" ]; then
   EBRO_VERSION="$(git tag --points-at "$EBRO_COMMIT")"
@@ -36,6 +37,7 @@ function build {
     export EBRO_BIN
     export EBRO_VERSION
     export EBRO_COMMIT
+    export EBRO_TIMESTAMP
     ./meta/build.sh
   )
 
