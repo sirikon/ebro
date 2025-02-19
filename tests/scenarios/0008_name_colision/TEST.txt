@@ -1,0 +1,12 @@
+args: -i
+exit_code: 1
+---
+███ ERROR: parsing module: cannot define module 'something' because there is already a task called equally
+---
+
+
+args: -i --file Ebro.import.yaml
+exit_code: 1
+---
+███ ERROR: parsing module: cannot import module 'docker' because there is already a module called equally
+---

@@ -42,7 +42,7 @@
         "additionalProperties": false,
         "properties": {
           "labels": {
-            "description": "Dictionary of key/value labels (`string` -> `string`). Intended for task authors to put labels that might be useful for during `-inventory --query` or by any third-party tool reading `Ebro.yaml` files.\n\nEbro ignores the contents of `labels` in regular operations and only uses it for querying when asked to.\n\nA limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the environment.",
+            "description": "Dictionary of key/value labels (`string` -> `string`). Intended for task authors to put labels that might be useful during `-inventory --query` or by any third-party tool reading `Ebro.yaml` files.\n\nEbro ignores the contents of `labels` in regular operations and only uses it for querying when asked to.\n\nA limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the environment.",
             "type": "object"
           },
           "working_directory": {
@@ -61,7 +61,7 @@
             "type": "boolean"
           },
           "extends": {
-            "description": "References other tasks and extends them, which effectively means merging their properties with the properties of the referenced task. Here's the merging strategy for each property:\n\n- `labels`: Merged. Child task values take precedence over parent task values.\n- `working_directory`: Untouched.\n- `abstract`: Untouched.\n- `environment`: Merged. Child task values take precedence over parent task values.\n- `requires`: Merged and deduped.\n- `required_by`: Merged and deduped.\n- `script`: Concatenated. Child's values go after parent's values.\n- `quiet`: If present, child task value takes precedence over parent task value.\n- `interactive`: If present, child task value takes precedence over parent task value.\n- `when.check_fails`: Concatenated. Child's values go after parent's values.\n- `when.output_changes`: Concatenated. Child's values go after parent's values.",
+            "description": "References other tasks and extends them, which effectively means merging their properties with the properties of the referenced task. Here's the merging strategy for each property:\n\n- `labels`: Merged. Child task values take precedence over parent task values.\n- `working_directory`: Untouched.\n- `abstract`: Untouched.\n- `environment`: Merged. Child task values take precedence over parent task values.\n- `requires`: Merged and deduped.\n- `required_by`: Merged and deduped.\n- `script`: Concatenated. Child's scripts go after parent's scripts.\n- `quiet`: If present, child task value takes precedence over parent task value.\n- `interactive`: If present, child task value takes precedence over parent task value.\n- `when.check_fails`: Concatenated. Child's scripts go after parent's scripts.\n- `when.output_changes`: Concatenated. Child's scripts go after parent's scripts.",
             "type": "array",
             "items": {
               "type": "string"

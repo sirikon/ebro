@@ -1,0 +1,11 @@
+tasks:
+  something:
+    script: |
+      echo "Hello!"
+
+modules:
+  something:
+    tasks:
+      default:
+        script: |
+          echo "Hello!"

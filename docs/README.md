@@ -366,12 +366,12 @@ Here is the environment available during the expression execution apart from [Ex
   - `environment`: (`string` -> `string` dictionary)
   - `requires`: (`string` array)
   - `required_by`: (`string` array)
-  - `script`: (`string`)
+  - `script`: (`string` array)
   - `quiet`: (`bool`)
   - `interactive`: (`bool`)
   - `when`: Object with the following properties:
-    - `check_fails`: (`string`)
-    - `output_changes`: (`string`)
+    - `check_fails`: (`string` array)
+    - `output_changes`: (`string` array)
 
 ### In `requires` and `required_by`
 

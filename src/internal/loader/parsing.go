@@ -75,7 +75,7 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 		}
 		for importName, importObj := range module.Imports {
 			if _, ok := module.Modules[importName]; ok {
-				return nil, fmt.Errorf("cannot import module %v because there is already a module called equally", importName)
+				return nil, fmt.Errorf("cannot import module '%v' because there is already a module called equally", importName)
 			}
 			module.Modules[importName] = importObj.Module
 			module.Modules[importName].Environment = &core.Environment{
@@ -85,6 +85,12 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 	}
 
 	module.Imports = nil
+
+	for moduleName := range module.Modules {
+		if _, ok := module.Tasks[moduleName]; ok {
+			return nil, fmt.Errorf("cannot define module '%v' because there is already a task called equally", moduleName)
+		}
+	}
 
 	return module, nil
 }
@@ -232,10 +238,6 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, err
 		if err != nil {
 			return nil, fmt.Errorf("parsing '%v': %w", key, err)
 		}
-	}
-
-	if len(task.Requires) == 0 && len(task.Extends) == 0 && len(task.Script) == 0 && (task.Abstract == nil || !*task.Abstract) {
-		return nil, fmt.Errorf("task has nothing to do (no requires, script, extends nor abstract)")
 	}
 
 	return task, nil

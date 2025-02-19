@@ -1,0 +1,15 @@
+imports:
+  docker:
+    from: ./docker
+
+tasks:
+  docker:
+    script: |
+      echo "Hello!"
+
+modules:
+  docker:
+    tasks:
+      default:
+        script: |
+          echo "Hello!"
