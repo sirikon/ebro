@@ -7,8 +7,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :fails
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: fails
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   script:
@@ -20,8 +20,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :works
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: works
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   script:

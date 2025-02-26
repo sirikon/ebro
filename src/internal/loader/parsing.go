@@ -251,10 +251,11 @@ func parseTaskLabels(node ast.Node) (map[string]string, error) {
 	}
 
 	for key, value := range mapping {
-		if value.Type() != ast.StringType {
-			return nil, fmt.Errorf("wrong type for value of %v in mapping: %v", key, value)
+		str, err := parseString(value)
+		if err != nil {
+			return nil, err
 		}
-		result[key] = value.(*ast.StringNode).Value
+		result[key] = str
 	}
 
 	return result, nil

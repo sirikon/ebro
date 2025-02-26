@@ -7,8 +7,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: :apt
     EBRO_TASK_ID: :apt:default
-    EBRO_TASK_MODULE: :apt
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/apt/wd
   script:
@@ -24,8 +24,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: :apt
     EBRO_TASK_ID: :apt:pre-config
-    EBRO_TASK_MODULE: :apt
     EBRO_TASK_NAME: pre-config
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/apt/wd
   script:
@@ -39,8 +39,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :bash
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: bash
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   script:
@@ -52,8 +52,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: :caddy
     EBRO_TASK_ID: :caddy:default
-    EBRO_TASK_MODULE: :caddy
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/caddy
   requires:
@@ -64,8 +64,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: :caddy
     EBRO_TASK_ID: :caddy:package
-    EBRO_TASK_MODULE: :caddy
     EBRO_TASK_NAME: package
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/caddy
   requires:
@@ -76,8 +76,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: :caddy
     EBRO_TASK_ID: :caddy:package-apt-config
-    EBRO_TASK_MODULE: :caddy
     EBRO_TASK_NAME: package-apt-config
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/caddy
   requires:
@@ -99,8 +99,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :default
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   requires:
@@ -120,8 +120,8 @@ args: -inventory
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
     DOCKER_VERSION: 2.0.0
     DOCKER_APT_VERSION: 2.0.0-1-apt
+    EBRO_MODULE: :docker
     EBRO_TASK_ID: :docker:default
-    EBRO_TASK_MODULE: :docker
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker
   requires:
@@ -134,8 +134,8 @@ args: -inventory
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
     DOCKER_VERSION: 2.0.0
     DOCKER_APT_VERSION: 2.0.0-1-apt
+    EBRO_MODULE: :docker
     EBRO_TASK_ID: :docker:package
-    EBRO_TASK_MODULE: :docker
     EBRO_TASK_NAME: package
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker
   requires:
@@ -148,8 +148,8 @@ args: -inventory
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
     DOCKER_VERSION: 2.0.0
     DOCKER_APT_VERSION: 2.0.0-1-apt
+    EBRO_MODULE: :docker
     EBRO_TASK_ID: :docker:package-apt-config
-    EBRO_TASK_MODULE: :docker
     EBRO_TASK_NAME: package-apt-config
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker
   requires:
@@ -172,8 +172,8 @@ args: -inventory
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
     DOCKER_VERSION: 2.0.0
     DOCKER_APT_VERSION: 2.0.0-1-apt
+    EBRO_MODULE: :docker:plugins
     EBRO_TASK_ID: :docker:plugins:default
-    EBRO_TASK_MODULE: :docker:plugins
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker_plugins
   script:
@@ -184,8 +184,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: :farm
     EBRO_TASK_ID: :farm:chicken
-    EBRO_TASK_MODULE: :farm
     EBRO_TASK_NAME: chicken
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   requires:
@@ -198,8 +198,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: :farm
     EBRO_TASK_ID: :farm:egg
-    EBRO_TASK_MODULE: :farm
     EBRO_TASK_NAME: egg
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   script:
@@ -210,8 +210,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: :farm:tractor
     EBRO_TASK_ID: :farm:tractor:default
-    EBRO_TASK_MODULE: :farm:tractor
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/tractor
   script:
@@ -222,8 +222,8 @@ args: -inventory
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :ignored
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: ignored
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   required_by:

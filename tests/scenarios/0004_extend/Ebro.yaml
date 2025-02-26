@@ -40,7 +40,8 @@ tasks:
       A: "1"
       B: "2"
     labels:
-      label.A: "1"
+      label.A: |-
+        1
       label.B: "2"
     when:
       check_fails: exit 1

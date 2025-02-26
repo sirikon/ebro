@@ -16,8 +16,8 @@ class TestInventory(EbroTestCase):
                 EBRO_BIN: {self.bin}
                 EBRO_ROOT: {self.workdir}
                 EBRO_ROOT_FILE: {self.workdir}/Ebro.fail_when_nothing_to_do.yaml
+                EBRO_MODULE: ":"
                 EBRO_TASK_ID: :default
-                EBRO_TASK_MODULE: ":"
                 EBRO_TASK_NAME: default
                 EBRO_TASK_WORKING_DIRECTORY: {self.workdir}
             """,

@@ -34,8 +34,8 @@ exit_code: 0
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
     FOO: It's FOO
     BAR: It's BAR
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :b
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: b
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   requires:
@@ -59,8 +59,8 @@ exit_code: 0
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :c
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: c
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   script:
@@ -71,8 +71,8 @@ exit_code: 0
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :d
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: d
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   script:
@@ -83,8 +83,8 @@ exit_code: 0
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :default
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   script:
@@ -100,8 +100,8 @@ exit_code: 0
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
     PROTEIN: chicken
     SALAD: "no"
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :extern-a
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: extern-a
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
     CARBS: pasta
@@ -116,8 +116,8 @@ exit_code: 0
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
     B: "22"
     C: "3"
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :multi-c
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: multi-c
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
     D: "44"
@@ -133,8 +133,8 @@ exit_code: 0
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: :other
     EBRO_TASK_ID: :other:default
-    EBRO_TASK_MODULE: :other
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/other
     PROTEIN: beef
@@ -147,8 +147,8 @@ exit_code: 0
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: :other
     EBRO_TASK_ID: :other:only-exists-in-other
-    EBRO_TASK_MODULE: :other
     EBRO_TASK_NAME: only-exists-in-other
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/other
   script:
@@ -162,8 +162,8 @@ exit_code: 0
     EBRO_BIN: {{BIN}}
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :y
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: "y"
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
     A: "1"
@@ -187,8 +187,8 @@ exit_code: 0
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
     A: "1"
+    EBRO_MODULE: ":"
     EBRO_TASK_ID: :z
-    EBRO_TASK_MODULE: ":"
     EBRO_TASK_NAME: z
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
     B: "22"

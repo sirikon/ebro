@@ -8,7 +8,7 @@ import (
 func (ctx *loadCtx) workdirResolvingPhase() error {
 	for task := range ctx.inventory.Tasks() {
 		workDirs := []string{task.WorkingDirectory}
-		for module := range ctx.inventory.WalkUpModulePath(task.Id) {
+		for _, module := range ctx.inventory.WalkUpModulePath(task.Id) {
 			workDirs = append(workDirs, module.WorkingDirectory)
 		}
 		slices.Reverse(workDirs)

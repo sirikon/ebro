@@ -72,11 +72,11 @@ func (inv *Inventory) Tasks() iter.Seq[*Task] {
 	}
 }
 
-func (inv *Inventory) WalkUpModulePath(taskId TaskId) iter.Seq[*Module] {
+func (inv *Inventory) WalkUpModulePath(taskId TaskId) iter.Seq2[[]string, *Module] {
 	modulePath := taskId.ModulePath()
-	return func(yield func(*Module) bool) {
+	return func(yield func([]string, *Module) bool) {
 		for {
-			if !yield(inv.ModuleIndex[strings.Join(modulePath, ":")]) {
+			if !yield(modulePath, inv.ModuleIndex[strings.Join(modulePath, ":")]) {
 				return
 			}
 			if len(modulePath) == 0 {
