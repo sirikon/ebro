@@ -1,6 +1,8 @@
 package core
 
-import "github.com/goccy/go-yaml"
+import (
+	"github.com/goccy/go-yaml"
+)
 
 type Environment struct {
 	Values []EnvironmentValue

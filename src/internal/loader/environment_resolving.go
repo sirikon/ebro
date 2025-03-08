@@ -24,7 +24,7 @@ func (ctx *loadCtx) taskEnvironmentResolvingPhase(taskId core.TaskId) error {
 func (ctx *loadCtx) moduleEnvironmentResolvingPhase() error {
 	var err error
 	for module := range ctx.inventory.Modules() {
-		module.EnvironmentResolved, err = resolveModuleEnvironment(ctx.inventory, ctx.baseEnvironment, module)
+		module.Environment, err = resolveModuleEnvironment(ctx.inventory, ctx.baseEnvironment, module)
 		if err != nil {
 			return fmt.Errorf("resolving module '%v' environment: %w", ":"+strings.Join(module.Path, ":"), err)
 		}
@@ -82,8 +82,9 @@ func resolveTaskEnvironment(inventory *core.Inventory, baseEnvironment *core.Env
 
 	// The environment variables of the module we're in.
 	// It has been already resolved at this point (in a previous step)
-	// so we can just grab the final values.
-	envsToMerge = append(envsToMerge, inventory.Module(task.Id.ModulePath()).EnvironmentResolved)
+	// so we can just copy the final values.
+	module := inventory.Module(task.Id.ModulePath())
+	envsToMerge = append(envsToMerge, module.Environment)
 
 	// Finally, the base environment defined at the beginning of
 	// Ebro's execution.

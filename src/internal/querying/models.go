@@ -75,7 +75,7 @@ func mapModule(module *core.Module) Module {
 	return Module{
 		Id:               ":" + strings.Join(module.Path, ":"),
 		WorkingDirectory: module.WorkingDirectory,
-		Environment:      module.EnvironmentResolved.Map(),
+		Environment:      module.Environment.Map(),
 		Labels:           module.Labels,
 	}
 }
