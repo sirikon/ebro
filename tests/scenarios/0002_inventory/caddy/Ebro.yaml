@@ -1,3 +1,6 @@
+labels:
+  apt.packages: "caddy"
+
 tasks:
   default:
     requires: [package]

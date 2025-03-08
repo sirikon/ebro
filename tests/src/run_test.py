@@ -98,7 +98,7 @@ class TestRun(EbroTestCase):
         self.assertStdout(
             stdout,
             f"""
-            ███ ERROR: resolving task ':default' environment: expanding $(pwd): unexpected command substitution at 1:1
+            ███ ERROR: resolving module ':' environment: expanding $(pwd): unexpected command substitution at 1:1
             """,
         )
 

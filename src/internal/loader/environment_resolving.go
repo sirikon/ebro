@@ -72,7 +72,7 @@ func resolveTaskEnvironment(inventory *core.Inventory, baseEnvironment *core.Env
 	// The environment variables of each module we're in, resolved
 	// again inside-to-outside, so we start from the bottom module
 	// up to the root.
-	for modulePath, module := range inventory.WalkUpModulePath(task.Id) {
+	for modulePath, module := range inventory.WalkUpModulePath(task.Id.ModulePath()) {
 		envsToMerge = append(envsToMerge, module.Environment)
 		// Built-in environment variables included for each Module
 		envsToMerge = append(envsToMerge, &core.Environment{
@@ -84,6 +84,24 @@ func resolveTaskEnvironment(inventory *core.Inventory, baseEnvironment *core.Env
 
 	// Finally, the base environment defined at the beginning of
 	// Ebro's execution.
+	envsToMerge = append(envsToMerge, baseEnvironment)
+
+	return utils.ExpandMergeEnvs(envsToMerge...)
+}
+
+func resolveModuleEnvironment(inventory *core.Inventory, baseEnvironment *core.Environment, module *core.Module) (*core.Environment, error) {
+	envsToMerge := []*core.Environment{}
+
+	for modulePath, module := range inventory.WalkUpModulePath(module.Path) {
+		envsToMerge = append(envsToMerge, module.Environment)
+		// Built-in environment variables included for each Module
+		envsToMerge = append(envsToMerge, &core.Environment{
+			Values: []core.EnvironmentValue{
+				{Key: "EBRO_MODULE", Value: ":" + strings.Join(modulePath, ":")},
+			},
+		})
+	}
+
 	envsToMerge = append(envsToMerge, baseEnvironment)
 
 	return utils.ExpandMergeEnvs(envsToMerge...)

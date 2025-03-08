@@ -306,3 +306,52 @@ exit_code: 0
 - :docker:plugins:default
 - :farm:tractor:default
 ---
+
+
+args: -i --query  'modules'
+exit_code: 0
+---
+- id: ":"
+  workingdirectory: {{WORKDIR}}
+  environment: {}
+  labels: {}
+- id: :apt
+  workingdirectory: {{WORKDIR}}/apt/wd
+  environment: {}
+  labels: {}
+- id: :caddy
+  workingdirectory: {{WORKDIR}}/caddy
+  environment: {}
+  labels:
+    apt.packages: caddy
+- id: :docker
+  workingdirectory: {{WORKDIR}}/docker
+  environment:
+    DOCKER_APT_VERSION: ${DOCKER_VERSION:-1.0.0}-1-apt
+    DOCKER_VERSION: 2.0.0
+  labels: {}
+- id: :docker:plugins
+  workingdirectory: {{WORKDIR}}/docker_plugins
+  environment: {}
+  labels: {}
+- id: :farm
+  workingdirectory: ""
+  environment: {}
+  labels: {}
+- id: :farm:tractor
+  workingdirectory: {{WORKDIR}}/tractor
+  environment: {}
+  labels: {}
+---
+
+
+args: -i --query  'modules | filter("apt.packages" in .labels) | map([.id, .labels["apt.packages"]]) | toJSON()'
+exit_code: 0
+---
+[
+  [
+    ":caddy",
+    "caddy"
+  ]
+]
+---

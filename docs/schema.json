@@ -14,6 +14,10 @@
       "description": "Additional environment variables available for all the tasks inside the module. A limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the parent environment (previous variables on the map, parent module or Ebro's execution environment).",
       "type": "object"
     },
+    "labels": {
+      "description": "Dictionary of key/value labels (`string` -> `string`). Intended for module authors to put labels that might be useful during `-inventory --query` or by any third-party tool reading `Ebro.yaml` files.\n\nEbro ignores the contents of `labels` in regular operations and only uses it for querying when asked to.\n\nA limited subset of Bash's capabilities for interpolation (like using `${VAR}`) are available to interpolate variables that come from the environment.",
+      "type": "object"
+    },
     "imports": {
       "description": "Other modules can be imported.",
       "type": "object",

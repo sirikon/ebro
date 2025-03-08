@@ -14,6 +14,7 @@ type Module struct {
 
 	WorkingDirectory string
 	Environment      *Environment
+	Labels           map[string]string
 }
 
 type Task struct {

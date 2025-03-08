@@ -55,7 +55,7 @@ func main() {
 
 		inventoryQuery := buildInventoryQuery(arguments)
 		if inventoryQuery != nil {
-			result, err = inventoryQuery(slices.Collect(inventory.Tasks()))
+			result, err = inventoryQuery(slices.Collect(inventory.Tasks()), slices.Collect(inventory.Modules()))
 			if err != nil {
 				cli.ExitWithError(err)
 			}
@@ -144,7 +144,7 @@ func lock() error {
 	return nil
 }
 
-func buildInventoryQuery(arguments cli.ExecutionArguments) func([]*core.Task) (any, error) {
+func buildInventoryQuery(arguments cli.ExecutionArguments) func([]*core.Task, []*core.Module) (any, error) {
 	queryExpression := *arguments.GetFlagString(cli.FlagQuery)
 	if queryExpression != "" {
 		query, err := querying.BuildQuery(queryExpression)

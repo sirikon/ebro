@@ -7,17 +7,25 @@ import (
 )
 
 type QueryEnvironment struct {
-	Tasks []Task `expr:"tasks"`
+	Tasks   []Task   `expr:"tasks"`
+	Modules []Module `expr:"modules"`
+}
+
+type Module struct {
+	Id               string            `expr:"id"`
+	WorkingDirectory string            `expr:"working_directory"`
+	Environment      map[string]string `expr:"environment"`
+	Labels           map[string]string `expr:"labels"`
 }
 
 type Task struct {
 	Id               string            `expr:"id"`
 	Module           string            `expr:"module"`
 	Name             string            `expr:"name"`
-	Labels           map[string]string `expr:"labels"`
 	WorkingDirectory string            `expr:"working_directory"`
-	Extends          []string          `expr:"extends"`
 	Environment      map[string]string `expr:"environment"`
+	Labels           map[string]string `expr:"labels"`
+	Extends          []string          `expr:"extends"`
 	Requires         []string          `expr:"requires"`
 	RequiredBy       []string          `expr:"required_by"`
 	Script           []string          `expr:"script"`
@@ -31,12 +39,16 @@ type When struct {
 	OutputChanges []string `expr:"output_changes"`
 }
 
-func buildQueryEnvironment(tasks []*core.Task) QueryEnvironment {
+func buildQueryEnvironment(tasks []*core.Task, modules []*core.Module) QueryEnvironment {
 	queryEnv := QueryEnvironment{
-		Tasks: []Task{},
+		Tasks:   []Task{},
+		Modules: []Module{},
 	}
 	for _, task := range tasks {
 		queryEnv.Tasks = append(queryEnv.Tasks, mapTask(task))
+	}
+	for _, module := range modules {
+		queryEnv.Modules = append(queryEnv.Modules, mapModule(module))
 	}
 	return queryEnv
 }
@@ -46,16 +58,25 @@ func mapTask(task *core.Task) Task {
 		Id:               string(task.Id),
 		Module:           ":" + strings.Join(task.Id.ModulePath(), ":"),
 		Name:             task.Name,
-		Labels:           task.Labels,
 		WorkingDirectory: task.WorkingDirectory,
-		Extends:          mapTaskIds(task.ExtendsIds),
 		Environment:      task.Environment.Map(),
+		Labels:           task.Labels,
+		Extends:          mapTaskIds(task.ExtendsIds),
 		Requires:         mapTaskIds(task.RequiresIds),
 		RequiredBy:       mapTaskIds(task.RequiredByIds),
 		Script:           task.Script,
 		Quiet:            task.Quiet,
 		Interactive:      task.Interactive,
 		When:             mapWhen(task.When),
+	}
+}
+
+func mapModule(module *core.Module) Module {
+	return Module{
+		Id:               ":" + strings.Join(module.Path, ":"),
+		WorkingDirectory: module.WorkingDirectory,
+		Environment:      module.Environment.Map(),
+		Labels:           module.Labels,
 	}
 }
 

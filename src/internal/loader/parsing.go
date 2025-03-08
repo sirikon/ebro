@@ -55,6 +55,8 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 			module.WorkingDirectory, err = parseString(value)
 		case "environment":
 			module.Environment, err = parseEnvironment(value)
+		case "labels":
+			module.Labels, err = parseLabels(value)
 		case "imports":
 			module.Imports, err = parseImports(value, workingDirectory, modulePath)
 		case "tasks":
@@ -213,7 +215,7 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, err
 		case "if_tasks_exist":
 			task.IfTasksExist, err = parseStringSequence(value)
 		case "labels":
-			task.Labels, err = parseTaskLabels(value)
+			task.Labels, err = parseLabels(value)
 		case "requires":
 			task.Requires, task.RequiresExpressions, err = parseTaskReferences(value)
 		case "required_by":
@@ -243,7 +245,7 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, err
 	return task, nil
 }
 
-func parseTaskLabels(node ast.Node) (map[string]string, error) {
+func parseLabels(node ast.Node) (map[string]string, error) {
 	result := map[string]string{}
 	mapping, err := parseStringToAstMapping(node)
 	if err != nil {

@@ -361,9 +361,9 @@ Here is the environment available during the expression execution apart from [Ex
   - `id`: (`string`) Task's ID (ex: `:module:task`)
   - `module`: (`string`) Task's module (ex: `:module`)
   - `name`: (`string`) Task's name (ex: `name`)
-  - `labels`: (`string` -> `string` dictionary)
   - `working_directory`: (`string`)
   - `environment`: (`string` -> `string` dictionary)
+  - `labels`: (`string` -> `string` dictionary)
   - `requires`: (`string` array)
   - `required_by`: (`string` array)
   - `script`: (`string` array)
@@ -372,6 +372,11 @@ Here is the environment available during the expression execution apart from [Ex
   - `when`: Object with the following properties:
     - `check_fails`: (`string` array)
     - `output_changes`: (`string` array)
+- `modules`: Array of objects with the following properties:
+  - `id`: (`string`) Modules's ID (ex: `:module:submodule`)
+  - `working_directory`: (`string`)
+  - `environment`: (`string` -> `string` dictionary)
+  - `labels`: (`string` -> `string` dictionary)
 
 ### In `requires` and `required_by`
 
