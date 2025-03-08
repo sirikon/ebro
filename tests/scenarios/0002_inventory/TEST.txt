@@ -313,34 +313,64 @@ exit_code: 0
 ---
 - id: ":"
   workingdirectory: {{WORKDIR}}
-  environment: {}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_MODULE: ":"
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
   labels: {}
 - id: :apt
   workingdirectory: {{WORKDIR}}/apt/wd
-  environment: {}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_MODULE: :apt
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
   labels: {}
 - id: :caddy
   workingdirectory: {{WORKDIR}}/caddy
-  environment: {}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_MODULE: :caddy
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
   labels:
     apt.packages: caddy
 - id: :docker
   workingdirectory: {{WORKDIR}}/docker
   environment:
-    DOCKER_APT_VERSION: ${DOCKER_VERSION:-1.0.0}-1-apt
+    DOCKER_APT_VERSION: 2.0.0-1-apt
     DOCKER_VERSION: 2.0.0
+    EBRO_BIN: {{BIN}}
+    EBRO_MODULE: :docker
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
   labels: {}
 - id: :docker:plugins
   workingdirectory: {{WORKDIR}}/docker_plugins
-  environment: {}
+  environment:
+    DOCKER_APT_VERSION: 2.0.0-1-apt
+    DOCKER_VERSION: 2.0.0
+    EBRO_BIN: {{BIN}}
+    EBRO_MODULE: :docker:plugins
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
   labels: {}
 - id: :farm
   workingdirectory: ""
-  environment: {}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_MODULE: :farm
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
   labels: {}
 - id: :farm:tractor
   workingdirectory: {{WORKDIR}}/tractor
-  environment: {}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_MODULE: :farm:tractor
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
   labels: {}
 ---
 

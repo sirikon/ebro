@@ -12,9 +12,10 @@ type Module struct {
 	Tasks   map[string]*Task
 	Modules map[string]*Module
 
-	WorkingDirectory string
-	Environment      *Environment
-	Labels           map[string]string
+	WorkingDirectory    string
+	Environment         *Environment
+	EnvironmentResolved *Environment
+	Labels              map[string]string
 }
 
 type Task struct {

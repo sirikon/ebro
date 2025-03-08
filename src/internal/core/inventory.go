@@ -54,6 +54,13 @@ func (inv *Inventory) FindTask(taskReference TaskReference) (*TaskId, *Task) {
 	return nil, nil
 }
 
+func (inv *Inventory) Module(modulePath []string) *Module {
+	if module, ok := inv.ModuleIndex[strings.Join(modulePath, ":")]; ok {
+		return module
+	}
+	return nil
+}
+
 func (inv *Inventory) Task(taskId TaskId) *Task {
 	if task, ok := inv.TaskIndex[taskId]; ok {
 		return task
@@ -61,22 +68,22 @@ func (inv *Inventory) Task(taskId TaskId) *Task {
 	return nil
 }
 
-func (inv *Inventory) Tasks() iter.Seq[*Task] {
-	taskIds := slices.Sorted(maps.Keys(inv.TaskIndex))
-	return func(yield func(*Task) bool) {
-		for _, taskId := range taskIds {
-			if !yield(inv.TaskIndex[taskId]) {
+func (inv *Inventory) Modules() iter.Seq[*Module] {
+	moduleIds := slices.Sorted(maps.Keys(inv.ModuleIndex))
+	return func(yield func(*Module) bool) {
+		for _, moduleId := range moduleIds {
+			if !yield(inv.ModuleIndex[moduleId]) {
 				return
 			}
 		}
 	}
 }
 
-func (inv *Inventory) Modules() iter.Seq[*Module] {
-	moduleIds := slices.Sorted(maps.Keys(inv.ModuleIndex))
-	return func(yield func(*Module) bool) {
-		for _, moduleId := range moduleIds {
-			if !yield(inv.ModuleIndex[moduleId]) {
+func (inv *Inventory) Tasks() iter.Seq[*Task] {
+	taskIds := slices.Sorted(maps.Keys(inv.TaskIndex))
+	return func(yield func(*Task) bool) {
+		for _, taskId := range taskIds {
+			if !yield(inv.TaskIndex[taskId]) {
 				return
 			}
 		}
