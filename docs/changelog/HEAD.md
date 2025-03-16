@@ -1,0 +1,3 @@
+## Miscellanea
+
+Updated Go dependencies.

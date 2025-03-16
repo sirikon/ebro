@@ -3,9 +3,9 @@ module github.com/sirikon/ebro
 go 1.23.2
 
 require (
-	github.com/expr-lang/expr v1.16.9
+	github.com/expr-lang/expr v1.17.0
 	github.com/fatih/color v1.18.0
-	github.com/goccy/go-yaml v1.15.23
+	github.com/goccy/go-yaml v1.16.0
 	github.com/gofrs/flock v0.12.1
 	mvdan.cc/sh/v3 v3.11.0
 )
