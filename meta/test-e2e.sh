@@ -11,7 +11,11 @@ function main {
     EBRO_BIN="$(pwd)/out/ebro-e2e"
     export EBRO_BIN
     log "Building ebro for e2e tests"
-    ./meta/build.sh -cover
+    if [ "$enable_coverage" == "true" ]; then
+      ./meta/build.sh -cover
+    else
+      ./meta/build.sh
+    fi
   fi
 
   log "Running e2e tests"
