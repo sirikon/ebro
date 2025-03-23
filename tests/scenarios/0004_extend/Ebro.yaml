@@ -84,4 +84,11 @@ tasks:
     environment:
       CARBS: pasta
     labels:
-      better_meal: ${PROTEIN} with ${CARBS}
+      other.label: other content
+
+  extern-b:
+    extends: [other, other:abstract]
+    environment:
+      CARBS: pasta
+    labels:
+      meal: overriden

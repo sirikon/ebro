@@ -33,8 +33,8 @@ func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile s
 			ctx.requirementReferenceResolvingPhase,
 			ctx.extendingPhase,
 			ctx.taskEnvironmentResolvingPhase,
-			ctx.taskLabelResolvingPhase,
 		),
+		ctx.taskLabelResolvingPhase,
 		ctx.abstractPurgingPhase,
 		ctx.requirementExpressionReferenceResolvingPhase,
 	}

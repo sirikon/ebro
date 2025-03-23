@@ -91,8 +91,8 @@ exit_code: 0
   - echo Hello
 :extern-a:
   labels:
-    better_meal: chicken with pasta
-    meal: beef with rice
+    meal: chicken with pasta
+    other.label: other content
   working_directory: {{WORKDIR}}
   environment:
     EBRO_BIN: {{BIN}}
@@ -103,6 +103,23 @@ exit_code: 0
     EBRO_MODULE: ":"
     EBRO_TASK_ID: :extern-a
     EBRO_TASK_NAME: extern-a
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+    CARBS: pasta
+  requires:
+  - :other:only-exists-in-other
+:extern-b:
+  labels:
+    meal: overriden
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    PROTEIN: chicken
+    SALAD: "no"
+    EBRO_MODULE: ":"
+    EBRO_TASK_ID: :extern-b
+    EBRO_TASK_NAME: extern-b
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
     CARBS: pasta
   requires:
