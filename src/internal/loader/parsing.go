@@ -63,6 +63,8 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 			module.Tasks, err = parseTasks(value, modulePath)
 		case "modules":
 			module.Modules, err = parseModules(value, workingDirectory, modulePath)
+		case "for_each":
+			module.ForEach, err = parseString(value)
 		default:
 			return nil, fmt.Errorf("unexpected key '%v'", key)
 		}
