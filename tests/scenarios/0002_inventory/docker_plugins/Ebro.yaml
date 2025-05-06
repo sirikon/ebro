@@ -1,3 +1,5 @@
+for_each: ls plugins
+
 tasks:
   default:
     script: echo Hello
