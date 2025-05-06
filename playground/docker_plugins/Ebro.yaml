@@ -1,5 +1,5 @@
-# for_each: ls plugins
+for_each: ls plugins
 
 tasks:
   default:
-    script: echo Hello
+    script: echo Helloaa

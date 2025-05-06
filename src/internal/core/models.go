@@ -39,23 +39,24 @@ func (m *Module) Path() []string {
 	return path
 }
 
-func (m *Module) Clone() *Module {
-	return &Module{
-		Parent:           m.Parent,
+func (m *Module) Clone(newParent *Module) *Module {
+	module := &Module{
+		Parent:           newParent,
 		ForEach:          m.ForEach,
 		Imports:          cloneImportMap(m.Imports),
-		Tasks:            cloneTaskMap(m.Tasks),
-		Modules:          cloneModuleMap(m.Modules),
 		WorkingDirectory: m.WorkingDirectory,
 		Environment:      m.Environment.Clone(),
 		Labels:           maps.Clone(m.Labels),
 	}
+	module.Tasks = cloneTaskMap(m.Tasks, module)
+	module.Modules = cloneModuleMap(m.Modules, module)
+	return module
 }
 
-func cloneModuleMap(m map[string]*Module) map[string]*Module {
+func cloneModuleMap(m map[string]*Module, newParent *Module) map[string]*Module {
 	result := make(map[string]*Module)
 	for name := range maps.Keys(m) {
-		result[name] = m[name].Clone()
+		result[name] = m[name].Clone(newParent)
 	}
 	return result
 }
@@ -130,10 +131,10 @@ func cloneImportMap(m map[string]*Import) map[string]*Import {
 	return result
 }
 
-func (t *Task) Clone() *Task {
+func (t *Task) Clone(newParent *Module) *Task {
 	return &Task{
 		Name:   t.Name,
-		Module: t.Module,
+		Module: newParent,
 
 		IfTasksExist: slices.Clone(t.IfTasksExist),
 
@@ -159,10 +160,10 @@ func (t *Task) Clone() *Task {
 	}
 }
 
-func cloneTaskMap(m map[string]*Task) map[string]*Task {
+func cloneTaskMap(m map[string]*Task, newParent *Module) map[string]*Task {
 	result := make(map[string]*Task)
 	for name := range maps.Keys(m) {
-		result[name] = m[name].Clone()
+		result[name] = m[name].Clone(newParent)
 	}
 	return result
 }

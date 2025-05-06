@@ -30,7 +30,7 @@ func (ctx *loadCtx) extendingPhase(taskId core.TaskId) error {
 }
 
 func makeBaseTaskForExtending(task *core.Task) *core.Task {
-	newTask := task.Clone()
+	newTask := task.Clone(task.Module)
 	newTask.Requires = []string{}
 	newTask.RequiredByExpressions = []string{}
 	newTask.RequiresIds = []core.TaskId{}

@@ -164,7 +164,7 @@ args: -inventory
     - docker --version
     output_changes:
     - echo "docker==${DOCKER_APT_VERSION}"
-:docker:plugins:default:
+:docker:plugins:a:default:
   working_directory: {{WORKDIR}}/docker_plugins
   environment:
     EBRO_BIN: {{BIN}}
@@ -172,8 +172,24 @@ args: -inventory
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
     DOCKER_VERSION: 2.0.0
     DOCKER_APT_VERSION: 2.0.0-1-apt
-    EBRO_MODULE: :docker:plugins
-    EBRO_TASK_ID: :docker:plugins:default
+    EBRO_EACH: a
+    EBRO_MODULE: :docker:plugins:a
+    EBRO_TASK_ID: :docker:plugins:a:default
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker_plugins
+  script:
+  - echo Hello
+:docker:plugins:b:default:
+  working_directory: {{WORKDIR}}/docker_plugins
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    DOCKER_VERSION: 2.0.0
+    DOCKER_APT_VERSION: 2.0.0-1-apt
+    EBRO_EACH: b
+    EBRO_MODULE: :docker:plugins:b
+    EBRO_TASK_ID: :docker:plugins:b:default
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}/docker_plugins
   script:
@@ -245,7 +261,8 @@ args: -l
 :docker:default
 :docker:package
 :docker:package-apt-config
-:docker:plugins:default
+:docker:plugins:a:default
+:docker:plugins:b:default
 :farm:chicken
 :farm:egg
 :farm:tractor:default
@@ -291,7 +308,8 @@ exit_code: 0
 :caddy:default
 :default
 :docker:default
-:docker:plugins:default
+:docker:plugins:a:default
+:docker:plugins:b:default
 :farm:tractor:default
 ---
 
@@ -303,7 +321,8 @@ exit_code: 0
 - :caddy:default
 - :default
 - :docker:default
-- :docker:plugins:default
+- :docker:plugins:a:default
+- :docker:plugins:b:default
 - :farm:tractor:default
 ---
 
@@ -353,6 +372,28 @@ exit_code: 0
     DOCKER_VERSION: 2.0.0
     EBRO_BIN: {{BIN}}
     EBRO_MODULE: :docker:plugins
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+  labels: {}
+- id: :docker:plugins:a
+  workingdirectory: {{WORKDIR}}/docker_plugins
+  environment:
+    DOCKER_APT_VERSION: 2.0.0-1-apt
+    DOCKER_VERSION: 2.0.0
+    EBRO_BIN: {{BIN}}
+    EBRO_EACH: a
+    EBRO_MODULE: :docker:plugins:a
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+  labels: {}
+- id: :docker:plugins:b
+  workingdirectory: {{WORKDIR}}/docker_plugins
+  environment:
+    DOCKER_APT_VERSION: 2.0.0-1-apt
+    DOCKER_VERSION: 2.0.0
+    EBRO_BIN: {{BIN}}
+    EBRO_EACH: b
+    EBRO_MODULE: :docker:plugins:b
     EBRO_ROOT: {{WORKDIR}}
     EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
   labels: {}

@@ -27,8 +27,8 @@ func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile s
 		ctx.parsingPhase,
 		ctx.perModuleByHierarchicalOrder(
 			ctx.workdirResolvingPhase,
-			ctx.moduleEnvironmentResolvingPhase,
 			ctx.moduleIterationResolvingPhase,
+			ctx.moduleEnvironmentResolvingPhase,
 			ctx.moduleLabelResolvingPhase,
 		),
 		ctx.conditionalExistencePurgingPhase,
