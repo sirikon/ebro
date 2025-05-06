@@ -118,6 +118,7 @@ func (ctx *parseCtx) parseImports(node ast.Node, workingDirectory string, parent
 		if imports[name], err = ctx.parseImport(value, workingDirectory, parentModule); err != nil {
 			return nil, fmt.Errorf("parsing import '%v': %w", name, err)
 		}
+		imports[name].Module.Name = name
 	}
 
 	return imports, nil

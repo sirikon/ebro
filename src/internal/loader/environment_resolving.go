@@ -15,7 +15,7 @@ func (ctx *loadCtx) taskEnvironmentResolvingPhase(taskId core.TaskId) error {
 
 	task.Environment, err = resolveTaskEnvironment(ctx.inventory, ctx.baseEnvironment, task)
 	if err != nil {
-		return fmt.Errorf("resolving task '%v' environment: %w", task.Id, err)
+		return fmt.Errorf("resolving task '%v' environment: %w", task.Id(), err)
 	}
 
 	return nil

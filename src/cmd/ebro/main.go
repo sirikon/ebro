@@ -79,7 +79,7 @@ func main() {
 	// -list
 	if arguments.Command == cli.CommandList {
 		for task := range inventory.Tasks() {
-			fmt.Println(task.Id)
+			fmt.Println(task.Id())
 		}
 		return
 	}
