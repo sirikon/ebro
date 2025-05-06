@@ -101,8 +101,8 @@ func resolveExtensionOrder(inventory *core.Inventory) ([]core.TaskId, error) {
 	target := []core.TaskId{}
 
 	for task := range inventory.Tasks() {
-		target = append(target, task.Id)
-		inheritanceDag.Link(task.Id, task.ExtendsIds...)
+		target = append(target, task.Id())
+		inheritanceDag.Link(task.Id(), task.ExtendsIds...)
 	}
 
 	result, remains := inheritanceDag.Resolve(target)

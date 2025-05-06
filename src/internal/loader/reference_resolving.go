@@ -14,13 +14,13 @@ import (
 func (ctx *loadCtx) requirementExpressionReferenceResolvingPhase() error {
 	for task := range ctx.inventory.Tasks() {
 		if result, err := resolveExpressions(ctx.inventory, task.RequiresExpressions); err != nil {
-			return fmt.Errorf("resolving expressions in 'requires' for task '%v': %w", task.Id, err)
+			return fmt.Errorf("resolving expressions in 'requires' for task '%v': %w", task.Id(), err)
 		} else {
 			task.RequiresIds = utils.Dedupe(append(task.RequiresIds, result...))
 		}
 
 		if result, err := resolveExpressions(ctx.inventory, task.RequiredByExpressions); err != nil {
-			return fmt.Errorf("resolving expressions in 'required_by' for task '%v': %w", task.Id, err)
+			return fmt.Errorf("resolving expressions in 'required_by' for task '%v': %w", task.Id(), err)
 		} else {
 			task.RequiredByIds = utils.Dedupe(append(task.RequiredByIds, result...))
 		}
@@ -34,11 +34,11 @@ func (ctx *loadCtx) requirementReferenceResolvingPhase(taskId core.TaskId) error
 	var err error
 
 	if task.RequiresIds, err = core.ResolveReferences(ctx.inventory, task, task.Requires); err != nil {
-		return fmt.Errorf("normalizing 'requires' for task '%v': %w", task.Id, err)
+		return fmt.Errorf("normalizing 'requires' for task '%v': %w", task.Id(), err)
 	}
 
 	if task.RequiredByIds, err = core.ResolveReferences(ctx.inventory, task, task.RequiredBy); err != nil {
-		return fmt.Errorf("normalizing 'required_by' for task '%v': %w", task.Id, err)
+		return fmt.Errorf("normalizing 'required_by' for task '%v': %w", task.Id(), err)
 	}
 
 	return nil
@@ -48,7 +48,7 @@ func (ctx *loadCtx) extensionReferenceResolvingPhase() error {
 	var err error
 	for task := range ctx.inventory.Tasks() {
 		if task.ExtendsIds, err = core.ResolveReferences(ctx.inventory, task, task.Extends); err != nil {
-			return fmt.Errorf("normalizing 'extends' for task '%v': %w", task.Id, err)
+			return fmt.Errorf("normalizing 'extends' for task '%v': %w", task.Id(), err)
 		}
 	}
 	return nil
@@ -57,7 +57,7 @@ func (ctx *loadCtx) extensionReferenceResolvingPhase() error {
 func (ctx *loadCtx) abstractPurgingPhase() error {
 	for task := range ctx.inventory.Tasks() {
 		if task.Abstract != nil && *task.Abstract {
-			ctx.inventory.RemoveTask(task.Id)
+			ctx.inventory.RemoveTask(task.Id())
 		}
 	}
 	return nil
@@ -141,8 +141,8 @@ func buildQueryEnvironment(tasks []*core.Task, modules []*core.Module) Reference
 
 func mapTask(task *core.Task) Task {
 	return Task{
-		Id:               string(task.Id),
-		Module:           ":" + strings.Join(task.Id.ModulePath(), ":"),
+		Id:               string(task.Id()),
+		Module:           ":" + strings.Join(task.Module.Path(), ":"),
 		Name:             task.Name,
 		Labels:           task.Labels,
 		WorkingDirectory: task.WorkingDirectory,
@@ -156,7 +156,7 @@ func mapTask(task *core.Task) Task {
 
 func mapModule(module *core.Module) Module {
 	return Module{
-		Id:               ":" + strings.Join(module.Path, ":"),
+		Id:               ":" + strings.Join(module.Path(), ":"),
 		WorkingDirectory: module.WorkingDirectory,
 		Environment:      module.Environment.Map(),
 		Labels:           module.Labels,

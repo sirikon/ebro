@@ -26,10 +26,10 @@ func (inv *Inventory) RefreshIndex() {
 }
 
 func (inv *Inventory) generateIndex(module *Module) {
-	inv.ModuleIndex[strings.Join(module.Path, ":")] = module
+	inv.ModuleIndex[strings.Join(module.Path(), ":")] = module
 	for _, task := range module.Tasks {
-		inv.TaskIndex[task.Id] = task
-		inv.TaskModuleIndex[task.Id] = module
+		inv.TaskIndex[task.Id()] = task
+		inv.TaskModuleIndex[task.Id()] = module
 	}
 	for _, module := range module.Modules {
 		inv.generateIndex(module)
@@ -90,6 +90,45 @@ func (inv *Inventory) Tasks() iter.Seq[*Task] {
 	}
 }
 
+func (inv *Inventory) WalkDownModuleTree() iter.Seq[*Module] {
+	return func(yield func(*Module) bool) {
+		for module := range inv.moduleAndSubmodules(inv.RootModule) {
+			if !yield(module) {
+				return
+			}
+		}
+	}
+}
+
+func (inv *Inventory) moduleAndSubmodules(module *Module) iter.Seq[*Module] {
+	return func(yield func(*Module) bool) {
+		if !yield(module) {
+			return
+		}
+
+		visitedSubmodules := []string{}
+
+		for {
+			slices.Sort(visitedSubmodules)
+			submoduleNames := slices.Sorted(maps.Keys(module.Modules))
+			if slices.Equal(visitedSubmodules, submoduleNames) {
+				return
+			}
+
+			for _, submoduleName := range submoduleNames {
+				if !slices.Contains(visitedSubmodules, submoduleName) {
+					visitedSubmodules = append(visitedSubmodules, submoduleName)
+					for submodule := range inv.moduleAndSubmodules(module.Modules[submoduleName]) {
+						if !yield(submodule) {
+							return
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 func (inv *Inventory) WalkUpModulePath(modulePath []string) iter.Seq2[[]string, *Module] {
 	return func(yield func([]string, *Module) bool) {
 		for {
@@ -105,8 +144,8 @@ func (inv *Inventory) WalkUpModulePath(modulePath []string) iter.Seq2[[]string, 
 }
 
 func (inv *Inventory) SetTask(task *Task) {
-	inv.TaskModuleIndex[task.Id].Tasks[task.Id.TaskName()] = task
-	inv.TaskIndex[task.Id] = task
+	inv.TaskModuleIndex[task.Id()].Tasks[task.Name] = task
+	inv.TaskIndex[task.Id()] = task
 }
 
 func (inv *Inventory) RemoveTask(taskId TaskId) {

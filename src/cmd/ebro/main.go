@@ -190,7 +190,7 @@ type WhenView struct {
 func mapInventoryToView(inventory *core.Inventory) InventoryView {
 	inventoryView := InventoryView{}
 	for task := range inventory.Tasks() {
-		inventoryView[task.Id] = mapTaskToView(task)
+		inventoryView[task.Id()] = mapTaskToView(task)
 	}
 	return inventoryView
 }

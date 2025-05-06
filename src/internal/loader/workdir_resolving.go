@@ -3,12 +3,14 @@ package loader
 import (
 	"path"
 	"slices"
+
+	"github.com/sirikon/ebro/internal/core"
 )
 
-func (ctx *loadCtx) workdirResolvingPhase() error {
-	for task := range ctx.inventory.Tasks() {
+func (ctx *loadCtx) workdirResolvingPhase(module *core.Module) error {
+	for _, task := range module.Tasks {
 		workDirs := []string{task.WorkingDirectory}
-		for _, module := range ctx.inventory.WalkUpModulePath(task.Id.ModulePath()) {
+		for _, module := range ctx.inventory.WalkUpModulePath(task.Module.Path()) {
 			workDirs = append(workDirs, module.WorkingDirectory)
 		}
 		slices.Reverse(workDirs)

@@ -12,9 +12,9 @@ func (ctx *loadCtx) conditionalExistencePurgingPhase() error {
 	for task := range ctx.inventory.Tasks() {
 		if len(task.IfTasksExist) > 0 {
 			for _, t := range task.IfTasksExist {
-				parentTaskId := core.MustParseTaskReference(t).Absolute(task.Id.ModulePath()).TaskId()
-				purgeDag.Link(task.Id, parentTaskId)
-				targets = append(targets, task.Id)
+				parentTaskId := core.MustParseTaskReference(t).Absolute(task.Module.Path()).TaskId()
+				purgeDag.Link(task.Id(), parentTaskId)
+				targets = append(targets, task.Id())
 			}
 		}
 	}

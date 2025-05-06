@@ -10,22 +10,25 @@ import (
 	"github.com/sirikon/ebro/internal/core"
 )
 
+type parseCtx struct{}
+
 func (ctx *loadCtx) parsingPhase() error {
+	parseCtx := &parseCtx{}
 	var err error
-	if ctx.inventory.RootModule, err = parseModuleFile(ctx.rootFile, ctx.workingDirectory, []string{}); err != nil {
+	if ctx.inventory.RootModule, err = parseCtx.parseModuleFile(ctx.rootFile, ctx.workingDirectory, nil); err != nil {
 		return err
 	}
 	ctx.inventory.RefreshIndex()
 	return nil
 }
 
-func parseModuleFile(filePath string, workingDirectory string, modulePath []string) (*core.Module, error) {
+func (ctx *parseCtx) parseModuleFile(filePath string, workingDirectory string, parentModule *core.Module) (*core.Module, error) {
 	file, err := parser.ParseFile(filePath, 0)
 	if err != nil {
 		return nil, fmt.Errorf("parsing file: %w", err)
 	}
 
-	module, err := parseModule(file.Docs[0].Body, workingDirectory, modulePath)
+	module, err := ctx.parseModule(file.Docs[0].Body, workingDirectory, parentModule)
 	if err != nil {
 		return nil, fmt.Errorf("parsing module: %w", err)
 	}
@@ -37,14 +40,14 @@ func parseModuleFile(filePath string, workingDirectory string, modulePath []stri
 	return module, nil
 }
 
-func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*core.Module, error) {
+func (ctx *parseCtx) parseModule(node ast.Node, workingDirectory string, parentModule *core.Module) (*core.Module, error) {
 	var err error
 	module := &core.Module{
 		Environment: &core.Environment{Values: []core.EnvironmentValue{}},
 	}
-	module.Path = modulePath
+	module.Parent = parentModule
 
-	mapping, err := parseStringToAstMapping(node)
+	mapping, err := ctx.parseStringToAstMapping(node)
 	if err != nil {
 		return nil, err
 	}
@@ -52,19 +55,19 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 	for key, value := range mapping {
 		switch key {
 		case "working_directory":
-			module.WorkingDirectory, err = parseString(value)
+			module.WorkingDirectory, err = ctx.parseString(value)
 		case "environment":
-			module.Environment, err = parseEnvironment(value)
+			module.Environment, err = ctx.parseEnvironment(value)
 		case "labels":
-			module.Labels, err = parseLabels(value)
+			module.Labels, err = ctx.parseLabels(value)
 		case "imports":
-			module.Imports, err = parseImports(value, workingDirectory, modulePath)
+			module.Imports, err = ctx.parseImports(value, workingDirectory, module)
 		case "tasks":
-			module.Tasks, err = parseTasks(value, modulePath)
+			module.Tasks, err = ctx.parseTasks(value, module)
 		case "modules":
-			module.Modules, err = parseModules(value, workingDirectory, modulePath)
+			module.Modules, err = ctx.parseModules(value, workingDirectory, module)
 		case "for_each":
-			module.ForEach, err = parseString(value)
+			module.ForEach, err = ctx.parseString(value)
 		default:
 			return nil, fmt.Errorf("unexpected key '%v'", key)
 		}
@@ -99,11 +102,11 @@ func parseModule(node ast.Node, workingDirectory string, modulePath []string) (*
 	return module, nil
 }
 
-func parseImports(node ast.Node, workingDirectory string, modulePath []string) (map[string]*core.Import, error) {
+func (ctx *parseCtx) parseImports(node ast.Node, workingDirectory string, parentModule *core.Module) (map[string]*core.Import, error) {
 	var err error
 	imports := map[string]*core.Import{}
 
-	mapping, err := parseStringToAstMapping(node)
+	mapping, err := ctx.parseStringToAstMapping(node)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +115,7 @@ func parseImports(node ast.Node, workingDirectory string, modulePath []string) (
 		if err = core.ValidateName(name); err != nil {
 			return nil, fmt.Errorf("validating import name %v: %w", name, err)
 		}
-		if imports[name], err = parseImport(value, workingDirectory, append(modulePath, name)); err != nil {
+		if imports[name], err = ctx.parseImport(value, workingDirectory, parentModule); err != nil {
 			return nil, fmt.Errorf("parsing import '%v': %w", name, err)
 		}
 	}
@@ -120,13 +123,13 @@ func parseImports(node ast.Node, workingDirectory string, modulePath []string) (
 	return imports, nil
 }
 
-func parseImport(node ast.Node, workingDirectory string, modulePath []string) (*core.Import, error) {
+func (ctx *parseCtx) parseImport(node ast.Node, workingDirectory string, parentModule *core.Module) (*core.Import, error) {
 	var err error
 	importObj := &core.Import{
 		Environment: &core.Environment{Values: []core.EnvironmentValue{}},
 	}
 
-	mapping, err := parseStringToAstMapping(node)
+	mapping, err := ctx.parseStringToAstMapping(node)
 	if err != nil {
 		return nil, err
 	}
@@ -134,9 +137,9 @@ func parseImport(node ast.Node, workingDirectory string, modulePath []string) (*
 	for key, value := range mapping {
 		switch key {
 		case "from":
-			importObj.From, err = parseString(value)
+			importObj.From, err = ctx.parseString(value)
 		case "environment":
-			importObj.Environment, err = parseEnvironment(value)
+			importObj.Environment, err = ctx.parseEnvironment(value)
 		default:
 			return nil, fmt.Errorf("unexpected key '%v'", key)
 		}
@@ -149,7 +152,7 @@ func parseImport(node ast.Node, workingDirectory string, modulePath []string) (*
 		importObj.From = path.Join(workingDirectory, importObj.From)
 	}
 
-	importObj.Module, err = parseModuleFile(path.Join(importObj.From, "Ebro.yaml"), importObj.From, modulePath)
+	importObj.Module, err = ctx.parseModuleFile(path.Join(importObj.From, "Ebro.yaml"), importObj.From, parentModule)
 	if err != nil {
 		return nil, fmt.Errorf("importing: %w", err)
 	}
@@ -157,11 +160,11 @@ func parseImport(node ast.Node, workingDirectory string, modulePath []string) (*
 	return importObj, nil
 }
 
-func parseModules(node ast.Node, workingDirectory string, modulePath []string) (map[string]*core.Module, error) {
+func (ctx *parseCtx) parseModules(node ast.Node, workingDirectory string, parentModule *core.Module) (map[string]*core.Module, error) {
 	var err error
 	modules := map[string]*core.Module{}
 
-	mapping, err := parseStringToAstMapping(node)
+	mapping, err := ctx.parseStringToAstMapping(node)
 	if err != nil {
 		return nil, err
 	}
@@ -170,19 +173,20 @@ func parseModules(node ast.Node, workingDirectory string, modulePath []string) (
 		if err = core.ValidateName(name); err != nil {
 			return nil, fmt.Errorf("validating module name '%v': %w", name, err)
 		}
-		if modules[name], err = parseModule(value, workingDirectory, append(modulePath, name)); err != nil {
+		if modules[name], err = ctx.parseModule(value, workingDirectory, parentModule); err != nil {
 			return nil, fmt.Errorf("parsing module '%v': %w", name, err)
 		}
+		modules[name].Name = name
 	}
 
 	return modules, nil
 }
 
-func parseTasks(node ast.Node, modulePath []string) (map[string]*core.Task, error) {
+func (ctx *parseCtx) parseTasks(node ast.Node, parentModule *core.Module) (map[string]*core.Task, error) {
 	var err error
 	tasks := map[string]*core.Task{}
 
-	mapping, err := parseStringToAstMapping(node)
+	mapping, err := ctx.parseStringToAstMapping(node)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +195,7 @@ func parseTasks(node ast.Node, modulePath []string) (map[string]*core.Task, erro
 		if err = core.ValidateName(name); err != nil {
 			return nil, fmt.Errorf("validating task name '%v': %w", name, err)
 		}
-		if tasks[name], err = parseTask(value, modulePath, name); err != nil {
+		if tasks[name], err = ctx.parseTask(value, parentModule, name); err != nil {
 			return nil, fmt.Errorf("parsing task '%v': %w", name, err)
 		}
 	}
@@ -199,13 +203,13 @@ func parseTasks(node ast.Node, modulePath []string) (map[string]*core.Task, erro
 	return tasks, nil
 }
 
-func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, error) {
+func (ctx *parseCtx) parseTask(node ast.Node, parentModule *core.Module, name string) (*core.Task, error) {
 	var err error
 	task := &core.Task{}
 	task.Name = name
-	task.Id = core.NewTaskId(modulePath, name)
+	task.Module = parentModule
 
-	mapping, err := parseStringToAstMapping(node)
+	mapping, err := ctx.parseStringToAstMapping(node)
 	if err != nil {
 		return nil, err
 	}
@@ -213,29 +217,29 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, err
 	for key, value := range mapping {
 		switch key {
 		case "working_directory":
-			task.WorkingDirectory, err = parseString(value)
+			task.WorkingDirectory, err = ctx.parseString(value)
 		case "if_tasks_exist":
-			task.IfTasksExist, err = parseStringSequence(value)
+			task.IfTasksExist, err = ctx.parseStringSequence(value)
 		case "labels":
-			task.Labels, err = parseLabels(value)
+			task.Labels, err = ctx.parseLabels(value)
 		case "requires":
-			task.Requires, task.RequiresExpressions, err = parseTaskReferences(value)
+			task.Requires, task.RequiresExpressions, err = ctx.parseTaskReferences(value)
 		case "required_by":
-			task.RequiredBy, task.RequiredByExpressions, err = parseTaskReferences(value)
+			task.RequiredBy, task.RequiredByExpressions, err = ctx.parseTaskReferences(value)
 		case "abstract":
-			task.Abstract, err = parseBoolPtr(value)
+			task.Abstract, err = ctx.parseBoolPtr(value)
 		case "extends":
-			task.Extends, err = parseStringSequence(value)
+			task.Extends, err = ctx.parseStringSequence(value)
 		case "script":
-			task.Script, err = parseScript(value)
+			task.Script, err = ctx.parseScript(value)
 		case "interactive":
-			task.Interactive, err = parseBoolPtr(value)
+			task.Interactive, err = ctx.parseBoolPtr(value)
 		case "quiet":
-			task.Quiet, err = parseBoolPtr(value)
+			task.Quiet, err = ctx.parseBoolPtr(value)
 		case "when":
-			task.When, err = parseWhen(value)
+			task.When, err = ctx.parseWhen(value)
 		case "environment":
-			task.Environment, err = parseEnvironment(value)
+			task.Environment, err = ctx.parseEnvironment(value)
 		default:
 			return nil, fmt.Errorf("unexpected key '%v'", key)
 		}
@@ -247,15 +251,15 @@ func parseTask(node ast.Node, modulePath []string, name string) (*core.Task, err
 	return task, nil
 }
 
-func parseLabels(node ast.Node) (map[string]string, error) {
+func (ctx *parseCtx) parseLabels(node ast.Node) (map[string]string, error) {
 	result := map[string]string{}
-	mapping, err := parseStringToAstMapping(node)
+	mapping, err := ctx.parseStringToAstMapping(node)
 	if err != nil {
 		return nil, err
 	}
 
 	for key, value := range mapping {
-		str, err := parseString(value)
+		str, err := ctx.parseString(value)
 		if err != nil {
 			return nil, err
 		}
@@ -265,11 +269,11 @@ func parseLabels(node ast.Node) (map[string]string, error) {
 	return result, nil
 }
 
-func parseWhen(node ast.Node) (*core.When, error) {
+func (ctx *parseCtx) parseWhen(node ast.Node) (*core.When, error) {
 	var err error
 	when := &core.When{}
 
-	mapping, err := parseStringToAstMapping(node)
+	mapping, err := ctx.parseStringToAstMapping(node)
 	if err != nil {
 		return nil, err
 	}
@@ -277,9 +281,9 @@ func parseWhen(node ast.Node) (*core.When, error) {
 	for key, value := range mapping {
 		switch key {
 		case "output_changes":
-			when.OutputChanges, err = parseScript(value)
+			when.OutputChanges, err = ctx.parseScript(value)
 		case "check_fails":
-			when.CheckFails, err = parseScript(value)
+			when.CheckFails, err = ctx.parseScript(value)
 		default:
 			return nil, fmt.Errorf("unexpected key '%v'", key)
 		}
@@ -291,13 +295,13 @@ func parseWhen(node ast.Node) (*core.When, error) {
 	return when, nil
 }
 
-func parseEnvironment(node ast.Node) (*core.Environment, error) {
+func (ctx *parseCtx) parseEnvironment(node ast.Node) (*core.Environment, error) {
 	var err error
 	environment := &core.Environment{
 		Values: []core.EnvironmentValue{},
 	}
 
-	mapping, err := parseStringToAstMapping(node)
+	mapping, err := ctx.parseStringToAstMapping(node)
 	if err != nil {
 		return nil, err
 	}
@@ -315,7 +319,7 @@ func parseEnvironment(node ast.Node) (*core.Environment, error) {
 	return environment, nil
 }
 
-func parseTaskReferences(node ast.Node) ([]string, []string, error) {
+func (ctx *parseCtx) parseTaskReferences(node ast.Node) ([]string, []string, error) {
 	refs := []string{}
 	expressions := []string{}
 
@@ -329,14 +333,14 @@ func parseTaskReferences(node ast.Node) ([]string, []string, error) {
 		case ast.StringType:
 			refs = append(refs, value.(*ast.StringNode).Value)
 		case ast.MappingType:
-			mapping, err := parseStringToAstMapping(value)
+			mapping, err := ctx.parseStringToAstMapping(value)
 			if err != nil {
 				return nil, nil, err
 			}
 			for key, value := range mapping {
 				switch key {
 				case "query":
-					expression, err := parseString(value)
+					expression, err := ctx.parseString(value)
 					if err != nil {
 						return nil, nil, err
 					}
@@ -353,7 +357,7 @@ func parseTaskReferences(node ast.Node) ([]string, []string, error) {
 	return refs, expressions, nil
 }
 
-func parseStringSequence(node ast.Node) ([]string, error) {
+func (ctx *parseCtx) parseStringSequence(node ast.Node) ([]string, error) {
 	result := []string{}
 
 	if node.Type() != ast.SequenceType {
@@ -375,20 +379,20 @@ func parseStringSequence(node ast.Node) ([]string, error) {
 	return result, nil
 }
 
-func parseScript(node ast.Node) ([]string, error) {
+func (ctx *parseCtx) parseScript(node ast.Node) ([]string, error) {
 	switch node.Type() {
 	case ast.StringType:
 		return []string{node.(*ast.StringNode).Value}, nil
 	case ast.LiteralType:
 		return []string{node.(*ast.LiteralNode).Value.Value}, nil
 	case ast.SequenceType:
-		return parseStringSequence(node)
+		return ctx.parseStringSequence(node)
 	default:
 		return nil, fmt.Errorf("wrong type: %v", node.Type())
 	}
 }
 
-func parseString(node ast.Node) (string, error) {
+func (ctx *parseCtx) parseString(node ast.Node) (string, error) {
 	switch node.Type() {
 	case ast.StringType:
 		return node.(*ast.StringNode).Value, nil
@@ -399,14 +403,14 @@ func parseString(node ast.Node) (string, error) {
 	}
 }
 
-func parseBoolPtr(node ast.Node) (*bool, error) {
+func (ctx *parseCtx) parseBoolPtr(node ast.Node) (*bool, error) {
 	if node.Type() != ast.BoolType {
 		return nil, fmt.Errorf("wrong type: %v", node.Type())
 	}
 	return &node.(*ast.BoolNode).Value, nil
 }
 
-func parseStringToAstMapping(node ast.Node) (iter.Seq2[string, ast.Node], error) {
+func (ctx *parseCtx) parseStringToAstMapping(node ast.Node) (iter.Seq2[string, ast.Node], error) {
 	if node.Type() != ast.MappingType {
 		return nil, fmt.Errorf("wrong type: %v", node.Type())
 	}

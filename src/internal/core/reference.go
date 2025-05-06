@@ -83,7 +83,7 @@ func ResolveReferences(inventory *Inventory, task *Task, taskReferences []string
 
 		ref := MustParseTaskReference(taskReference)
 		if ref.IsRelative {
-			ref = ref.Absolute(task.Id.ModulePath())
+			ref = ref.Absolute(task.Module.Path())
 		}
 
 		referencedTaskId, _ := inventory.FindTask(ref)

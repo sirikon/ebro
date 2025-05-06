@@ -21,13 +21,11 @@ func (ctx *loadCtx) taskEnvironmentResolvingPhase(taskId core.TaskId) error {
 	return nil
 }
 
-func (ctx *loadCtx) moduleEnvironmentResolvingPhase() error {
+func (ctx *loadCtx) moduleEnvironmentResolvingPhase(module *core.Module) error {
 	var err error
-	for module := range ctx.inventory.Modules() {
-		module.Environment, err = resolveModuleEnvironment(ctx.inventory, ctx.baseEnvironment, module)
-		if err != nil {
-			return fmt.Errorf("resolving module '%v' environment: %w", ":"+strings.Join(module.Path, ":"), err)
-		}
+	module.Environment, err = resolveModuleEnvironment(ctx.inventory, ctx.baseEnvironment, module)
+	if err != nil {
+		return fmt.Errorf("resolving module '%v' environment: %w", ":"+strings.Join(module.Path(), ":"), err)
 	}
 	return nil
 }
@@ -57,9 +55,9 @@ func resolveTaskEnvironment(inventory *core.Inventory, baseEnvironment *core.Env
 	// Built-in environment variables included for each Task
 	envsToMerge = append(envsToMerge, &core.Environment{
 		Values: []core.EnvironmentValue{
-			{Key: "EBRO_MODULE", Value: ":" + strings.Join(task.Id.ModulePath(), ":")},
-			{Key: "EBRO_TASK_ID", Value: string(task.Id)},
-			{Key: "EBRO_TASK_NAME", Value: task.Id.TaskName()},
+			{Key: "EBRO_MODULE", Value: ":" + strings.Join(task.Module.Path(), ":")},
+			{Key: "EBRO_TASK_ID", Value: string(task.Id())},
+			{Key: "EBRO_TASK_NAME", Value: task.Name},
 			{Key: "EBRO_TASK_WORKING_DIRECTORY", Value: task.WorkingDirectory},
 		},
 	})
@@ -83,7 +81,7 @@ func resolveTaskEnvironment(inventory *core.Inventory, baseEnvironment *core.Env
 	// The environment variables of the module we're in.
 	// It has been already resolved at this point (in a previous step)
 	// so we can just copy the final values.
-	module := inventory.Module(task.Id.ModulePath())
+	module := inventory.Module(task.Module.Path())
 	envsToMerge = append(envsToMerge, module.Environment)
 
 	// Finally, the base environment defined at the beginning of
@@ -98,7 +96,7 @@ func resolveModuleEnvironment(inventory *core.Inventory, baseEnvironment *core.E
 
 	// The environment variables of each module we're in, resolved
 	// inside-to-outside, so we start from the bottom module up to the root.
-	for modulePath, module := range inventory.WalkUpModulePath(module.Path) {
+	for modulePath, module := range inventory.WalkUpModulePath(module.Path()) {
 		envsToMerge = append(envsToMerge, module.Environment)
 		// Built-in environment variables included for each Module
 		envsToMerge = append(envsToMerge, &core.Environment{

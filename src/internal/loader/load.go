@@ -12,6 +12,7 @@ type loadCtx struct {
 }
 
 type phase = func() error
+type modulePhase = func(*core.Module) error
 type taskPhase = func(core.TaskId) error
 
 func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile string) (*core.Inventory, error) {
@@ -24,9 +25,12 @@ func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile s
 
 	phases := []phase{
 		ctx.parsingPhase,
-		ctx.workdirResolvingPhase,
-		ctx.moduleEnvironmentResolvingPhase,
-		ctx.moduleLabelResolvingPhase,
+		ctx.perModuleByHierarchicalOrder(
+			ctx.workdirResolvingPhase,
+			ctx.moduleEnvironmentResolvingPhase,
+			ctx.moduleIterationResolvingPhase,
+			ctx.moduleLabelResolvingPhase,
+		),
 		ctx.conditionalExistencePurgingPhase,
 		ctx.extensionReferenceResolvingPhase,
 		ctx.perTaskByExtensionOrder(
@@ -46,4 +50,17 @@ func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile s
 	}
 
 	return ctx.inventory, nil
+}
+
+func (ctx *loadCtx) perModuleByHierarchicalOrder(modulePhases ...modulePhase) phase {
+	return func() error {
+		for module := range ctx.inventory.WalkDownModuleTree() {
+			for _, modulePhase := range modulePhases {
+				if err := modulePhase(module); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
 }

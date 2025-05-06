@@ -6,7 +6,8 @@ import (
 )
 
 type Module struct {
-	Path []string
+	Name   string
+	Parent *Module
 
 	ForEach string
 
@@ -19,9 +20,28 @@ type Module struct {
 	Labels           map[string]string
 }
 
+func (m *Module) Path() []string {
+	path := []string{}
+	currentModule := m
+	for {
+		if currentModule.Name == "" {
+			break
+		}
+
+		path = append(path, currentModule.Name)
+		if currentModule.Parent != nil {
+			currentModule = currentModule.Parent
+		} else {
+			break
+		}
+	}
+	slices.Reverse(path)
+	return path
+}
+
 func (m *Module) Clone() *Module {
 	return &Module{
-		Path:             slices.Clone(m.Path),
+		Parent:           m.Parent,
 		ForEach:          m.ForEach,
 		Imports:          cloneImportMap(m.Imports),
 		Tasks:            cloneTaskMap(m.Tasks),
@@ -41,8 +61,8 @@ func cloneModuleMap(m map[string]*Module) map[string]*Module {
 }
 
 type Task struct {
-	Name string
-	Id   TaskId
+	Name   string
+	Module *Module
 
 	IfTasksExist []string
 
@@ -65,6 +85,10 @@ type Task struct {
 	Interactive *bool
 	Script      []string
 	When        *When
+}
+
+func (t *Task) Id() TaskId {
+	return NewTaskId(t.Module.Path(), t.Name)
 }
 
 type When struct {
@@ -108,8 +132,8 @@ func cloneImportMap(m map[string]*Import) map[string]*Import {
 
 func (t *Task) Clone() *Task {
 	return &Task{
-		Name: t.Name,
-		Id:   t.Id,
+		Name:   t.Name,
+		Module: t.Module,
 
 		IfTasksExist: slices.Clone(t.IfTasksExist),
 

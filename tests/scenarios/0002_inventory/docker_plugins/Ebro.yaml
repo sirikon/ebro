@@ -1,4 +1,4 @@
-for_each: ls plugins
+# for_each: ls plugins
 
 tasks:
   default:

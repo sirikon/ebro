@@ -55,8 +55,8 @@ func buildQueryEnvironment(tasks []*core.Task, modules []*core.Module) QueryEnvi
 
 func mapTask(task *core.Task) Task {
 	return Task{
-		Id:               string(task.Id),
-		Module:           ":" + strings.Join(task.Id.ModulePath(), ":"),
+		Id:               string(task.Id()),
+		Module:           ":" + strings.Join(task.Module.Path(), ":"),
 		Name:             task.Name,
 		WorkingDirectory: task.WorkingDirectory,
 		Environment:      task.Environment.Map(),
@@ -73,7 +73,7 @@ func mapTask(task *core.Task) Task {
 
 func mapModule(module *core.Module) Module {
 	return Module{
-		Id:               ":" + strings.Join(module.Path, ":"),
+		Id:               ":" + strings.Join(module.Path(), ":"),
 		WorkingDirectory: module.WorkingDirectory,
 		Environment:      module.Environment.Map(),
 		Labels:           module.Labels,
