@@ -109,17 +109,16 @@ func (inv *Inventory) moduleAndSubmodules(module *Module) iter.Seq[*Module] {
 		visitedSubmodules := []string{}
 
 		for {
-			slices.Sort(visitedSubmodules)
-			submoduleNames := slices.Sorted(maps.Keys(module.Modules))
-			if slices.Equal(visitedSubmodules, submoduleNames) {
+			submoduleNames := slices.Collect(maps.Keys(module.Modules))
+			if len(visitedSubmodules) == len(submoduleNames) {
 				return
 			}
 
 			for _, submoduleName := range submoduleNames {
 				if !slices.Contains(visitedSubmodules, submoduleName) {
 					visitedSubmodules = append(visitedSubmodules, submoduleName)
-					for submodule := range inv.moduleAndSubmodules(module.Modules[submoduleName]) {
-						if !yield(submodule) {
+					for m := range inv.moduleAndSubmodules(module.Modules[submoduleName]) {
+						if !yield(m) {
 							return
 						}
 					}
