@@ -1,0 +1,75 @@
+args: -i
+exit_code: 0
+---
+:config:a:default:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_EACH: a
+    EBRO_MODULE: :config:a
+    EBRO_TASK_ID: :config:a:default
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  script:
+  - |
+    cat "${EBRO_ROOT}/config/${EBRO_EACH}/msg"
+:config:b:default:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_EACH: b
+    EBRO_MODULE: :config:b
+    EBRO_TASK_ID: :config:b:default
+    EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  script:
+  - |
+    cat "${EBRO_ROOT}/config/${EBRO_EACH}/msg"
+:something:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_MODULE: ":"
+    EBRO_TASK_ID: :something
+    EBRO_TASK_NAME: something
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  script:
+  - |
+    echo something
+---
+
+
+
+args: config:a
+exit_code: 0
+---
+███ [:config:a:default] running
+this is A
+---
+
+
+
+args: config:b
+exit_code: 0
+---
+███ [:config:b:default] running
+this is B
+---
+
+
+
+args: --file Ebro.failing.yaml
+exit_code: 1
+---
+███ ERROR: script exited with code 1: stdout:
+a
+b
+███ stderr:
+Henlo {{WORKDIR}}
+---

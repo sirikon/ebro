@@ -38,6 +38,7 @@ class TestLeak(unittest.TestCase):
                         [
                             "git",
                             "grep",
+                            "--untracked",
                             pattern,
                             *([revision] if revision is not None else []),
                         ],

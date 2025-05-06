@@ -1,4 +1,5 @@
-for_each: ls plugins
+for_each: |
+  cd ${EBRO_ROOT}/docker_plugins && ls plugins
 
 tasks:
   default:

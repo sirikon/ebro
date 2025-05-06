@@ -1,0 +1,14 @@
+tasks:
+  something:
+    script: |
+      echo something
+
+modules:
+  config:
+    for_each: |
+      cd "${EBRO_ROOT}/config" && ls .
+
+    tasks:
+      default:
+        script: |
+          cat "${EBRO_ROOT}/config/${EBRO_EACH}/msg"

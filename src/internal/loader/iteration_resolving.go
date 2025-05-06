@@ -16,7 +16,7 @@ import (
 
 func (ctx *loadCtx) moduleIterationResolvingPhase(module *core.Module) error {
 	if module.ForEach != "" {
-		var env = &core.Environment{}
+		var env = ctx.baseEnvironment
 		if module.Parent != nil {
 			env = module.Parent.Environment
 		}
@@ -28,7 +28,6 @@ func (ctx *loadCtx) moduleIterationResolvingPhase(module *core.Module) error {
 		submodules := map[string]*core.Module{}
 
 		for _, name := range names {
-			// TODO: Prevent name collission if another submodule already exists called the same
 			submodule := module.Clone(module)
 			submodule.ForEach = ""
 			submodule.Name = name
@@ -50,13 +49,18 @@ func (ctx *loadCtx) moduleIterationResolvingPhase(module *core.Module) error {
 }
 
 func runForEachScript(script string, workingDirectory string, environment *core.Environment) ([]string, error) {
-	output := bytes.Buffer{}
-	outputWriter := bufio.NewWriter(&output)
+	stdout := bytes.Buffer{}
+	stderr := bytes.Buffer{}
+	stdoutWriter := bufio.NewWriter(&stdout)
+	stderrWriter := bufio.NewWriter(&stderr)
 	runner, err := interp.New(
 		interp.Env(expand.ListEnviron(append(os.Environ(), environmentToString(environment)...)...)),
 		interp.Dir(workingDirectory),
-		interp.StdIO(nil, outputWriter, nil),
+		interp.StdIO(nil, stdoutWriter, stderrWriter),
 	)
+	if err != nil {
+		return nil, fmt.Errorf("instantiating interpreter: %w", err)
+	}
 
 	header_file, err := syntax.NewParser().Parse(strings.NewReader("set -euo pipefail"), "")
 	if err != nil {
@@ -80,20 +84,23 @@ func runForEachScript(script string, workingDirectory string, environment *core.
 	err = runner.Run(context.TODO(), file)
 	if err != nil {
 		if status, ok := interp.IsExitStatus(err); ok {
-			return nil, fmt.Errorf("script exited with non-zero code: (code %v) %w", status, err)
+			if err = stdoutWriter.Flush(); err != nil {
+				return nil, fmt.Errorf("flushing stdout writer: %w", err)
+			}
+			if err = stderrWriter.Flush(); err != nil {
+				return nil, fmt.Errorf("flushing stderr writer: %w", err)
+			}
+			return nil, fmt.Errorf("script exited with code %v: stdout:\n%v███ stderr:\n%v", status, stdout.String(), stderr.String())
 		} else {
 			return nil, fmt.Errorf("runner returned error: %w", err)
 		}
 	}
 
-	err = outputWriter.Flush()
-	if err != nil {
+	if err = stdoutWriter.Flush(); err != nil {
 		return nil, fmt.Errorf("flushing stdout writer: %w", err)
 	}
 
-	output_text := string(output.Bytes())
-
-	return strings.FieldsFunc(output_text, func(r rune) bool {
+	return strings.FieldsFunc(stdout.String(), func(r rune) bool {
 		return r == ' ' || r == '\t' || r == '\n'
 	}), nil
 }
