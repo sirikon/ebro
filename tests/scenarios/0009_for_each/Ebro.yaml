@@ -10,5 +10,8 @@ modules:
 
     tasks:
       default:
+        requires: [echo]
+
+      echo:
         script: |
           cat "${EBRO_ROOT}/config/${EBRO_EACH}/msg"

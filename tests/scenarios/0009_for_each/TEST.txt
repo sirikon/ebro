@@ -12,6 +12,19 @@ exit_code: 0
     EBRO_TASK_ID: :config:a:default
     EBRO_TASK_NAME: default
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  requires:
+  - :config:a:echo
+:config:a:echo:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_EACH: a
+    EBRO_MODULE: :config:a
+    EBRO_TASK_ID: :config:a:echo
+    EBRO_TASK_NAME: echo
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   script:
   - |
     cat "${EBRO_ROOT}/config/${EBRO_EACH}/msg"
@@ -25,6 +38,19 @@ exit_code: 0
     EBRO_MODULE: :config:b
     EBRO_TASK_ID: :config:b:default
     EBRO_TASK_NAME: default
+    EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  requires:
+  - :config:b:echo
+:config:b:echo:
+  working_directory: {{WORKDIR}}
+  environment:
+    EBRO_BIN: {{BIN}}
+    EBRO_ROOT: {{WORKDIR}}
+    EBRO_ROOT_FILE: {{WORKDIR}}/Ebro.yaml
+    EBRO_EACH: b
+    EBRO_MODULE: :config:b
+    EBRO_TASK_ID: :config:b:echo
+    EBRO_TASK_NAME: echo
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
   script:
   - |
@@ -49,8 +75,9 @@ exit_code: 0
 args: config:a
 exit_code: 0
 ---
-███ [:config:a:default] running
+███ [:config:a:echo] running
 this is A
+███ [:config:a:default] satisfied
 ---
 
 
@@ -58,8 +85,9 @@ this is A
 args: config:b
 exit_code: 0
 ---
-███ [:config:b:default] running
+███ [:config:b:echo] running
 this is B
+███ [:config:b:default] satisfied
 ---
 
 
