@@ -11,7 +11,7 @@ import (
 	"github.com/sirikon/ebro/internal/utils"
 )
 
-func (ctx *loadCtx) requirementExpressionReferenceResolvingPhase() error {
+func (ctx *loadCtx) requirementExpressionAndScriptReferenceResolvingPhase() error {
 	for task := range ctx.inventory.Tasks() {
 		if result, err := resolveExpressions(ctx.inventory, task.RequiresExpressions); err != nil {
 			return fmt.Errorf("resolving expressions in 'requires' for task '%v': %w", task.Id(), err)
@@ -19,8 +19,20 @@ func (ctx *loadCtx) requirementExpressionReferenceResolvingPhase() error {
 			task.RequiresIds = utils.Dedupe(append(task.RequiresIds, result...))
 		}
 
+		if result, err := resolveScripts(ctx.inventory, task, task.RequiresScripts); err != nil {
+			return fmt.Errorf("resolving scripts in 'requires' for task '%v': %w", task.Id(), err)
+		} else {
+			task.RequiresIds = utils.Dedupe(append(task.RequiresIds, result...))
+		}
+
 		if result, err := resolveExpressions(ctx.inventory, task.RequiredByExpressions); err != nil {
 			return fmt.Errorf("resolving expressions in 'required_by' for task '%v': %w", task.Id(), err)
+		} else {
+			task.RequiredByIds = utils.Dedupe(append(task.RequiredByIds, result...))
+		}
+
+		if result, err := resolveScripts(ctx.inventory, task, task.RequiredByScripts); err != nil {
+			return fmt.Errorf("resolving scripts in 'required_by' for task '%v': %w", task.Id(), err)
 		} else {
 			task.RequiredByIds = utils.Dedupe(append(task.RequiredByIds, result...))
 		}
@@ -91,6 +103,24 @@ func resolveExpressions(inventory *core.Inventory, expressions []string) ([]core
 
 			result = append(result, ref.TaskId())
 		}
+	}
+	return result, nil
+}
+
+func resolveScripts(inventory *core.Inventory, task *core.Task, scripts []string) ([]core.TaskId, error) {
+	result := []core.TaskId{}
+	for _, script := range scripts {
+		words, err := runScriptReturnWords(script, task.WorkingDirectory, task.Environment)
+		if err != nil {
+			return nil, err
+		}
+
+		taskIds, err := core.ResolveReferences(inventory, task, words)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, taskIds...)
 	}
 	return result, nil
 }

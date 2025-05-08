@@ -20,7 +20,7 @@ func (ctx *loadCtx) moduleIterationResolvingPhase(module *core.Module) error {
 		if module.Parent != nil {
 			env = module.Parent.Environment
 		}
-		names, err := runForEachScript(module.ForEach, module.WorkingDirectory, env)
+		names, err := runScriptReturnWords(module.ForEach, module.WorkingDirectory, env)
 		if err != nil {
 			return err
 		}
@@ -48,7 +48,7 @@ func (ctx *loadCtx) moduleIterationResolvingPhase(module *core.Module) error {
 	return nil
 }
 
-func runForEachScript(script string, workingDirectory string, environment *core.Environment) ([]string, error) {
+func runScriptReturnWords(script string, workingDirectory string, environment *core.Environment) ([]string, error) {
 	stdout := bytes.Buffer{}
 	stderr := bytes.Buffer{}
 	stdoutWriter := bufio.NewWriter(&stdout)

@@ -69,9 +69,11 @@ type Task struct {
 
 	Requires              []string
 	RequiresExpressions   []string
+	RequiresScripts       []string
 	RequiresIds           []TaskId
 	RequiredBy            []string
 	RequiredByExpressions []string
+	RequiredByScripts     []string
 	RequiredByIds         []TaskId
 
 	Abstract   *bool
@@ -140,9 +142,11 @@ func (t *Task) Clone(newParent *Module) *Task {
 
 		Requires:              slices.Clone(t.Requires),
 		RequiresExpressions:   slices.Clone(t.RequiresExpressions),
+		RequiresScripts:       slices.Clone(t.RequiresScripts),
 		RequiresIds:           slices.Clone(t.RequiresIds),
 		RequiredBy:            slices.Clone(t.RequiredBy),
 		RequiredByExpressions: slices.Clone(t.RequiredByExpressions),
+		RequiredByScripts:     slices.Clone(t.RequiredByScripts),
 		RequiredByIds:         slices.Clone(t.RequiredByIds),
 
 		Abstract:   cloneBoolPtr(t.Abstract),

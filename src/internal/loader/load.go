@@ -40,7 +40,7 @@ func Load(baseEnvironment *core.Environment, workingDirectory string, rootFile s
 		),
 		ctx.taskLabelResolvingPhase,
 		ctx.abstractPurgingPhase,
-		ctx.requirementExpressionReferenceResolvingPhase,
+		ctx.requirementExpressionAndScriptReferenceResolvingPhase,
 	}
 
 	for _, phase := range phases {

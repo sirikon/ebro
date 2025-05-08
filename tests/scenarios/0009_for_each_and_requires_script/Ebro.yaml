@@ -10,8 +10,11 @@ modules:
 
     tasks:
       default:
-        requires: [echo]
-
+        requires:
+          - script: |
+              printf '%s\n' ":config:${EBRO_EACH}:echo"
       echo:
+        required_by:
+          - script: echo default
         script: |
           cat "${EBRO_ROOT}/config/${EBRO_EACH}/msg"

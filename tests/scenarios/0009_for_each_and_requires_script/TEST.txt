@@ -25,6 +25,8 @@ exit_code: 0
     EBRO_TASK_ID: :config:a:echo
     EBRO_TASK_NAME: echo
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  required_by:
+  - :config:a:default
   script:
   - |
     cat "${EBRO_ROOT}/config/${EBRO_EACH}/msg"
@@ -52,6 +54,8 @@ exit_code: 0
     EBRO_TASK_ID: :config:b:echo
     EBRO_TASK_NAME: echo
     EBRO_TASK_WORKING_DIRECTORY: {{WORKDIR}}
+  required_by:
+  - :config:b:default
   script:
   - |
     cat "${EBRO_ROOT}/config/${EBRO_EACH}/msg"

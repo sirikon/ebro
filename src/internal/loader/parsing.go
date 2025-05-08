@@ -224,9 +224,9 @@ func (ctx *parseCtx) parseTask(node ast.Node, parentModule *core.Module, name st
 		case "labels":
 			task.Labels, err = ctx.parseLabels(value)
 		case "requires":
-			task.Requires, task.RequiresExpressions, err = ctx.parseTaskReferences(value)
+			task.Requires, task.RequiresExpressions, task.RequiresScripts, err = ctx.parseTaskReferences(value)
 		case "required_by":
-			task.RequiredBy, task.RequiredByExpressions, err = ctx.parseTaskReferences(value)
+			task.RequiredBy, task.RequiredByExpressions, task.RequiredByScripts, err = ctx.parseTaskReferences(value)
 		case "abstract":
 			task.Abstract, err = ctx.parseBoolPtr(value)
 		case "extends":
@@ -320,12 +320,13 @@ func (ctx *parseCtx) parseEnvironment(node ast.Node) (*core.Environment, error) 
 	return environment, nil
 }
 
-func (ctx *parseCtx) parseTaskReferences(node ast.Node) ([]string, []string, error) {
+func (ctx *parseCtx) parseTaskReferences(node ast.Node) ([]string, []string, []string, error) {
 	refs := []string{}
 	expressions := []string{}
+	scripts := []string{}
 
 	if node.Type() != ast.SequenceType {
-		return nil, nil, fmt.Errorf("wrong type: %v", node.Type())
+		return nil, nil, nil, fmt.Errorf("wrong type: %v", node.Type())
 	}
 
 	sequence := node.(*ast.SequenceNode)
@@ -336,26 +337,32 @@ func (ctx *parseCtx) parseTaskReferences(node ast.Node) ([]string, []string, err
 		case ast.MappingType:
 			mapping, err := ctx.parseStringToAstMapping(value)
 			if err != nil {
-				return nil, nil, err
+				return nil, nil, nil, err
 			}
 			for key, value := range mapping {
 				switch key {
 				case "query":
 					expression, err := ctx.parseString(value)
 					if err != nil {
-						return nil, nil, err
+						return nil, nil, nil, err
 					}
 					expressions = append(expressions, expression)
+				case "script":
+					script, err := ctx.parseString(value)
+					if err != nil {
+						return nil, nil, nil, err
+					}
+					scripts = append(scripts, script)
 				default:
-					return nil, nil, fmt.Errorf("unexpected key '%v'", key)
+					return nil, nil, nil, fmt.Errorf("unexpected key '%v'", key)
 				}
 			}
 		default:
-			return nil, nil, fmt.Errorf("wrong type for item %v in sequence: %v", i, value)
+			return nil, nil, nil, fmt.Errorf("wrong type for item %v in sequence: %v", i, value)
 		}
 	}
 
-	return refs, expressions, nil
+	return refs, expressions, scripts, nil
 }
 
 func (ctx *parseCtx) parseStringSequence(node ast.Node) ([]string, error) {
